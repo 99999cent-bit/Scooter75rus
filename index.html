@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>RentMaster Online</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        /* СТИЛИ */
+        :root { --primary: #3b82f6; --bg: #f3f4f6; --surface: #ffffff; --danger: #ef4444; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* ЭКРАН ВХОДА */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .login-card { width: 100%; max-width: 350px; text-align: center; }
+        .hidden { display: none !important; }
+        
+        /* ИНТЕРФЕЙС */
+        header { background: var(--surface); padding: 10px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-btn { background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; white-space: nowrap; }
+        .nav-btn.active { background: var(--primary); color: white; }
+        main { flex: 1; padding: 10px; padding-bottom: 100px; overflow-y: auto; width: 100%; max-width: 1000px; margin: 0 auto; }
+        .view { display: none; }
+        .view.active { display: block; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        input, button, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; background: white; }
+        button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; }
+        #recaptcha-container { margin-bottom: 10px; display: flex; justify-content: center; }
+        
+        /* СТИЛИ АРЕНДЫ */
+        .active-row { background: #1e1e1e; color: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; }
+        .ar-timer { font-family: monospace; font-size: 1.5rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-card">
+        <h2 style="color:var(--primary)"><i class="fas fa-cloud"></i> RentMaster</h2>
+        <p>Вход в систему (Онлайн)</p>
+        
+        <div id="step-phone">
+            <input type="tel" id="login-phone" placeholder="+79990000000" value="+7">
+            <div id="recaptcha-container"></div>
+            <button onclick="sendCode()" id="btn-send">Получить SMS код</button>
+        </div>
+
+        <div id="step-code" class="hidden">
+            <p>Введите код из SMS</p>
+            <input type="number" id="login-code" placeholder="123456">
+            <button onclick="verifyCode()" id="btn-verify">Войти</button>
+            <button onclick="location.reload()" style="background:#ccc; margin-top:10px; color:#333;">Отмена</button>
+        </div>
+        <p id="login-status" style="color:red; font-size:0.9rem; margin-top:10px;"></p>
+    </div>
+</div>
+
+<div id="app-content" class="hidden" style="height:100%; display:flex; flex-direction:column;">
+    <header>
+        <button class="nav-btn active" onclick="switchView('active')">Активные</button>
+        <button class="nav-btn" onclick="switchView('new')">Новая</button>
+        <button class="nav-btn" onclick="switchView('fleet')">Парк</button>
+        <button class="nav-btn" onclick="firebase.auth().signOut()" style="background:#ef4444; margin-left:auto;"><i class="fas fa-sign-out-alt"></i></button>
+    </header>
+
+    <main>
+        <div id="view-active" class="view active">
+            <div id="loading-data" style="text-align:center; padding:20px; color:#666;">⏳ Синхронизация с облаком...</div>
+            <div id="active-list"></div>
+        </div>
+
+        <div id="view-new" class="view">
+            <div class="card">
+                <h3>📝 Новая аренда</h3>
+                <input type="text" id="rent-name" placeholder="Имя клиента">
+                <input type="tel" id="rent-phone" placeholder="Телефон клиента">
+                <p>Выберите самокат (из парка):</p>
+                <select id="rent-vehicle-select" style="width:100%; padding:12px; margin-bottom:10px;"></select>
+                <button onclick="addRental()">Начать аренду</button>
+            </div>
+        </div>
+
+        <div id="view-fleet" class="view">
+            <div class="card">
+                <h3>🚲 Добавить транспорт</h3>
+                <input type="text" id="new-fleet-name" placeholder="Название (напр. S-1)">
+                <button onclick="addVehicle()">Добавить</button>
+            </div>
+            <div id="fleet-list"></div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // ==========================================
+    // 1. ВАШИ КЛЮЧИ FIREBASE (Вписаны)
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
+        authDomain: "skuter75rus-3d55d.firebaseapp.com",
+        projectId: "skuter75rus-3d55d",
+        storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+        messagingSenderId: "1054204994225",
+        appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
+        measurementId: "G-J47C67V554",
+        // Ссылка сгенерирована автоматически на основе вашего Project ID
+        databaseURL: "https://skuter75rus-3d55d-default-rtdb.firebaseio.com"
+    };
+
+    // Инициализация
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch(e) {
+        console.error("Ошибка инициализации Firebase:", e);
+        alert("Ошибка настройки Firebase. Проверьте консоль.");
+    }
+
+    const auth = firebase.auth();
+    const database = firebase.database();
+    const dbRef = database.ref('rentmaster_data'); // Папка хранения данных в облаке
+
+    // Локальная переменная
+    let db = { fleet: [], rentals: [] };
+
+    // ==========================================
+    // 2. АВТОРИЗАЦИЯ
+    // ==========================================
+    auth.languageCode = 'ru'; 
+    
+    // Капча для защиты от спама
+    window.onload = function() {
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'normal',
+            'callback': (response) => { console.log("Капча ОК"); }
+        });
+        window.recaptchaVerifier.render();
+    };
+
+    function sendCode() {
+        const phone = document.getElementById('login-phone').value;
+        const appVerifier = window.recaptchaVerifier;
+        
+        if(!phone || phone.length < 10) return alert("Введите корректный номер");
+
+        document.getElementById('btn-send').disabled = true;
+        document.getElementById('login-status').innerText = "Отправка SMS...";
+
+        auth.signInWithPhoneNumber(phone, appVerifier)
+            .then((confirmationResult) => {
+                window.confirmationResult = confirmationResult;
+                document.getElementById('step-phone').classList.add('hidden');
+                document.getElementById('step-code').classList.remove('hidden');
+                document.getElementById('login-status').innerText = "";
+            }).catch((error) => {
+                document.getElementById('btn-send').disabled = false;
+                document.getElementById('login-status').innerText = "Ошибка: " + error.message;
+                if(window.recaptchaVerifier) window.recaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
+            });
+    }
+
+    function verifyCode() {
+        const code = document.getElementById('login-code').value;
+        if(!code) return alert("Введите код из смс");
+
+        window.confirmationResult.confirm(code).then((result) => {
+            console.log("Вход выполнен:", result.user);
+        }).catch((error) => {
+            document.getElementById('login-status').innerText = "Неверный код";
+        });
+    }
+
+    // Слушаем, вошел ли пользователь
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // Если вошел - показываем приложение
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            initDataSync(); 
+        } else {
+            // Если вышел - показываем вход
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('app-content').classList.add('hidden');
+        }
+    });
+
+    // ==========================================
+    // 3. СИНХРОНИЗАЦИЯ С ОБЛАКОМ
+    // ==========================================
+    function initDataSync() {
+        // Слушаем изменения в реальном времени
+        dbRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                db = data;
+                if(!db.fleet) db.fleet = [];
+                if(!db.rentals) db.rentals = [];
+            } else {
+                // Если база пустая, создаем начальную структуру
+                save(); 
+            }
+            renderAll();
+            document.getElementById('loading-data').style.display = 'none';
+        }, (error) => {
+            console.error("Ошибка чтения:", error);
+            document.getElementById('loading-data').innerHTML = "<span style='color:red'>Ошибка доступа к базе данных. Проверьте Rules в Firebase Console.</span>";
+        });
+    }
+
+    function save() {
+        // Отправляем все данные в облако
+        dbRef.set(db).catch(err => alert("Ошибка сохранения: " + err.message));
+    }
+
+    // ==========================================
+    // 4. ЛОГИКА ПРИЛОЖЕНИЯ
+    // ==========================================
+    function switchView(id) {
+        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+        document.getElementById('view-'+id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+        if(event && event.currentTarget) event.currentTarget.classList.add('active');
+        renderAll();
+    }
+
+    function renderAll() {
+        renderFleet();
+        renderRentals();
+        renderSelect();
+    }
+
+    function renderFleet() {
+        const list = document.getElementById('fleet-list');
+        list.innerHTML = '';
+        if(db.fleet.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:#999;">Парк пуст</div>';
+            return;
+        }
+        db.fleet.forEach(f => {
+            list.innerHTML += `
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <b>${f.name}</b>
+                <button style="width:auto; background:#ef4444; padding:8px;" onclick="delVehicle(${f.id})"><i class="fas fa-trash"></i></button>
+            </div>`;
+        });
+    }
+
+    function renderRentals() {
+        const list = document.getElementById('active-list');
+        list.innerHTML = '';
+        if(db.rentals.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">Нет активных аренд</div>';
+            return;
+        }
+        db.rentals.forEach(r => {
+            const durationMin = Math.floor((Date.now() - r.startTs) / 60000);
+            list.innerHTML += `
+            <div class="active-row">
+                <div>
+                    <div style="font-size:1.2rem; font-weight:800;">${r.vName}</div>
+                    <div style="font-size:0.9rem; opacity:0.8;">${r.cName}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="ar-timer">${durationMin} мин</div>
+                    <button style="background:#ef4444; padding:5px 10px; margin-top:5px; font-size:0.8rem; border-radius:4px; border:none; color:white; font-weight:bold; cursor:pointer;" onclick="finishRental(${r.id})">СТОП</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function renderSelect() {
+        const sel = document.getElementById('rent-vehicle-select');
+        sel.innerHTML = '';
+        const busyIds = db.rentals.map(r => r.vId);
+        const free = db.fleet.filter(f => !busyIds.includes(f.id));
+        
+        if(free.length === 0) {
+            sel.innerHTML = '<option value="">Нет свободных</option>';
+            return;
+        }
+        free.forEach(f => {
+            sel.innerHTML += `<option value="${f.id}">${f.name}</option>`;
+        });
+    }
+
+    function addVehicle() {
+        const name = document.getElementById('new-fleet-name').value;
+        if(!name) return;
+        if(!db.fleet) db.fleet = [];
+        db.fleet.push({ id: Date.now(), name: name });
+        document.getElementById('new-fleet-name').value = '';
+        save();
+    }
+
+    function delVehicle(id) {
+        if(confirm('Удалить транспорт из базы?')) {
+            db.fleet = db.fleet.filter(f => f.id !== id);
+            save();
+        }
+    }
+
+    function addRental() {
+        const name = document.getElementById('rent-name').value;
+        const phone = document.getElementById('rent-phone').value;
+        const vId = document.getElementById('rent-vehicle-select').value;
+        
+        if(!name || !vId) return alert("Заполните имя и выберите транспорт");
+        
+        const vehicle = db.fleet.find(f => f.id == vId);
+        
+        db.rentals.push({
+            id: Date.now(),
+            cName: name,
+            cPhone: phone,
+            vId: parseInt(vId),
+            vName: vehicle.name,
+            startTs: Date.now()
+        });
+        
+        document.getElementById('rent-name').value = '';
+        document.getElementById('rent-phone').value = '';
+        switchView('active');
+        save();
+    }
+
+    function finishRental(id) {
+        if(confirm('Завершить поездку?')) {
+            db.rentals = db.rentals.filter(r => r.id !== id);
+            save();
+        }
+    }
+
+    // Обновление таймеров
+    setInterval(() => {
+        if(!document.getElementById('app-content').classList.contains('hidden')) {
+            renderRentals();
+        }
+    }, 1000);
+
+</script>
+</body>
+</html>
