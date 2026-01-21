@@ -25,22 +25,38 @@
         .ai-msg { background-color: #2b2b2b; color: #e4e4e4; align-self: flex-start; border-bottom-left-radius: 2px; }
         .page-enter { opacity: 0; transform: translateY(10px); animation: fadeInUp 0.3s forwards; }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        /* Стиль для экрана ошибки */
+        #error-boundary { padding: 20px; color: #ff6b6b; font-family: monospace; word-break: break-all; display: none; }
     </style>
 </head>
 <body>
     <div id="root"></div>
+    <div id="error-boundary"></div>
+
+    <script>
+        // Глобальный перехват ошибок (чтобы не было белого экрана)
+        window.onerror = function(msg, url, line, col, error) {
+            document.getElementById('root').style.display = 'none';
+            const errDiv = document.getElementById('error-boundary');
+            errDiv.style.display = 'block';
+            errDiv.innerHTML = `<h3>⚠️ Ошибка приложения:</h3><p>${msg}</p><p>Line: ${line}</p>`;
+            return false;
+        };
+    </script>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // ВАШ ЮЗЕРНЕЙМ ДЛЯ АДМИНКИ (без @)
+        // ВАШ ЮЗЕРНЕЙМ (без @)
         const ADMIN_USERNAME = "Sani75rus"; 
 
         const App = () => {
             const [activeTab, setActiveTab] = useState('generate');
-            const [user, setUser] = useState({ first_name: 'Guest', id: 0, username: 'guest' });
+            // Дефолтные данные, чтобы не крашилось
+            const [user, setUser] = useState({ first_name: 'Гость', id: 0, username: '' });
             
-            // Настройки (управляются из Админки)
+            // Настройки
             const [config, setConfig] = useState({
                 priceImage: 50,
                 priceVideo: 300,
@@ -56,39 +72,62 @@
                 { role: 'ai', text: 'Привет! Я Grok AI. Чем могу помочь?' }
             ]);
 
-            // Инициализация
+            // --- БЕЗОПАСНАЯ ЗАГРУЗКА ДАННЫХ ---
             useEffect(() => {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
-                tg.expand();
-                
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    setUser(tg.initDataUnsafe.user);
-                } else {
-                    // Тестовый пользователь для браузера (чтобы вы видели админку при проверке)
-                    setUser({ first_name: 'Sani Admin', id: 777, username: ADMIN_USERNAME }); 
-                }
+                try {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    tg.expand();
+                    
+                    // Безопасное получение юзера
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        setUser(tg.initDataUnsafe.user);
+                    } else {
+                        // Для тестов в браузере (раскомментируйте нужную строку)
+                         setUser({ first_name: 'Sani Admin', id: 777, username: ADMIN_USERNAME }); 
+                        // setUser({ first_name: 'Test User', id: 999 }); // Без юзернейма
+                    }
 
-                const savedConfig = localStorage.getItem('app_config');
-                if (savedConfig) setConfig(JSON.parse(savedConfig));
+                    // Безопасный парсинг JSON (защита от сбоев localStorage)
+                    const safeParse = (key, fallback) => {
+                        try {
+                            const item = localStorage.getItem(key);
+                            return item ? JSON.parse(item) : fallback;
+                        } catch (e) {
+                            console.error("Ошибка чтения памяти:", e);
+                            return fallback;
+                        }
+                    };
 
-                const savedTokens = localStorage.getItem('user_tokens');
-                const savedRefs = localStorage.getItem('user_referrals');
-                
-                if (savedTokens) {
-                    setTokens(parseInt(savedTokens));
-                } else {
-                    setTokens(JSON.parse(savedConfig || '{}').welcomeBonus || 100);
+                    const savedConfig = safeParse('app_config', null);
+                    if (savedConfig) setConfig(savedConfig);
+
+                    const savedTokens = localStorage.getItem('user_tokens');
+                    if (savedTokens) {
+                        setTokens(parseInt(savedTokens));
+                    } else {
+                        // Если конфиг есть, берем бонус, иначе 100
+                        const bonus = savedConfig ? savedConfig.welcomeBonus : 100;
+                        setTokens(bonus);
+                    }
+
+                    const savedRefs = localStorage.getItem('user_referrals');
+                    if (savedRefs) setReferrals(parseInt(savedRefs));
+
+                } catch (err) {
+                    console.error("Ошибка инициализации:", err);
+                    // Не блокируем приложение, просто логируем
                 }
-                if (savedRefs) setReferrals(parseInt(savedRefs));
             }, []);
 
+            // Сохранение
             useEffect(() => { localStorage.setItem('user_tokens', tokens); }, [tokens]);
             useEffect(() => { localStorage.setItem('user_referrals', referrals); }, [referrals]);
             useEffect(() => { localStorage.setItem('app_config', JSON.stringify(config)); }, [config]);
 
+            // Безопасная проверка админа (с защитой от null)
             const isAdmin = () => {
-                if (!user.username) return false;
+                if (!user || !user.username) return false;
                 return user.username.toLowerCase() === ADMIN_USERNAME.toLowerCase();
             };
 
@@ -129,16 +168,18 @@
                 setChatInput('');
                 
                 setTimeout(() => {
-                    const aiMsg = { role: 'ai', text: `Грок: "${userMsg.text}" - принято. (Демо-ответ)` };
+                    const aiMsg = { role: 'ai', text: `Грок: "${userMsg.text}" - принято.` };
                     setChatHistory(prev => [...prev, aiMsg]);
                     window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
                 }, 1000);
             };
             
-            useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory]);
+            useEffect(() => { 
+                if(chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: "smooth" }); 
+            }, [chatHistory]);
 
             // Рефералы
-            const inviteLink = `https://t.me/Ai_Generator75_Bot?start=${user.id}`;
+            const inviteLink = `https://t.me/Ai_Generator75_Bot?start=${user.id || 0}`;
             const copyLink = () => {
                 navigator.clipboard.writeText(inviteLink);
                 window.Telegram.WebApp.showAlert("Ссылка скопирована!");
@@ -186,7 +227,11 @@
                 <div className="page-enter p-4 pb-24">
                     <div className="bg-gray-800 rounded-2xl p-6 mb-6 border border-gray-700">
                         <div className="flex justify-between items-start mb-4">
-                            <div><h2 className="text-xl font-bold">{user.first_name}</h2><p className="text-gray-400 text-sm">@{user.username}</p></div>
+                            <div>
+                                <h2 className="text-xl font-bold">{user.first_name || 'User'}</h2>
+                                {/* Исправлена ошибка, если нет юзернейма */}
+                                <p className="text-gray-400 text-sm">@{user.username || 'нет_ника'}</p>
+                            </div>
                             <div className="text-right"><span className="block text-3xl font-bold text-yellow-500">{tokens}</span><span className="text-xs text-gray-400">TOKENS</span></div>
                         </div>
                         {isAdmin() && (
