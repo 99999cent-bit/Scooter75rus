@@ -1,4 +1,19 @@
-<!DOCTYPE html>
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  background-color: white; /* Ensure the iframe has a white background */
+                }
+
+                
+              </style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -7,13 +22,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Firebase SDK (обновленные версии) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
         :root {
-            /* Премиальная цветовая палитра */
             --primary: #6366f1;
             --primary-dark: #4f46e5;
             --primary-light: #818cf8;
@@ -22,59 +36,29 @@
             --danger: #ef4444;
             --warning: #fbbf24;
             --success: #10b981;
-            
-            /* Градиенты */
             --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
             --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            
-            /* Нейтральные цвета */
             --bg: #f5f7fa;
             --surface: #ffffff;
             --surface-dark: #1f2937;
-            --surface-darker: #111827;
             --border: #e5e7eb;
-            --border-dark: #374151;
             --text: #111827;
             --text-secondary: #6b7280;
             --text-tertiary: #9ca3af;
-            --text-on-dark: #f9fafb;
-            
-            /* Статусные цвета */
             --status-free: #10b981;
             --status-busy: #6366f1;
             --status-repair: #f59e0b;
             --status-paused: #9333ea;
-            
-            /* Тени */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            
-            /* Скругления */
-            --radius-xs: 4px;
-            --radius-sm: 8px;
-            --radius-md: 12px;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --radius-lg: 16px;
             --radius-xl: 24px;
             --radius-2xl: 32px;
-            --radius-full: 9999px;
-            
-            /* Анимации */
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            
-            /* Размеры */
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
             --spacing-md: 16px;
             --spacing-lg: 24px;
-            --spacing-xl: 32px;
-            
-            /* Глубины */
             --z-header: 100;
             --z-suggestions: 10000;
             --z-modal: 9999;
@@ -99,17 +83,15 @@
             overflow: hidden;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         header {
             background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 100%);
             backdrop-filter: blur(20px);
-            padding: var(--spacing-sm) var(--spacing-md);
+            padding: 8px 16px;
             box-shadow: var(--shadow);
             display: flex;
-            gap: var(--spacing-xs);
+            gap: 8px;
             overflow-x: auto;
             flex-shrink: 0;
             z-index: var(--z-header);
@@ -121,16 +103,16 @@
         .nav-btn {
             background: transparent;
             border: none;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: var(--radius-full);
+            padding: 8px 16px;
+            border-radius: 9999px;
             color: var(--text-secondary);
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: var(--spacing-xs);
+            gap: 8px;
             white-space: nowrap;
-            transition: var(--transition);
+            transition: all 0.3s;
             font-size: 0.9rem;
             position: relative;
         }
@@ -155,13 +137,13 @@
             width: 8px;
             height: 8px;
             background: white;
-            border-radius: var(--radius-full);
+            border-radius: 9999px;
         }
 
         .badge {
             background: var(--gradient-danger);
             color: white;
-            border-radius: var(--radius-full);
+            border-radius: 9999px;
             padding: 2px 8px;
             font-size: 0.7rem;
             margin-left: 4px;
@@ -171,7 +153,7 @@
 
         main {
             flex: 1;
-            padding: var(--spacing-md);
+            padding: 16px;
             padding-bottom: 280px;
             overflow-y: auto;
             max-width: 1000px;
@@ -191,24 +173,18 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card {
             background: var(--surface);
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-xl);
+            padding: 24px;
+            border-radius: 24px;
             box-shadow: var(--shadow-lg);
-            margin-bottom: var(--spacing-md);
+            margin-bottom: 16px;
             border: 1px solid var(--border);
-            transition: var(--transition);
+            transition: all 0.3s;
         }
 
         .card:hover {
@@ -217,13 +193,13 @@
         }
 
         h2 {
-            margin: 0 0 var(--spacing-md) 0;
+            margin: 0 0 16px 0;
             font-size: 1.4rem;
             font-weight: 700;
             color: var(--text);
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
+            gap: 8px;
         }
 
         h2 i {
@@ -233,13 +209,13 @@
 
         input, select, textarea {
             width: 100%;
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-sm);
+            padding: 16px;
+            margin-bottom: 8px;
             border: 2px solid var(--border);
-            border-radius: var(--radius-lg);
+            border-radius: 16px;
             box-sizing: border-box;
             font-size: 1rem;
-            transition: var(--transition);
+            transition: all 0.3s;
             background: var(--surface);
             font-family: inherit;
             font-weight: 500;
@@ -258,18 +234,18 @@
 
         .btn {
             width: 100%;
-            padding: var(--spacing-md);
+            padding: 16px;
             border: none;
-            border-radius: var(--radius-lg);
+            border-radius: 16px;
             font-weight: 600;
             cursor: pointer;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: var(--spacing-sm);
+            gap: 8px;
             font-size: 1rem;
-            transition: var(--transition);
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow);
@@ -292,7 +268,7 @@
 
         .btn:active {
             transform: scale(0.98);
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-lg);
         }
 
         .btn-primary { background: var(--gradient-primary); }
@@ -302,16 +278,16 @@
         .btn-warning { background: var(--gradient-warning); }
         .btn-sm {
             width: auto;
-            padding: var(--spacing-sm) var(--spacing-md);
+            padding: 8px 16px;
             font-size: 0.85rem;
-            border-radius: var(--radius-md);
+            border-radius: 12px;
         }
 
         .active-row {
             background: var(--surface);
             color: var(--text);
-            border-radius: var(--radius-xl);
-            margin-bottom: var(--spacing-md);
+            border-radius: 24px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             overflow: hidden;
@@ -319,29 +295,12 @@
             height: 90px;
             position: relative;
             border: 2px solid transparent;
-            transition: var(--transition);
+            transition: all 0.3s;
         }
 
         .active-row:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
-        }
-
-        .active-row::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, var(--status-busy) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: -1;
-        }
-
-        .active-row:hover::before {
-            opacity: 1;
         }
 
         .ar-color {
@@ -352,13 +311,13 @@
         }
 
         .ar-info-block {
-            padding: 0 var(--spacing-md);
+            padding: 0 16px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             min-width: 160px;
             cursor: pointer;
-            gap: var(--spacing-xs);
+            gap: 4px;
         }
 
         .ar-device {
@@ -373,7 +332,7 @@
         .ar-client-row {
             display: flex;
             align-items: center;
-            gap: var(--spacing-xs);
+            gap: 8px;
             font-size: 0.85rem;
             color: var(--text-secondary);
         }
@@ -383,7 +342,7 @@
             text-decoration: none;
             font-weight: 600;
             border-bottom: 1px dashed var(--primary);
-            transition: var(--transition);
+            transition: all 0.3s;
         }
 
         .ar-phone-link:hover {
@@ -394,7 +353,7 @@
         .ar-timer-container {
             flex: 1;
             text-align: right;
-            padding-right: var(--spacing-md);
+            padding-right: 16px;
         }
 
         .ar-timer {
@@ -426,36 +385,15 @@
             justify-content: center;
             border-right: 1px solid var(--border);
             padding: 0;
-            transition: var(--transition);
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
-        }
-
-        .ar-btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .ar-btn:hover::after {
-            opacity: 1;
-        }
-
-        .ar-btn:active {
-            opacity: 0.8;
-            transform: scale(0.95);
         }
 
         .ar-btn i {
             font-size: 1.4rem;
             margin-bottom: 4px;
-            transition: var(--transition);
+            transition: all 0.3s;
         }
 
         .ar-btn-label {
@@ -508,15 +446,15 @@
 
         .item-card {
             background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-sm);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 8px;
             box-shadow: var(--shadow);
             border: 2px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: var(--transition);
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
         }
@@ -533,7 +471,7 @@
 
         .item-card:hover {
             transform: translateX(4px);
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
 
@@ -546,7 +484,7 @@
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--text);
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 4px;
         }
 
         .item-sub {
@@ -556,13 +494,13 @@
 
         .item-actions {
             display: flex;
-            gap: var(--spacing-xs);
+            gap: 8px;
         }
 
         .gear-btn {
             width: 40px;
             height: 40px;
-            border-radius: var(--radius-full);
+            border-radius: 9999px;
             border: 2px solid var(--border);
             background: var(--surface);
             cursor: pointer;
@@ -570,8 +508,8 @@
             align-items: center;
             justify-content: center;
             color: var(--text-secondary);
-            transition: var(--transition);
-            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
         }
 
         .gear-btn:hover {
@@ -615,8 +553,8 @@
 
         .modal-content {
             background: var(--surface);
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-2xl);
+            padding: 32px;
+            border-radius: 32px;
             width: 90%;
             max-width: 450px;
             max-height: 85vh;
@@ -624,19 +562,13 @@
             animation: modalPopUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: var(--shadow-xl);
             border: 1px solid var(--border);
-            z-index: var(--z-max);
+            z-index: 100000;
             position: relative;
         }
 
         @keyframes modalPopUp {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .history-table {
@@ -648,7 +580,7 @@
         .history-table th {
             background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
             text-align: left;
-            padding: var(--spacing-md) var(--spacing-sm);
+            padding: 16px 8px;
             border-bottom: 2px solid var(--border);
             color: var(--text-secondary);
             position: sticky;
@@ -659,7 +591,7 @@
         }
 
         .history-table td {
-            padding: var(--spacing-md) var(--spacing-sm);
+            padding: 16px 8px;
             border-bottom: 1px solid var(--border);
             vertical-align: top;
             color: var(--text);
@@ -669,7 +601,6 @@
             background: rgba(99, 102, 241, 0.03);
         }
 
-        /* ИСПРАВЛЕНИЕ: Добавляем перечеркивание для удаленных записей */
         .tr-deleted td {
             text-decoration: line-through !important;
             color: var(--text-tertiary) !important;
@@ -695,19 +626,19 @@
             max-width: 450px;
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-sm);
+            gap: 8px;
             pointer-events: none;
         }
 
         .toast {
             background: var(--surface-dark);
             color: white;
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: var(--radius-xl);
+            padding: 16px 24px;
+            border-radius: 24px;
             box-shadow: var(--shadow-xl);
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: 16px;
             font-weight: 600;
             animation: toastSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto;
@@ -730,23 +661,17 @@
         }
 
         @keyframes toastSlideDown {
-            from {
-                transform: translateY(-50px) translateX(-50%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0) translateX(-50%);
-                opacity: 1;
-            }
+            from { transform: translateY(-50px) translateX(-50%); opacity: 0; }
+            to { transform: translateY(0) translateX(-50%); opacity: 1; }
         }
 
         .profit-card {
             background: var(--gradient-primary);
             color: white;
             text-align: center;
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-2xl);
-            margin-bottom: var(--spacing-md);
+            padding: 32px;
+            border-radius: 32px;
+            margin-bottom: 16px;
             box-shadow: var(--shadow-xl);
             position: relative;
             overflow: hidden;
@@ -773,21 +698,21 @@
 
         .filter-row {
             display: flex;
-            gap: var(--spacing-sm);
+            gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 8px;
             align-items: center;
         }
 
         .swap-search, .new-rent-search {
             width: 100%;
-            padding: var(--spacing-md);
+            padding: 16px;
             border: 2px solid var(--border);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-sm);
+            border-radius: 16px;
+            margin-bottom: 8px;
             box-sizing: border-box;
             font-size: 1rem;
-            transition: var(--transition);
+            transition: all 0.3s;
         }
 
         .swap-search:focus, .new-rent-search:focus {
@@ -798,17 +723,17 @@
         .tariff-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
+            gap: 16px;
+            margin-top: 16px;
         }
 
         .tariff-card {
             border: 2px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
+            border-radius: 16px;
+            padding: 24px;
             cursor: pointer;
             text-align: center;
-            transition: var(--transition);
+            transition: all 0.3s;
             background: var(--surface);
             box-shadow: var(--shadow);
         }
@@ -825,18 +750,18 @@
         }
 
         .pay-choice-btn {
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-xl);
+            padding: 32px;
+            border-radius: 24px;
             border: 3px solid transparent;
             font-size: 1.1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: 16px;
             cursor: pointer;
             flex: 1;
             background: var(--surface);
-            transition: var(--transition);
+            transition: all 0.3s;
             box-shadow: var(--shadow);
         }
 
@@ -858,14 +783,14 @@
         }
 
         .list-opt {
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
+            padding: 16px;
+            border-radius: 12px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s;
             background: var(--surface);
         }
 
@@ -887,7 +812,7 @@
         .pay-icon {
             font-weight: 600;
             padding: 4px 10px;
-            border-radius: var(--radius-full);
+            border-radius: 9999px;
             font-size: 0.75rem;
             display: inline-block;
             margin-top: 4px;
@@ -910,9 +835,9 @@
             display: none;
             background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
             color: #b91c1c;
-            padding: var(--spacing-md);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-md);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
             font-weight: 700;
             text-align: center;
             border: 2px solid var(--danger);
@@ -931,18 +856,18 @@
             max-height: 350px;
             overflow-y: auto;
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-md);
+            border-radius: 16px;
+            margin-bottom: 16px;
             background: var(--surface);
         }
 
         .swap-radio-item {
             display: flex;
             align-items: center;
-            padding: var(--spacing-md);
+            padding: 16px;
             border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s;
             background: var(--surface);
         }
 
@@ -953,26 +878,26 @@
         .swap-radio-input {
             width: 24px;
             height: 24px;
-            margin-right: var(--spacing-md);
+            margin-right: 16px;
             accent-color: var(--primary);
         }
 
         .cat-row {
             display: flex;
             justify-content: space-between;
-            padding: var(--spacing-md) 0;
+            padding: 16px 0;
             border-bottom: 1px solid var(--border);
             align-items: center;
         }
 
         .client-card {
             background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-sm);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 8px;
             box-shadow: var(--shadow);
             border-left: 4px solid var(--success);
-            transition: var(--transition);
+            transition: all 0.3s;
         }
 
         .client-card.banned {
@@ -988,10 +913,10 @@
         .fleet-category-block {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-            transition: var(--transition);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
         }
 
         .fleet-category-block:hover {
@@ -1001,32 +926,32 @@
 
         .fleet-cat-title {
             font-weight: 700;
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 8px;
             font-size: 1rem;
             color: var(--text);
             display: flex;
             align-items: center;
-            gap: var(--spacing-xs);
+            gap: 8px;
         }
 
         .fleet-items-container {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-sm);
+            gap: 8px;
         }
 
         .fleet-check-label {
             display: inline-flex;
             align-items: center;
             background: var(--surface);
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: var(--radius-lg);
+            padding: 16px 24px;
+            border-radius: 16px;
             border: 2px solid var(--border);
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s;
             user-select: none;
             width: auto;
-            gap: var(--spacing-sm);
+            gap: 8px;
         }
 
         .fleet-check-label:hover {
@@ -1049,23 +974,22 @@
             display: flex;
             align-items: center;
             color: var(--text);
-            gap: var(--spacing-sm);
+            gap: 8px;
         }
 
-        /* ИСПРАВЛЕНИЕ: Выпадающие списки внутри полей ввода */
         .input-wrapper {
             position: relative;
-            margin-bottom: var(--spacing-md);
+            margin-bottom: 16px;
         }
 
         .suggestions-box {
             position: absolute;
-            bottom: 100%; /* Располагается СВЕРХУ поля ввода */
+            bottom: 100%;
             left: 0;
             right: 0;
             background: var(--surface);
             border: 2px solid var(--border);
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border-radius: 16px 16px 0 0;
             max-height: 250px;
             overflow-y: auto;
             z-index: var(--z-suggestions);
@@ -1075,11 +999,11 @@
         }
 
         .suggestion-item {
-            padding: var(--spacing-md);
+            padding: 16px;
             border-bottom: 1px solid var(--border);
             cursor: pointer;
             font-size: 0.95rem;
-            transition: var(--transition);
+            transition: all 0.3s;
             background: var(--surface);
         }
 
@@ -1092,27 +1016,26 @@
             font-size: 0.75rem;
             color: var(--text-secondary);
             text-align: center;
-            margin-top: var(--spacing-sm);
-            padding: var(--spacing-sm);
-            border-radius: var(--radius-md);
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 12px;
             background: rgba(99, 102, 241, 0.05);
             border: 1px solid var(--border);
         }
 
-        /* Кнопки экспорта */
         .export-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             padding: 10px 20px;
             border: none;
-            border-radius: var(--radius-md);
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: var(--transition);
-            margin-bottom: var(--spacing-md);
+            transition: all 0.3s;
+            margin-bottom: 16px;
             box-shadow: var(--shadow);
         }
 
@@ -1133,23 +1056,26 @@
             color: var(--text-secondary);
             margin-top: 8px;
             padding: 8px;
-            border-radius: var(--radius-md);
+            border-radius: 12px;
             background: rgba(99, 102, 241, 0.05);
+            font-weight: 600;
         }
 
         .sync-online {
             color: var(--success);
+            font-weight: 700;
         }
 
         .sync-offline {
             color: var(--danger);
+            font-weight: 700;
         }
 
         .firebase-badge {
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
             padding: 4px 10px;
-            border-radius: var(--radius-full);
+            border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 700;
             display: inline-flex;
@@ -1160,12 +1086,12 @@
 
         @media (max-width: 768px) {
             main {
-                padding: var(--spacing-md);
+                padding: 16px;
                 padding-bottom: 320px;
             }
             
             .card {
-                padding: var(--spacing-md);
+                padding: 16px;
             }
             
             .ar-actions {
@@ -1185,18 +1111,18 @@
             }
             
             .modal-content {
-                padding: var(--spacing-lg);
+                padding: 24px;
                 max-width: 95%;
             }
         }
 
         @media (max-width: 480px) {
             header {
-                padding: var(--spacing-xs) var(--spacing-sm);
+                padding: 4px 8px;
             }
             
             .nav-btn {
-                padding: var(--spacing-xs) var(--spacing-sm);
+                padding: 4px 8px;
                 font-size: 0.8rem;
             }
             
@@ -1279,7 +1205,7 @@
             <select id="new-fleet-cat" style="margin-bottom:12px;"></select>
             <div style="display:flex; gap:12px; margin-bottom:15px;">
                 <input type="text" id="new-fleet-name" placeholder="Номер/Имя устройства" style="flex:1;">
-                <input type="color" id="new-fleet-color" value="#6366f1" style="width:50px; padding:4px; height:50px; border-radius:var(--radius-md); border:2px solid var(--border);">
+                <input type="color" id="new-fleet-color" value="#6366f1" style="width:50px; padding:4px; height:50px; border-radius:12px; border:2px solid var(--border);">
             </div>
             <button class="btn btn-primary" onclick="addVehicle()"><i class="fas fa-plus-circle"></i> Добавить устройство</button>
         </div>
@@ -1313,7 +1239,7 @@
             </div>
             <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
         </div>
-        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:24px;">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
@@ -1346,14 +1272,14 @@
                 <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()" style="flex:2;">
                 <div class="device-filter-container" style="flex:1; position:relative;">
                     <button class="btn btn-sm device-filter-btn" style="width:100%; background:var(--surface); color:var(--text); border:2px solid var(--border);" onclick="toggleDevDropdown()">📱 Устройства <i class="fas fa-chevron-down"></i></button>
-                    <div id="dev-dd" class="device-dropdown" style="position:absolute; top:100%; left:0; width:100%; background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); z-index:50; display:none; max-height:350px; overflow-y:auto; padding:8px; margin-top:4px;">
-                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-md); margin-bottom:8px; font-size:0.95rem;">
+                    <div id="dev-dd" class="device-dropdown" style="position:absolute; top:100%; left:0; width:100%; background:var(--surface); border:2px solid var(--border); border-radius:16px; box-shadow:var(--shadow-lg); z-index:50; display:none; max-height:350px; overflow-y:auto; padding:8px; margin-top:4px;">
+                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:12px; margin-bottom:8px; font-size:0.95rem;">
                         <div id="dev-dd-list"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:24px;">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
@@ -1386,7 +1312,6 @@
     </div>
 </main>
 
-<!-- МОДАЛЬНЫЕ ОКНА -->
 <div id="modal-confirm" class="modal-overlay">
     <div class="modal-content">
         <i class="fas fa-exclamation-triangle" style="font-size:3.5rem; color:var(--warning); margin-bottom:20px;"></i>
@@ -1402,7 +1327,7 @@
 <div id="modal-start-confirm" class="modal-overlay">
     <div class="modal-content">
         <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:10px;"><i class="fas fa-wallet"></i> Способ оплаты</h3>
-        <div style="background:linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding:20px; border-radius:var(--radius-lg); margin:20px 0; text-align:center; border:1px solid var(--border);">
+        <div style="background:linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding:20px; border-radius:16px; margin:20px 0; text-align:center; border:1px solid var(--border);">
             <div id="confirm-tariff-name" style="font-weight:800; font-size:1.4rem; color:var(--primary); margin-bottom:8px;"></div>
             <div id="confirm-devices" style="margin:8px 0; color:var(--text-secondary); font-size:0.95rem;"></div>
             <div id="confirm-cost" style="margin-top:12px; font-weight:800; font-size:1.8rem; color:var(--text);"></div>
@@ -1454,7 +1379,7 @@
         <input type="text" id="edit-cl-name" placeholder="Имя клиента" style="margin-bottom:12px;">
         <input type="tel" id="edit-cl-phone" placeholder="Телефон" style="margin-bottom:12px;">
         <textarea id="edit-cl-comment" placeholder="Комментарий (поломки, особенности)" rows="3" style="margin-bottom:15px; resize:vertical;"></textarea>
-        <label style="display:flex; align-items:center; gap:12px; margin:15px 0; padding:12px; background:rgba(239, 68, 68, 0.05); border-radius:var(--radius-md); border:1px solid rgba(239, 68, 68, 0.3);">
+        <label style="display:flex; align-items:center; gap:12px; margin:15px 0; padding:12px; background:rgba(239, 68, 68, 0.05); border-radius:12px; border:1px solid rgba(239, 68, 68, 0.3);">
             <input type="checkbox" id="edit-cl-block" style="width:auto; margin:0; accent-color:var(--danger);">
             <span style="color:var(--danger); font-weight:700; font-size:1.05rem;">Добавить в черный список</span>
         </label>
@@ -1470,7 +1395,7 @@
     <div class="modal-content">
         <h3 style="margin-top:0; display:flex; align-items:center; gap:10px; color:var(--warning);"><i class="fas fa-tools"></i> Заметка к устройству</h3>
         <input type="hidden" id="note-v-id">
-        <div id="note-v-name" style="margin-bottom:15px; font-weight:700; font-size:1.2rem; color:var(--text); padding:12px; background:rgba(99, 102, 241, 0.05); border-radius:var(--radius-md); text-align:center;"></div>
+        <div id="note-v-name" style="margin-bottom:15px; font-weight:700; font-size:1.2rem; color:var(--text); padding:12px; background:rgba(99, 102, 241, 0.05); border-radius:12px; text-align:center;"></div>
         <textarea id="note-v-text" placeholder="Опишите проблему, статус или особенности устройства..." rows="5" style="margin-bottom:20px; resize:vertical; font-size:1.05rem; padding:14px;"></textarea>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
             <button class="btn btn-danger" onclick="deleteVehicleNote()" style="background:var(--gradient-danger);"><i class="fas fa-eraser"></i> Удалить заметку</button>
@@ -1489,8 +1414,8 @@
         <div style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);">
             <h4 style="margin-bottom:15px; display:flex; align-items:center; gap:8px; color:var(--primary);"><i class="fas fa-tags"></i> Тарифы категории</h4>
             <div id="cat-tariffs-list" style="margin-bottom:20px; max-height:200px; overflow-y:auto;"></div>
-            <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:var(--radius-lg); margin-top:10px; border:1px solid var(--border);">
-                <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:var(--radius-md); border:2px solid var(--border);">
+            <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:16px; margin-top:10px; border:1px solid var(--border);">
+                <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:12px; border:2px solid var(--border);">
                     <option value="fix">Фиксированный тариф (30 мин за 300₽)</option>
                     <option value="std">Поминутный тариф (Старт 50₽ + 10₽/мин)</option>
                 </select>
@@ -1527,7 +1452,7 @@
 </div>
 
 <script>
-    // === ИСПРАВЛЕННАЯ КОНФИГУРАЦИЯ FIREBASE С ВАШИМИ ДАННЫМИ ===
+    // === КОНФИГУРАЦИЯ FIREBASE С ВАШИМИ ДАННЫМИ ===
     const firebaseConfig = {
         apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
         authDomain: "skuter75rus-3d55d.firebaseapp.com",
@@ -1544,20 +1469,16 @@
     let firebaseDb = null;
     let isFirebaseConnected = false;
     let lastSyncTime = 0;
-    let syncTimer = null;
     
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ FIREBASE ===
+    // Инициализация Firebase
     function initFirebase() {
         try {
-            // Проверяем, не инициализировано ли уже приложение
             if (!firebaseApp) {
                 firebaseApp = firebase.initializeApp(firebaseConfig);
                 firebaseDb = firebaseApp.database();
-                
-                // Устанавливаем таймаут подключения
                 firebaseDb.goOnline();
                 
-                // Отслеживаем состояние подключения
+                // Отслеживание состояния подключения
                 firebaseDb.ref('.info/connected').on('value', (snapshot) => {
                     const connected = snapshot.val();
                     isFirebaseConnected = connected;
@@ -1566,11 +1487,10 @@
                     if (connected) {
                         console.log("✅ Firebase подключен к базе данных");
                         
-                        // Подписываемся на изменения в базе данных
+                        // Подписка на изменения в базе данных
                         firebaseDb.ref('rentmaster').on('value', (snapshot) => {
                             const newData = snapshot.val();
                             if (newData) {
-                                // Обновляем глобальную базу данных
                                 window.updateGlobalDB(newData);
                                 lastSyncTime = Date.now();
                                 document.getElementById('sync-state').innerText = 'синхронизировано';
@@ -1579,30 +1499,26 @@
                             }
                         }, (error) => {
                             console.error("❌ Ошибка чтения данных из Firebase:", error);
-                            showToast("⚠️ Ошибка синхронизации с облаком", 'warning');
                         });
-                    } else {
-                        console.log("⚠️ Firebase отключен от базы данных");
                     }
                 });
                 
-                // Проверяем подключение через 3 секунды
+                // Проверка подключения через 3 секунды
                 setTimeout(() => {
                     if (!isFirebaseConnected) {
                         console.warn("⚠️ Firebase не подключился в течение 3 секунд");
                         showToast("⚠️ Проблема с подключением к облаку", 'warning');
                     }
                 }, 3000);
-                
             }
         } catch (error) {
-            console.error("❌ КРИТИЧЕСКАЯ ОШИБКА инициализации Firebase:", error);
-            showToast("❌ Ошибка подключения к облаку. Проверьте конфигурацию.", 'danger');
+            console.error("❌ Ошибка инициализации Firebase:", error);
+            showToast("❌ Ошибка подключения к облаку", 'danger');
             updateSyncStatus(false);
         }
     }
     
-    // Обновление статуса синхронизации в интерфейсе
+    // Обновление статуса синхронизации
     function updateSyncStatus(connected) {
         const statusElement = document.getElementById('firebase-status');
         const syncStateElement = document.getElementById('sync-state');
@@ -1622,78 +1538,24 @@
         }
     }
     
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ДАННЫХ В ОБЛАКО ===
+    // Отправка данных в облако
     function sendToCloud(data) {
-        // Отправляем данные ТОЛЬКО если есть подключение к Firebase
-        if (!isFirebaseConnected || !firebaseDb) {
-            console.warn("⚠️ Данные не отправлены: нет подключения к облаку");
-            // Не показываем тост при автоматической синхронизации, чтобы не спамить
-            return;
-        }
+        if (!isFirebaseConnected || !firebaseDb) return;
         
         try {
-            // Отправляем данные в узел 'rentmaster'
             firebaseDb.ref('rentmaster').set(data)
                 .then(() => {
                     lastSyncTime = Date.now();
-                    console.log("✅ Данные успешно отправлены в облако");
-                    
-                    // Обновляем статус только при ручной синхронизации
-                    if (document.getElementById('sync-state').innerText === 'принудительно') {
-                        document.getElementById('sync-state').innerText = 'синхронизировано';
-                        document.getElementById('sync-state').className = 'sync-online';
-                    }
                 })
                 .catch((error) => {
                     console.error("❌ Ошибка отправки в облако:", error);
-                    showToast("❌ Ошибка отправки данных в облако", 'danger');
-                    updateSyncStatus(false);
                 });
         } catch (error) {
-            console.error("❌ КРИТИЧЕСКАЯ ОШИБКА при отправке данных:", error);
-            showToast("❌ Критическая ошибка синхронизации", 'danger');
-            updateSyncStatus(false);
+            console.error("❌ Ошибка при отправке данных:", error);
         }
     }
     
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ===
-    function save() { 
-        localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        
-        // Отправляем данные в облако КАЖДЫЕ 10 СЕКУНД при наличии активных аренд
-        // или сразу при завершении аренды/изменении данных
-        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
-            if (window.sendToCloud) {
-                window.sendToCloud(db);
-            }
-        }
-    }
-    
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ПРИНУДИТЕЛЬНОЙ ЗАГРУЗКИ ===
-    function forceUploadToCloud() { 
-        if (!isFirebaseConnected || !firebaseDb) {
-            alert('⚠️ Firebase не подключен. Проверьте:\n1. Конфигурацию в коде\n2. Подключение к интернету\n3. Правила безопасности в консоли Firebase');
-            return;
-        }
-        
-        if(confirm('Вы уверены? Это перезапишет данные в облаке!')) { 
-            document.getElementById('sync-state').innerText = 'принудительно';
-            document.getElementById('sync-state').className = 'sync-warning';
-            
-            if(window.sendToCloud) { 
-                window.sendToCloud(db); 
-                setTimeout(() => {
-                    alert('✅ Данные успешно отправлены в облако!');
-                    document.getElementById('sync-state').innerText = 'синхронизировано';
-                    document.getElementById('sync-state').className = 'sync-online';
-                }, 1500);
-            } else {
-                alert('⚠️ Функция отправки в облако не определена.');
-            }
-        } 
-    }
-    
-    // === ОСТАЛЬНОЙ КОД ПРИЛОЖЕНИЯ (БЕЗ ИЗМЕНЕНИЙ) ===
+    // Основные переменные приложения
     let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
     let isMonitorMode = false;
     let tempStartData = null;
@@ -1739,7 +1601,7 @@
         if ("Notification" in window) Notification.requestPermission();
         loadDB();
         
-        // ИНИЦИАЛИЗИРУЕМ FIREBASE ПЕРЕД ЗАГРУЗКОЙ ДАННЫХ
+        // Инициализируем Firebase
         initFirebase();
         
         const today = new Date().toISOString().split('T')[0];
@@ -1776,102 +1638,23 @@
         }
     }
 
-    function authWrapper(actionCallback) {
-        pendingAuthCallback = actionCallback;
-        document.getElementById('auth-pass-input').value = '';
-        document.getElementById('modal-auth').style.display = 'flex';
-        setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
-    }
-
-    function submitAuth() {
-        const input = document.getElementById('auth-pass-input').value;
-        const correct = db.password || '4892';
-
-        if (input === '89144892253') {
-            alert("👑 Мастер-пароль принят! Пароль сброшен на 0000.");
-            db.password = '0000'; save();
-            closeModal('modal-auth');
-            if(pendingAuthCallback) pendingAuthCallback();
-            return;
-        }
-
-        if (input === correct) {
-            closeModal('modal-auth');
-            if(pendingAuthCallback) pendingAuthCallback();
-        } else {
-            const inp = document.getElementById('auth-pass-input');
-            inp.style.border = "2px solid var(--danger)";
-            if(navigator.vibrate) navigator.vibrate([100,50,100]);
-            setTimeout(()=> inp.style.border = "2px solid var(--border)", 1000);
-        }
-    }
-
-    function resetPassBtnAction() {
-        const master = prompt("📞 Введите Мастер-Пароль (8914...):");
-        if(master === '89144892253') {
-            db.password = '0000'; save();
-            alert("✅ Пароль сброшен на: 0000");
-            document.getElementById('auth-pass-input').value = '0000';
-        } else {
-            alert("⛔ Неверный мастер-пароль!");
-        }
-    }
-
-    function changePassUI() {
-        const newP = prompt("Введите НОВЫЙ пароль (4+ символов):");
-        if(newP && newP.length >= 4) {
-            db.password = newP; save();
-            showToast(`✅ Пароль изменен`, 'success');
-        } else if (newP) {
-            alert("Пароль должен быть не менее 4 символов");
-        }
-    }
-
-    async function requestWakeLock() {
-        if ('wakeLock' in navigator) {
-            try {
-                wakeLock = await navigator.wakeLock.request('screen');
-                document.getElementById('wakelock-status').innerText = "💡 Экран активен (режим 'Не спать' включен)";
-                document.getElementById('wakelock-status').style.color = "#10b981";
-                document.getElementById('wakelock-status').style.background = "rgba(16, 185, 129, 0.1)";
-                wakeLock.addEventListener('release', () => {
-                    document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
-                    document.getElementById('wakelock-status').style.color = "var(--text-secondary)";
-                    document.getElementById('wakelock-status').style.background = "rgba(99, 102, 241, 0.05)";
-                });
-            } catch (err) {
-                console.log("WakeLock не поддерживается или отклонен:", err);
-            }
-        }
-    }
-
-    function testAudio() {
-        playAlarm(false);
-        showToast("🔊 Аудио разблокировано", 'success');
-    }
-
     function save() { 
         localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        
-        // Отправляем данные в облако ТОЛЬКО если есть активные аренды или недавние изменения
-        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
+        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
             if (window.sendToCloud) window.sendToCloud(db);
         }
     }
 
     window.updateGlobalDB = function(newData) {
         if (!newData) return;
-        
-        // Защита от перезаписи активных аренд пустыми данными
         if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
             const cHist = newData.history ? newData.history.length : 0;
             const lHist = db.history ? db.history.length : 0;
             if (cHist <= lHist) {
-                console.log("🛑 Blocked empty sync - сохраняем локальные активные аренды");
+                console.log("🛑 Blocked empty sync");
                 return; 
             }
         }
-        
         db = { ...newData, password: newData.password || db.password || '4892' };
         updateUI();   
     }
@@ -1915,7 +1698,6 @@
     }
 
     function openConfirm(msg, yesCallback) {
-        // Закрываем ВСЕ модальные окна перед открытием подтверждения
         document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.style.display = 'none';
         });
@@ -1935,14 +1717,6 @@
         newNo.onclick = () => { 
             document.getElementById('modal-confirm').style.display = 'none'; 
         };
-    }
-
-    function sendNotify(title, body, isCritical) {
-        if ("Notification" in window && Notification.permission === "granted") {
-            try { new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/2560/2560147.png' }); } catch (e) {}
-        }
-        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
-        playAlarm(isCritical);
     }
 
     // ФУНКЦИИ ЭКСПОРТА
@@ -2006,7 +1780,7 @@
         showToast("✅ Доплаты выгружены", 'success');
     }
 
-    // === ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ===
+    // ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ (рендеринг и т.д.)
     function renderNewRent() {
         const c = document.getElementById('fleet-selector'); c.innerHTML='';
         const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
@@ -2031,7 +1805,7 @@
         if(cat && cat.tariffs) {
             cat.tariffs.forEach(t => {
                 const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
-                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.3rem;font-weight:800;display:block;margin-bottom:8px;">${t.name}</span><span style="font-size:1rem;color:var(--text-secondary);">${info} · ${t.price}₽</span></div>`;
+                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.3rem;font-weight:800;display:block;margin-bottom:8px;">${t.name}</span><span style="font-size:1rem;color:#6b7280;">${info} · ${t.price}₽</span></div>`;
             });
             blk.style.display = 'block';
         }
@@ -2069,11 +1843,11 @@
         db.clients.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q)).forEach(c => {
             const isBanned = c.blocked;
             list.innerHTML += `
-            <div class="item-card" style="border-left:4px solid ${isBanned ? 'var(--danger)' : 'var(--success)'}">
+            <div class="item-card" style="border-left:4px solid ${isBanned ? '#ef4444' : '#10b981'}">
                 <div>
                     <div class="item-name">${c.name} ${isBanned ? '(BAN)' : ''}</div>
                     <div class="item-sub">${c.phone}</div>
-                    ${c.comment ? `<div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">${c.comment}</div>` : ''}
+                    ${c.comment ? `<div style="font-size:0.85rem;color:#6b7280;margin-top:4px;">${c.comment}</div>` : ''}
                 </div>
                 <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})" style="height:36px;width:36px;padding:0;"><i class="fas fa-pen"></i></button>
             </div>`;
@@ -2082,10 +1856,10 @@
 
     function renderSettingsList() {
         const d = document.getElementById('settings-list'); d.innerHTML='';
-        d.innerHTML += `<div class="card" style="background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border:1px solid var(--primary); margin-bottom:20px;">
+        d.innerHTML += `<div class="card" style="background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border:1px solid #6366f1; margin-bottom:20px;">
             <button class="btn btn-primary" onclick="changePassUI()" style="background:var(--gradient-primary);"><i class="fas fa-lock"></i> 🔐 Сменить пароль администратора</button>
         </div>`;
-        d.innerHTML += `<div class="card" style="border:2px solid var(--success); background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+        d.innerHTML += `<div class="card" style="border:2px solid #10b981; background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
             <h3 style="color:#15803d; margin-top:0; display:flex; align-items:center; gap:8px;"><i class="fas fa-cloud-upload-alt"></i> ☁️ Восстановить из облака</h3>
             <p style="font-size:0.9rem; color:#555; margin:12px 0 15px;">Нажмите, если на других устройствах данные устарели</p>
             <button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())" style="background:var(--gradient-success);"><i class="fas fa-cloud-download-alt"></i> Загрузить данные с сервера</button>
@@ -2163,6 +1937,7 @@
         });
     }
 
+    // ОСТАЛЬНЫЕ ФУНКЦИИ (без изменений для краткости)
     function renderSurcharge() {
         const tbody = document.getElementById('surcharge-rows'); tbody.innerHTML = ''; 
         const startVal = document.getElementById('sur-start').value; const endVal = document.getElementById('sur-end').value; const searchVal = document.getElementById('sur-search').value.toLowerCase();
@@ -2179,7 +1954,6 @@
             }
         });
         document.getElementById('sur-total').innerText = totalSur + ' ₽';
-        if(document.getElementById('no-surcharge-msg')) document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
     }
 
     function renderHistory() {
@@ -2194,9 +1968,9 @@
             if (matchesTime && matchesSearch && matchesDev && matchesPay) {
                 if(!h.deleted) total += parseInt(h.cost);
                 const tr = document.createElement('tr'); 
-                if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; 
+                if(h.deleted) tr.className = 'tr-deleted'; 
                 let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
-                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span style="font-size:0.7rem;color:var(--accent);display:block;margin-top:2px;">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:var(--text-secondary);">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'var(--danger)':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})" style="padding:4px 8px;"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
+                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b></td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#6b7280;">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'#ef4444':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})" style="padding:4px 8px;"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
                 tbody.appendChild(tr);
             }
         });
@@ -2208,7 +1982,7 @@
     function initDeviceFilter() {
         const list = document.getElementById('dev-dd-list'); list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)" style="padding:10px; cursor:pointer;"><b><input type="checkbox" id="dev-all" checked style="margin-right:8px;"> Выбрать все</b></div>';
         let names = new Set(); db.fleet.forEach(f => names.add(f.name)); db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
-        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`; });
+        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid #e5e7eb; cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`; });
         document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.onclick = function(e) { if (e.target.tagName !== 'INPUT') { const chk = this.querySelector('input'); chk.checked = !chk.checked; } renderHistory(); } });
         document.getElementById('dev-all').onclick = function(e) { e.stopPropagation(); const checked = this.checked; document.querySelectorAll('.dev-chk').forEach(c => c.checked = checked); renderHistory(); };
     }
@@ -2218,9 +1992,9 @@
     function renderSwapList(query) {
         const container = document.getElementById('swap-list-container'); container.innerHTML = '';
         const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
-        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-tertiary);">Нет свободных устройств</div>'; return; }
+        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:#9ca3af;">Нет свободных устройств</div>'; return; }
         free.forEach(f => {
-            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:var(--text-secondary)">Свободен</small></div></label>`;
+            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:#6b7280;">Свободен</small></div></label>`;
         });
     }
     function finalizeSwap() {
@@ -2234,7 +2008,7 @@
     
     function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
     function openExtendModal(id) { 
-        closeModal('modal-sub'); // Закрываем текущее модальное окно
+        closeModal('modal-sub');
         document.getElementById('swap-search').style.display = 'none'; 
         document.getElementById('btn-do-swap').style.display = 'none'; 
         const container = document.getElementById('swap-list-container'); 
@@ -2248,7 +2022,7 @@
         document.getElementById('modal-sub').style.display = 'flex'; 
     }
     function applyExt(rId, tId) { 
-        closeModal('modal-sub'); // Закрываем окно выбора тарифа
+        closeModal('modal-sub');
         openConfirm('Продлить время?', () => { 
             const r = db.rentals.find(x => x.id === rId); 
             const cat = db.categories.find(c => c.id == r.catId); 
@@ -2282,7 +2056,7 @@
     function delCat(id) { authWrapper(() => openConfirm('Удалить категорию?', () => { db.categories=db.categories.filter(c=>c.id!==id); db.fleet=db.fleet.filter(f=>f.catId!=id); save(); renderSettingsList(); })); }
     function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
     function editCat(id) { const c=db.categories.find(x=>x.id==id); document.getElementById('edit-cat-id').value=c.id; document.getElementById('edit-cat-name').value=c.name; document.getElementById('edit-cat-rate').value=c.baseRate||''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs(c.tariffs||[]); }
-    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:var(--danger);cursor:pointer;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
+    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:#ef4444;cursor:pointer;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
     function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
     
     function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
@@ -2373,13 +2147,111 @@
         });
     }
 
-    // Инициализация приложения
+    function sendNotify(title, body, isCritical) {
+        if ("Notification" in window && Notification.permission === "granted") {
+            try { new Notification(title, { body: body }); } catch (e) {}
+        }
+        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
+        playAlarm(isCritical);
+    }
+
+    function authWrapper(actionCallback) {
+        pendingAuthCallback = actionCallback;
+        document.getElementById('auth-pass-input').value = '';
+        document.getElementById('modal-auth').style.display = 'flex';
+        setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
+    }
+
+    function submitAuth() {
+        const input = document.getElementById('auth-pass-input').value;
+        const correct = db.password || '4892';
+
+        if (input === '89144892253') {
+            alert("👑 Мастер-пароль принят! Пароль сброшен на 0000.");
+            db.password = '0000'; save();
+            closeModal('modal-auth');
+            if(pendingAuthCallback) pendingAuthCallback();
+            return;
+        }
+
+        if (input === correct) {
+            closeModal('modal-auth');
+            if(pendingAuthCallback) pendingAuthCallback();
+        } else {
+            const inp = document.getElementById('auth-pass-input');
+            inp.style.border = "2px solid #ef4444";
+            if(navigator.vibrate) navigator.vibrate([100,50,100]);
+            setTimeout(()=> inp.style.border = "2px solid #e5e7eb", 1000);
+        }
+    }
+
+    function resetPassBtnAction() {
+        const master = prompt("📞 Введите Мастер-Пароль (8914...):");
+        if(master === '89144892253') {
+            db.password = '0000'; save();
+            alert("✅ Пароль сброшен на: 0000");
+            document.getElementById('auth-pass-input').value = '0000';
+        } else {
+            alert("⛔ Неверный мастер-пароль!");
+        }
+    }
+
+    function changePassUI() {
+        const newP = prompt("Введите НОВЫЙ пароль (4+ символов):");
+        if(newP && newP.length >= 4) {
+            db.password = newP; save();
+            showToast(`✅ Пароль изменен`, 'success');
+        } else if (newP) {
+            alert("Пароль должен быть не менее 4 символов");
+        }
+    }
+
+    async function requestWakeLock() {
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                document.getElementById('wakelock-status').innerText = "💡 Экран активен (режим 'Не спать' включен)";
+                document.getElementById('wakelock-status').style.color = "#10b981";
+                document.getElementById('wakelock-status').style.background = "rgba(16, 185, 129, 0.1)";
+                wakeLock.addEventListener('release', () => {
+                    document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
+                    document.getElementById('wakelock-status').style.color = "#6b7280";
+                    document.getElementById('wakelock-status').style.background = "rgba(99, 102, 241, 0.05)";
+                });
+            } catch (err) {
+                console.log("WakeLock не поддерживается или отклонен:", err);
+            }
+        }
+    }
+
+    function testAudio() {
+        playAlarm(false);
+        showToast("🔊 Аудио разблокировано", 'success');
+    }
+
     window.addEventListener('DOMContentLoaded', init);
-    
-    // Экспортируем функцию для глобального доступа
     window.sendToCloud = sendToCloud;
 </script>
 
 </body>
 </html>
 
+
+
+              <script>
+                              const firebaseConfig = {
+    apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
+    authDomain: "skuter75rus-3d55d.firebaseapp.com",
+    databaseURL: "https://skuter75rus-3d55d-default-rtdb.firebaseio.com",
+    projectId: "skuter75rus-3d55d",
+    storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+    messagingSenderId: "1054204994225",
+    appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
+    measurementId: "G-J47C67V554"
+};
+
+
+              </script>
+                        </body>
+                        </html>
+                    
