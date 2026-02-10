@@ -1,4 +1,19 @@
-<!DOCTYPE html>
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  background-color: white; /* Ensure the iframe has a white background */
+                }
+
+                
+              </style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +21,11 @@
     <title>RentMaster Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <style>
         :root {
             /* Премиальная цветовая палитра */
@@ -1120,6 +1140,26 @@
             font-size: 1.1rem;
         }
 
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: var(--radius-md);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .sync-online {
+            color: var(--success);
+        }
+
+        .sync-offline {
+            color: var(--danger);
+        }
+
         @media (max-width: 768px) {
             main {
                 padding: var(--spacing-md);
@@ -1229,6 +1269,9 @@
         </div>
         <div id="active-list"></div>
         <div id="no-active-msg">Нет активных поездок</div>
+        <div class="sync-status" id="sync-status">
+            <i class="fas fa-sync-alt"></i> Синхронизация: <span id="sync-state">ожидание подключения...</span>
+        </div>
     </div>
 
     <div id="view-fleet" class="view">
@@ -1331,6 +1374,12 @@
             <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:12px;"><i class="fas fa-moon"></i> Включить режим "Не спать"</button>
             <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:12px;"><i class="fas fa-volume-up"></i> Разблокировать аудио</button>
             <div id="wakelock-status">Экран может погаснуть</div>
+            <div class="sync-status" style="margin-top:15px;">
+                <i class="fas fa-cloud"></i> Статус синхронизации: <span id="firebase-status">Не подключено</span>
+            </div>
+            <button class="btn btn-warning" onclick="forceUploadToCloud()" style="margin-top:15px; background:var(--gradient-warning);">
+                <i class="fas fa-cloud-upload-alt"></i> Принудительно загрузить данные в облако
+            </button>
         </div>
         <div class="card">
             <button class="btn btn-danger" onclick="fullReset()" style="background:var(--gradient-danger);"><i class="fas fa-trash-alt"></i> ⚠️ Полный сброс данных</button>
@@ -1479,7 +1528,92 @@
 </div>
 
 <script>
-    // Полный рабочий код с исправлениями
+    // === НАЧАЛО КОДА ДЛЯ FIREBASE ===
+    // ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ НА СВОИ ИЗ КОНСОЛИ FIREBASE
+    const firebaseConfig = {
+        apiKey: "AIzaSyBvK...", // Замените на ваш apiKey
+        authDomain: "your-project.firebaseapp.com", // Замените на ваш authDomain
+        databaseURL: "https://your-project-default-rtdb.firebaseio.com", // Замените на ваш databaseURL
+        projectId: "your-project", // Замените на ваш projectId
+        storageBucket: "your-project.appspot.com", // Замените на ваш storageBucket
+        messagingSenderId: "1234567890", // Замените на ваш messagingSenderId
+        appId: "1:1234567890:web:abcdef1234567890" // Замените на ваш appId
+    };
+    
+    // Инициализация Firebase
+    let firebaseApp = null;
+    let firebaseDb = null;
+    let isFirebaseConnected = false;
+    let lastSyncTime = 0;
+    
+    function initFirebase() {
+        try {
+            // Проверяем, инициализировано ли уже приложение
+            if (!firebaseApp) {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseDb = firebaseApp.database();
+                isFirebaseConnected = true;
+                document.getElementById('firebase-status').innerText = 'Подключено';
+                document.getElementById('firebase-status').className = 'sync-online';
+                showToast("✅ Firebase подключен", 'success');
+                
+                // Подписываемся на изменения в базе данных
+                firebaseDb.ref('rentmaster').on('value', (snapshot) => {
+                    const newData = snapshot.val();
+                    if (newData) {
+                        // Обновляем глобальную базу данных
+                        window.updateGlobalDB(newData);
+                        lastSyncTime = Date.now();
+                        document.getElementById('sync-state').innerText = 'синхронизировано';
+                        document.getElementById('sync-state').className = 'sync-online';
+                    }
+                });
+                
+                // Отслеживаем состояние подключения
+                firebaseDb.ref('.info/connected').on('value', (snapshot) => {
+                    const connected = snapshot.val();
+                    isFirebaseConnected = connected;
+                    document.getElementById('firebase-status').innerText = connected ? 'Подключено' : 'Отключено';
+                    document.getElementById('firebase-status').className = connected ? 'sync-online' : 'sync-offline';
+                    document.getElementById('sync-state').innerText = connected ? 'онлайн' : 'оффлайн';
+                    document.getElementById('sync-state').className = connected ? 'sync-online' : 'sync-offline';
+                });
+            }
+        } catch (error) {
+            console.error("Ошибка инициализации Firebase:", error);
+            document.getElementById('firebase-status').innerText = 'Ошибка подключения';
+            document.getElementById('firebase-status').className = 'sync-offline';
+            showToast("⚠️ Firebase не подключен. Проверьте конфигурацию.", 'warning');
+        }
+    }
+    
+    // Функция для отправки данных в облако
+    function sendToCloud(data) {
+        if (!isFirebaseConnected || !firebaseDb) {
+            showToast("⚠️ Нет подключения к облаку", 'warning');
+            return;
+        }
+        
+        try {
+            firebaseDb.ref('rentmaster').set(data)
+                .then(() => {
+                    lastSyncTime = Date.now();
+                    document.getElementById('sync-state').innerText = 'синхронизировано';
+                    document.getElementById('sync-state').className = 'sync-online';
+                    showToast("✅ Данные отправлены в облако", 'success');
+                })
+                .catch((error) => {
+                    console.error("Ошибка отправки в облако:", error);
+                    showToast("❌ Ошибка отправки в облако", 'danger');
+                });
+        } catch (error) {
+            console.error("Ошибка при отправке данных:", error);
+            showToast("❌ Ошибка синхронизации", 'danger');
+        }
+    }
+    // === КОНЕЦ КОДА ДЛЯ FIREBASE ===
+    
+    // Основные переменные приложения
     let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
     let isMonitorMode = false;
     let tempStartData = null;
@@ -1512,6 +1646,7 @@
     }
 
     function init() {
+        // Проверяем режим мониторинга
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode') === 'monitor') {
             isMonitorMode = true;
@@ -1522,22 +1657,34 @@
             return; 
         }
 
+        // Запрашиваем разрешение на уведомления
         if ("Notification" in window) Notification.requestPermission();
+        
+        // Загружаем данные из локального хранилища
         loadDB();
         
+        // Инициализируем Firebase
+        initFirebase();
+        
+        // Устанавливаем сегодняшнюю дату для фильтров
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('hist-start').value = today;
         document.getElementById('hist-end').value = today;
         document.getElementById('sur-start').value = today;
         document.getElementById('sur-end').value = today;
 
+        // Обновляем интерфейс и запускаем таймер
         updateUI();
         setInterval(tick, 1000);
+        
+        // Обработчики кликов для закрытия модальных окон
         window.onclick = function(e) { 
             if(e.target.matches('.modal-overlay')) e.target.style.display='none'; 
             if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
                 document.getElementById('dev-dd').style.display='none'; 
         }
+        
+        // Включаем режим "Не спать"
         requestWakeLock();
     }
 
@@ -1553,6 +1700,7 @@
             db = JSON.parse(local);
             if(!db.password) db.password = '4892';
         } else {
+            // Данные по умолчанию для первого запуска
             db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
             db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#6366f1'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
             db.password = '4892';
@@ -1635,19 +1783,26 @@
 
     function save() { 
         localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        if (window.sendToCloud) window.sendToCloud(db);
+        
+        // Отправляем данные в облако только если есть активные аренды или недавние изменения
+        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
+            if (window.sendToCloud) window.sendToCloud(db);
+        }
     }
 
     window.updateGlobalDB = function(newData) {
         if (!newData) return;
+        
+        // Защита от перезаписи активных аренд пустыми данными
         if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
             const cHist = newData.history ? newData.history.length : 0;
             const lHist = db.history ? db.history.length : 0;
             if (cHist <= lHist) {
-                console.log("🛑 Blocked empty sync");
+                console.log("🛑 Blocked empty sync - сохраняем локальные активные аренды");
                 return; 
             }
         }
+        
         db = { ...newData, password: newData.password || db.password || '4892' };
         updateUI();   
     }
@@ -1721,7 +1876,7 @@
         playAlarm(isCritical);
     }
 
-    // РАБОЧИЕ ФУНКЦИИ ЭКСПОРТА
+    // ФУНКЦИИ ЭКСПОРТА
     function exportClients() {
         const csvContent = "\uFEFFID;Имя;Телефон;Комментарий;В черном списке;Дата регистрации\n" +
             db.clients.map(client => 
@@ -1762,10 +1917,9 @@
         showToast("✅ История выгружена", 'success');
     }
 
-    // ИСПРАВЛЕНИЕ: Добавлена функция экспорта для доплат
     function exportSurcharge() {
         const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Время;Сверх;К оплате\n" +
-            db.history.filter(h => h.overDur > 0).map(record => 
+            db.history.filter(h => h.overDur > 0 && !h.deleted).map(record => 
                 `"${record.id}";"${record.vName}";"${record.cName}";"${record.cPhone}";"${new Date(record.ts).toLocaleTimeString()} - ${new Date(record.endTs).toLocaleTimeString()}";"${record.overDur}";"${record.overDur * (record.baseRate || 0)} ₽"`
             ).join("\n");
         
@@ -1783,7 +1937,9 @@
         showToast("✅ Доплаты выгружены", 'success');
     }
 
-    // ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ (полностью рабочие)
+    // === ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ===
+    // (рендеринг, обработка аренд и т.д. - полностью рабочие функции)
+    
     function renderNewRent() {
         const c = document.getElementById('fleet-selector'); c.innerHTML='';
         const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
@@ -2067,7 +2223,16 @@
     function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.getElementById('btn-do-swap').disabled = true; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
     
     function fullReset() { authWrapper(() => openConfirm('СБРОСИТЬ ВСЁ?', () => { localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); })); }
-    function forceUploadToCloud() { if(confirm('Вы уверены? Это перезапишет облако!')) { if(window.sendToCloud) { window.sendToCloud(db); alert('✅ Данные отправлены в облако!'); } else alert('Нет связи с облаком'); } }
+    function forceUploadToCloud() { 
+        if(confirm('Вы уверены? Это перезапишет облако!')) { 
+            if(window.sendToCloud) { 
+                window.sendToCloud(db); 
+                alert('✅ Данные отправлены в облако!'); 
+            } else {
+                alert('⚠️ Firebase не настроен. Проверьте конфигурацию в коде.');
+            }
+        } 
+    }
 
     function updateUI() { 
         renderSettingsList(); 
@@ -2143,9 +2308,28 @@
         });
     }
 
+    // Инициализация приложения при загрузке
     window.addEventListener('DOMContentLoaded', init);
 </script>
 
 </body>
 </html>
 
+
+
+              <script>
+                              const firebaseConfig = {
+    apiKey: "AIzaSyBvK...", // ЗАМЕНИТЕ НА СВОЙ
+    authDomain: "your-project.firebaseapp.com", // ЗАМЕНИТЕ НА СВОЙ
+    databaseURL: "https://your-project-default-rtdb.firebaseio.com", // ЗАМЕНИТЕ НА СВОЙ
+    projectId: "your-project", // ЗАМЕНИТЕ НА СВОЙ
+    storageBucket: "your-project.appspot.com", // ЗАМЕНИТЕ НА СВОЙ
+    messagingSenderId: "1234567890", // ЗАМЕНИТЕ НА СВОЙ
+    appId: "1:1234567890:web:abcdef1234567890" // ЗАМЕНИТЕ НА СВОЙ
+};
+
+
+              </script>
+                        </body>
+                        </html>
+                    
