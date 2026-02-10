@@ -1545,7 +1545,7 @@
 </div>
 
 <script>
-    // === ИСПРАВЛЕННАЯ КОНФИГУРАЦИЯ FIREBASE С ВАШИМИ ДАННЫМИ ===
+    // === КОНФИГУРАЦИЯ FIREBASE С ВАШИМИ ДАННЫМИ ===
     const firebaseConfig = {
         apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
         authDomain: "skuter75rus-3d55d.firebaseapp.com",
@@ -1675,9 +1675,12 @@
     function save() { 
         localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
         
-        // ОТПРАВЛЯЕМ ДАННЫЕ В ОБЛАКО ВСЕГДА при любых изменениях
-        if (window.sendToCloud) {
-            window.sendToCloud(db);
+        // Отправляем данные в облако КАЖДЫЕ 10 СЕКУНД при наличии активных аренд
+        // или сразу при завершении аренды/изменении данных
+        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
+            if (window.sendToCloud) {
+                window.sendToCloud(db);
+            }
         }
     }
     
@@ -1865,9 +1868,9 @@
     function save() { 
         localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
         
-        // Отправляем данные в облако КАЖДЫЙ РАЗ при любом изменении данных
-        if (window.sendToCloud) {
-            window.sendToCloud(db);
+        // Отправляем данные в облако ТОЛЬКО если есть активные аренды или недавние изменения
+        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
+            if (window.sendToCloud) window.sendToCloud(db);
         }
     }
 
@@ -2400,12 +2403,73 @@
 
 
               <script>
-                              function save() { 
-    localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
+                              function initFirebase() {
+    try {
+        if (!firebaseApp) {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            firebaseDb = firebaseApp.database();
+            
+            // Отслеживаем состояние подключения
+            firebaseDb.ref('.info/connected').on('value', (snapshot) => {
+                const connected = snapshot.val();
+                isFirebaseConnected = connected;
+                updateSyncStatus(connected);
+                
+                if (connected) {
+                    // Подписываемся на изменения в базе данных
+                    firebaseDb.ref('rentmaster').on('value', (snapshot) => {
+                        const newData = snapshot.val();
+                        if (newData) {
+                            window.updateGlobalDB(newData);
+                            lastSyncTime = Date.now();
+                            document.getElementById('sync-state').innerText = 'синхронизировано';
+                            document.getElementById('sync-state').className = 'sync-online';
+                            showToast("🔄 Данные синхронизированы с облаком", 'success');
+                        }
+                    }, (error) => {
+                        console.error("❌ Ошибка чтения данных из Firebase:", error);
+                        showToast("⚠️ Ошибка синхронизации с облаком", 'warning');
+                    });
+                }
+            });
+            
+            // Проверяем подключение через 3 секунды
+            setTimeout(() => {
+                if (!isFirebaseConnected) {
+                    console.warn("⚠️ Firebase не подключился в течение 3 секунд");
+                    showToast("⚠️ Проблема с подключением к облаку", 'warning');
+                }
+            }, 3000);
+        }
+    } catch (error) {
+        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА инициализации Firebase:", error);
+        showToast("❌ Ошибка подключения к облаку. Проверьте конфигурацию.", 'danger');
+        updateSyncStatus(false);
+    }
+}
+
+function sendToCloud(data) {
+    // Отправляем данные ТОЛЬКО если есть подключение к Firebase
+    if (!isFirebaseConnected || !firebaseDb) {
+        console.warn("⚠️ Данные не отправлены: нет подключения к облаку");
+        return;
+    }
     
-    // Отправляем данные ВСЕГДА при любом изменении данных
-    if (window.sendToCloud) {
-        window.sendToCloud(db);
+    try {
+        firebaseDb.ref('rentmaster').set(data)
+            .then(() => {
+                lastSyncTime = Date.now();
+                console.log("✅ Данные успешно отправлены в облако");
+            })
+            .catch((error) => {
+                console.error("❌ Ошибка отправки в облако:", error);
+                showToast("❌ Ошибка отправки данных в облако", 'danger');
+                updateSyncStatus(false);
+            });
+    } catch (error) {
+        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА при отправке данных:", error);
+        showToast("❌ Критическая ошибка синхронизации", 'danger');
+        updateSyncStatus(false);
     }
 }
 
@@ -2424,6 +2488,37 @@ window.updateGlobalDB = function(newData) {
     
     db = { ...newData, password: newData.password || db.password || '4892' };
     updateUI();   
+}
+
+function updateSyncStatus(connected) {
+    const statusElement = document.getElementById('firebase-status');
+    const syncStateElement = document.getElementById('sync-state');
+    
+    if (connected) {
+        statusElement.innerText = 'Подключено';
+        statusElement.className = 'sync-online';
+        syncStateElement.innerText = 'онлайн';
+        syncStateElement.className = 'sync-online';
+        document.querySelector('.firebase-badge').style.display = 'inline-flex';
+    } else {
+        statusElement.innerText = 'Отключено';
+        statusElement.className = 'sync-offline';
+        syncStateElement.innerText = 'оффлайн';
+        syncStateElement.className = 'sync-offline';
+        document.querySelector('.firebase-badge').style.display = 'none';
+    }
+}
+
+function save() { 
+    localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
+    
+    // Отправляем данные в облако КАЖДЫЕ 10 СЕКУНД при наличии активных аренд
+    // или сразу при завершении аренды/изменении данных
+    if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
+        if (window.sendToCloud) {
+            window.sendToCloud(db);
+        }
+    }
 }
 
 
