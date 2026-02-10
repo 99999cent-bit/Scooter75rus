@@ -3,176 +3,1185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>RentMaster Keyboard Fix</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>RentMaster Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #3b82f6; --bg: #f3f4f6; --surface: #ffffff;
-            --dark-card: #1e1e1e; --text-on-dark: #f3f4f6; --text: #0f172a; 
-            --danger: #ef4444; --success: #22c55e; --warning: #facc15;
-            --repair-bg: #fef08a; --repair-border: #eab308;
-            --deleted-text: #94a3b8;
+            /* Премиальная цветовая палитра */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --warning: #fbbf24;
+            --success: #10b981;
+            
+            /* Градиенты */
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            
+            /* Нейтральные цвета */
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --surface-dark: #1f2937;
+            --surface-darker: #111827;
+            --border: #e5e7eb;
+            --border-dark: #374151;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --text-on-dark: #f9fafb;
+            
+            /* Статусные цвета */
+            --status-free: #10b981;
+            --status-busy: #6366f1;
+            --status-repair: #f59e0b;
+            --status-paused: #9333ea;
+            
+            /* Тени */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            /* Скругления */
+            --radius-xs: 4px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-2xl: 32px;
+            --radius-full: 9999px;
+            
+            /* Анимации */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Размеры */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            /* Глубины */
+            --z-header: 100;
+            --z-suggestions: 10000;
+            --z-modal: 9999;
+            --z-toast: 2000;
+            --z-max: 99999;
         }
-        /* FIX 2: Используем dvh (dynamic viewport height) */
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; height: 100dvh; 
-            display: flex; flex-direction: column; 
-            overflow: hidden; user-select: none; 
-            -webkit-tap-highlight-color: transparent; 
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        /* HEADER */
-        header { background: var(--surface); padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; z-index: 20; }
-        .nav-btn { background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; color: #475569; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: 0.2s; font-size: 0.9rem; }
-        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(59,130,246,0.4); }
-        .badge { background: #ef4444; color: white; border-radius: 12px; padding: 2px 6px; font-size: 0.75rem; margin-left: 4px; }
 
-        /* MAIN */
-        main { 
-            flex: 1; padding: 10px; 
-            /* FIX 3: Большой отступ снизу, чтобы можно было прокрутить выше клавиатуры */
-            padding-bottom: 300px; 
-            overflow-y: auto; 
-            max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; 
-            /* Плавная прокрутка */
-            scroll-behavior: smooth; 
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from {opacity:0; transform:translateY(4px);} to {opacity:1; transform:translateY(0);} }
 
-        /* COMPONENTS */
-        .card { background: var(--surface); padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e2e8f0; }
-        h2 { margin: 0 0 12px 0; font-size: 1.15rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; color: #334155; }
-        
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.2s; background: #fff; }
-        input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        header {
+            background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            padding: var(--spacing-sm) var(--spacing-md);
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: var(--spacing-xs);
+            overflow-x: auto;
+            flex-shrink: 0;
+            z-index: var(--z-header);
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid var(--border);
+        }
 
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 1rem; transition: 0.1s; }
-        .btn:active { transform: scale(0.97); }
-        .btn-primary { background: var(--primary); }
-        .btn-danger { background: var(--danger); }
-        .btn-success { background: var(--success); }
-        .btn-secondary { background: #e2e8f0; color: #475569; }
-        .btn-sm { width: auto; padding: 8px 16px; font-size: 0.9rem; }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-full);
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            white-space: nowrap;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            position: relative;
+        }
 
-        /* --- ACTIVE RENTAL ROW --- */
+        .nav-btn:hover {
+            background: rgba(99, 102, 241, 0.08);
+            color: var(--primary);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: var(--radius-full);
+        }
+
+        .badge {
+            background: var(--gradient-danger);
+            color: white;
+            border-radius: var(--radius-full);
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            margin-left: 4px;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        main {
+            flex: 1;
+            padding: var(--spacing-md);
+            padding-bottom: 280px;
+            overflow-y: auto;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+
+        h2 {
+            margin: 0 0 var(--spacing-md) 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        h2 i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--surface);
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-tertiary);
+            opacity: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 1rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary { background: var(--gradient-primary); }
+        .btn-danger { background: var(--gradient-danger); }
+        .btn-success { background: var(--gradient-success); }
+        .btn-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; }
+        .btn-warning { background: var(--gradient-warning); }
+        .btn-sm {
+            width: auto;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.85rem;
+            border-radius: var(--radius-md);
+        }
+
         .active-row {
-            background: var(--dark-card); color: var(--text-on-dark);
-            border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center;
-            overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); height: 85px; position: relative;
-            transition: background-color 0.5s;
-        }
-        
-        @keyframes blinkYellow { 
-            0% { background-color: var(--dark-card); color: white; } 
-            50% { background-color: #854d0e; color: white; } 
-            100% { background-color: var(--dark-card); color: white; } 
-        }
-        @keyframes blinkRed { 
-            0% { background-color: var(--dark-card); color: white; } 
-            50% { background-color: #7f1d1d; color: white; } 
-            100% { background-color: var(--dark-card); color: white; } 
+            background: var(--surface);
+            color: var(--text);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            height: 90px;
+            position: relative;
+            border: 2px solid transparent;
+            transition: var(--transition);
         }
 
-        .active-row.warning-mode { animation: blinkYellow 3s infinite ease-in-out; } 
-        .active-row.danger-mode { animation: blinkRed 1.5s infinite ease-in-out; }
+        .active-row:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
 
-        .ar-color { width: 10px; height: 100%; flex-shrink: 0; }
-        .ar-info-block { padding: 0 15px; display: flex; flex-direction: column; justify-content: center; min-width: 140px; cursor: pointer; }
-        .ar-device { font-size: 1.6rem; font-weight: 800; color: inherit; line-height: 1; margin-bottom: 4px; }
-        .ar-client-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: inherit; opacity: 0.9; }
-        .ar-phone-link { color: inherit; text-decoration: none; font-weight: 600; border-bottom: 1px dashed currentColor; }
-        .ar-timer-container { flex: 1; text-align: right; padding-right: 15px; }
-        .ar-timer { font-family: 'Courier New', monospace; font-size: 2.8rem; font-weight: 700; color: inherit; line-height: 1; }
-        .ar-actions { display: flex; height: 100%; background: rgba(0,0,0,0.3); border-left: 1px solid rgba(255,255,255,0.1); width: 180px; flex-shrink: 0; }
-        .ar-btn { flex: 1; border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.1); padding: 0; transition: 0.1s; }
-        .ar-btn:active { opacity: 0.7; }
-        .ar-btn.pause { background: #ca8a04; color: #fff; }
-        .ar-btn.extend { background: #2563eb; color: #fff; }
-        .ar-btn.finish { background: #dc2626; color: #fff; }
-        .ar-btn i { font-size: 1.2rem; margin-bottom: 4px; }
-        .ar-btn-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; }
-        .ar-dbl { font-size: 0.5rem; opacity: 0.6; }
-        .active-row.paused { background: #3f3f2a; }
+        .active-row::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, var(--status-busy) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
 
-        /* --- PARK CARD --- */
-        .item-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; }
-        .item-card.repair { background: var(--repair-bg); border-color: var(--repair-border); }
-        .item-name { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
-        .item-sub { font-size: 0.85rem; color: #64748b; margin-top: 2px; }
-        .item-actions { display: flex; gap: 8px; }
-        .gear-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; transition: 0.2s; }
-        .gear-btn.has-note { color: var(--danger); border-color: var(--danger); background: #fef2f2; animation: pulseRed 2s infinite; }
-        @keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);} 70% {box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);} 100% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);} }
+        .active-row:hover::before {
+            opacity: 1;
+        }
 
-        /* --- HISTORY --- */
-        .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .history-table th { background: #f8fafc; text-align: left; padding: 12px 8px; border-bottom: 2px solid #e2e8f0; color: #64748b; position: sticky; top: 0; white-space: nowrap; }
-        .history-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-        .tr-deleted td { text-decoration: line-through !important; color: var(--deleted-text) !important; }
-        .tr-deleted td button { text-decoration: none !important; opacity: 1 !important; }
-        .tr-short { background-color: #fef9c3 !important; }
+        .ar-color {
+            width: 6px;
+            height: 100%;
+            flex-shrink: 0;
+            background: var(--status-busy);
+        }
 
-        /* --- OTHERS --- */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        /* Fix modal scrolling with keyboard */
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; animation: popUp 0.15s ease-out; margin-bottom: 10vh; }
-        @keyframes popUp { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-        
-        .fleet-category-block { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-        .fleet-cat-title { font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: #334155; }
-        .fleet-items-container { display: flex; flex-wrap: wrap; gap: 8px; }
-        .fleet-check-label { display: inline-flex; align-items: center; background: #f8fafc; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.1s; user-select: none; width: auto; }
-        .fleet-check-label:hover { border-color: var(--primary); background: #eff6ff; }
-        .fleet-check-input { width: 20px; height: 20px; margin: 0 10px 0 0; flex-shrink: 0; accent-color: var(--primary); }
-        .fleet-check-text { font-size: 1rem; font-weight: 700; display: flex; align-items: center; color: #334155; }
+        .ar-info-block {
+            padding: 0 var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 160px;
+            cursor: pointer;
+            gap: var(--spacing-xs);
+        }
 
-        .device-filter-container { position: relative; flex: 1; }
-        .device-filter-btn { background: #fff; border: 1px solid #cbd5e1; color: #334155; justify-content: space-between; }
-        .device-dropdown { position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 50; display: none; max-height: 350px; overflow-y: auto; padding: 5px; }
-        .dd-item { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
-        .dd-item:hover { background: #f8fafc; }
-        .profit-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-align: center; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
-        .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
-        .filter-row input, .filter-row select { margin-bottom: 0; flex: 1; min-width: 100px; }
-        .confirm-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .confirm-actions .btn { flex: 1; }
-        .list-opt { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-        .swap-search { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        .swap-list-container { max-height: 300px; overflow-y: auto; border: 1px solid #f1f5f9; border-radius: 8px; margin-bottom: 15px; }
-        .swap-radio-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
-        .swap-radio-item:hover { background: #f8fafc; }
-        .swap-radio-input { width: 24px; height: 24px; margin-right: 15px; accent-color: var(--primary); }
-        .surcharge-highlight { color: var(--danger); font-weight: 700; }
-        .surcharge-row { background-color: #fff1f2; }
-        .new-rent-search { margin-bottom: 10px; }
-        .pay-icon { font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; display: inline-block; margin-top: 2px; }
-        .pay-cash { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .pay-bank { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-        .tariff-card { border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; cursor: pointer; text-align: center; }
-        .tariff-card:hover { border-color: var(--primary); background: #eff6ff; }
-        .tariff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .pay-choice-btn { padding: 20px; border-radius: 12px; border: 2px solid transparent; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; flex: 1; }
-        .pay-choice-cash { background: #f0fdf4; border-color: #22c55e; color: #15803d; }
-        .pay-choice-bank { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .input-wrapper { position: relative; }
-        .suggestions-box { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 50; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
-        .suggestion-item { padding: 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 0.9rem; }
-        .cat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        
-        /* TOAST */
-        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: #1e293b; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; font-weight: bold; animation: slideDown 0.3s ease-out; pointer-events: auto; }
-        .toast.warning { border-left: 6px solid var(--warning); }
-        .toast.danger { border-left: 6px solid var(--danger); background: #7f1d1d; }
-        @keyframes slideDown { from { transform: translateY(-20px) translateX(-50%); opacity: 0; } to { transform: translateY(0) translateX(-50%); opacity: 1; } }
-        
-        /* WAKE LOCK STATUS */
-        #wakelock-status { font-size: 0.7rem; color: #64748b; text-align: center; margin-top: 5px; }
+        .ar-device {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .ar-client-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .ar-phone-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed var(--primary);
+            transition: var(--transition);
+        }
+
+        .ar-phone-link:hover {
+            color: var(--primary-dark);
+            border-bottom-color: var(--primary-dark);
+        }
+
+        .ar-timer-container {
+            flex: 1;
+            text-align: right;
+            padding-right: var(--spacing-md);
+        }
+
+        .ar-timer {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            text-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+        }
+
+        .ar-actions {
+            display: flex;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
+            border-left: 1px solid var(--border);
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .ar-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+            padding: 0;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ar-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .ar-btn:hover::after {
+            opacity: 1;
+        }
+
+        .ar-btn:active {
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
+
+        .ar-btn i {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            transition: var(--transition);
+        }
+
+        .ar-btn-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .ar-btn.pause i { color: var(--status-paused); }
+        .ar-btn.extend i { color: var(--accent); }
+        .ar-btn.finish i { color: var(--danger); }
+
+        .ar-dbl {
+            font-size: 0.55rem;
+            opacity: 0.4;
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        .active-row.paused {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-color: var(--status-paused);
+        }
+
+        .active-row.paused .ar-timer {
+            color: var(--status-paused);
+        }
+
+        @keyframes pulseWarning {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
+        }
+
+        @keyframes pulseDanger {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+        }
+
+        .active-row.warning-mode {
+            animation: pulseWarning 2s infinite;
+            border-color: var(--warning);
+        }
+
+        .active-row.danger-mode {
+            animation: pulseDanger 1.5s infinite;
+            border-color: var(--danger);
+        }
+
+        .item-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow);
+            border: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--status-free);
+        }
+
+        .item-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .item-card.repair::before {
+            background: var(--status-repair);
+        }
+
+        .item-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .item-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .gear-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            border: 2px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .gear-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .gear-btn.has-note {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+            animation: pulseRed 2s infinite;
+        }
+
+        @keyframes pulseRed {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: var(--z-modal);
+            justify-content: center;
+            align-items: center;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-2xl);
+            width: 90%;
+            max-width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalPopUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border);
+            z-index: var(--z-max);
+            position: relative;
+        }
+
+        @keyframes modalPopUp {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .history-table th {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            text-align: left;
+            padding: var(--spacing-md) var(--spacing-sm);
+            border-bottom: 2px solid var(--border);
+            color: var(--text-secondary);
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 0.8rem;
+        }
+
+        .history-table td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            color: var(--text);
+        }
+
+        .history-table tr:hover {
+            background: rgba(99, 102, 241, 0.03);
+        }
+
+        /* ИСПРАВЛЕНИЕ: Добавляем перечеркивание для удаленных записей */
+        .tr-deleted td {
+            text-decoration: line-through !important;
+            color: var(--text-tertiary) !important;
+            opacity: 0.7 !important;
+        }
+
+        .tr-deleted td button {
+            text-decoration: none !important;
+            opacity: 1 !important;
+        }
+
+        .tr-short {
+            background-color: #fef9c3 !important;
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: var(--z-toast);
+            width: 90%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--surface-dark);
+            color: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-weight: 600;
+            animation: toastSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+            border-left: 4px solid transparent;
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .toast.danger {
+            border-left-color: var(--danger);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        @keyframes toastSlideDown {
+            from {
+                transform: translateY(-50px) translateX(-50%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) translateX(-50%);
+                opacity: 1;
+            }
+        }
+
+        .profit-card {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-2xl);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profit-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotateGradient 20s linear infinite;
+        }
+
+        @keyframes rotateGradient {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .profit-card.warning { background: var(--gradient-warning); }
+        .profit-card.success { background: var(--gradient-success); }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .swap-search, .new-rent-search {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-sm);
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .swap-search:focus, .new-rent-search:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .tariff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .tariff-card {
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .tariff-card:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .tariff-card:active {
+            transform: translateY(0);
+        }
+
+        .pay-choice-btn {
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-xl);
+            border: 3px solid transparent;
+            font-size: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-md);
+            cursor: pointer;
+            flex: 1;
+            background: var(--surface);
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .pay-choice-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pay-choice-cash {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .pay-choice-bank {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .list-opt {
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--surface);
+        }
+
+        .list-opt:hover {
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateX(4px);
+        }
+
+        .surcharge-highlight {
+            color: var(--danger);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .surcharge-row {
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .pay-icon {
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .pay-cash {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .pay-bank {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        #blacklist-alert {
+            display: none;
+            background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
+            color: #b91c1c;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-md);
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid var(--danger);
+            animation: pulseRed 2s infinite;
+        }
+
+        #no-active-msg {
+            text-align: center;
+            color: var(--text-tertiary);
+            margin-top: 60px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .swap-list-container {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-md);
+            background: var(--surface);
+        }
+
+        .swap-radio-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--surface);
+        }
+
+        .swap-radio-item:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .swap-radio-input {
+            width: 24px;
+            height: 24px;
+            margin-right: var(--spacing-md);
+            accent-color: var(--primary);
+        }
+
+        .cat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .client-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--success);
+            transition: var(--transition);
+        }
+
+        .client-card.banned {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .client-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .fleet-category-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            transition: var(--transition);
+        }
+
+        .fleet-category-block:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .fleet-cat-title {
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+            font-size: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .fleet-items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .fleet-check-label {
+            display: inline-flex;
+            align-items: center;
+            background: var(--surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+            width: auto;
+            gap: var(--spacing-sm);
+        }
+
+        .fleet-check-label:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .fleet-check-input {
+            width: 22px;
+            height: 22px;
+            margin: 0;
+            flex-shrink: 0;
+            accent-color: var(--primary);
+        }
+
+        .fleet-check-text {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            color: var(--text);
+            gap: var(--spacing-sm);
+        }
+
+        /* ИСПРАВЛЕНИЕ: Выпадающие списки внутри полей ввода */
+        .input-wrapper {
+            position: relative;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .suggestions-box {
+            position: absolute;
+            bottom: 100%; /* Располагается СВЕРХУ поля ввода */
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: var(--z-suggestions);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-item {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background: var(--surface);
+        }
+
+        .suggestion-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        #wakelock-status {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        /* Кнопки экспорта */
+        .export-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow);
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .export-btn i {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: var(--spacing-md);
+                padding-bottom: 320px;
+            }
+            
+            .card {
+                padding: var(--spacing-md);
+            }
+            
+            .ar-actions {
+                width: 160px;
+            }
+            
+            .ar-device {
+                font-size: 1.5rem;
+            }
+            
+            .ar-timer {
+                font-size: 2.2rem;
+            }
+            
+            .tariff-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: var(--spacing-lg);
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: var(--spacing-xs) var(--spacing-sm);
+            }
+            
+            .nav-btn {
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 0.8rem;
+            }
+            
+            .active-row {
+                height: 80px;
+            }
+            
+            .ar-actions {
+                width: 140px;
+            }
+            
+            .ar-device {
+                font-size: 1.3rem;
+            }
+            
+            .ar-timer {
+                font-size: 1.8rem;
+            }
+            
+            .ar-btn-label {
+                font-size: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -192,71 +1201,77 @@
 <main>
     <div id="view-new" class="view">
         <div class="card">
-            <h2>📝 Оформление</h2>
-            <div class="input-row">
+            <h2><i class="fas fa-file-contract"></i> Оформление аренды</h2>
+            <div class="input-row" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div class="input-wrapper">
-                    <input type="tel" id="rent-phone" placeholder="Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
+                    <input type="tel" id="rent-phone" placeholder="📱 Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
                     <div id="suggest-phone" class="suggestions-box"></div>
                 </div>
                 <div class="input-wrapper">
-                    <input type="text" id="rent-name" placeholder="Имя" oninput="handleInput('name', this.value)" autocomplete="off">
+                    <input type="text" id="rent-name" placeholder="👤 Имя" oninput="handleInput('name', this.value)" autocomplete="off">
                     <div id="suggest-name" class="suggestions-box"></div>
                 </div>
             </div>
-            <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
-            <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
+            <div id="blacklist-alert">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
+            <p style="margin:15px 0 10px 0; font-size:0.9rem; color:var(--text-secondary); font-weight:600; display:flex; align-items:center; gap:8px;"><i class="fas fa-rocket"></i> ВЫБЕРИТЕ ТРАНСПОРТ:</p>
             <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
             <div id="fleet-selector"></div>
-            <div id="tariff-block" style="display:none; margin-top:20px;">
-                <p style="margin:5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБОР ТАРИФА:</p>
+            <div id="tariff-block" style="display:none; margin-top:25px;">
+                <p style="margin:5px 0 15px 0; font-size:0.9rem; color:var(--text-secondary); font-weight:600; display:flex; align-items:center; gap:8px;"><i class="fas fa-tag"></i> ВЫБОР ТАРИФА:</p>
                 <div id="tariff-buttons" class="tariff-grid"></div>
             </div>
         </div>
     </div>
 
     <div id="view-active" class="view active">
-        <div style="margin-bottom:10px;">
-            <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
+        <div style="margin-bottom:15px;">
+            <input type="text" id="active-search" placeholder="🔍 Поиск по активным арендам..." oninput="renderActiveRentals()">
         </div>
         <div id="active-list"></div>
-        <div id="no-active-msg" style="text-align:center; color:#94a3b8; margin-top:50px;">Нет активных поездок</div>
+        <div id="no-active-msg">Нет активных поездок</div>
     </div>
 
     <div id="view-fleet" class="view">
         <div class="card">
-            <h2>Парк устройств</h2>
-            <select id="new-fleet-cat"></select>
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="new-fleet-name" placeholder="Номер/Имя">
-                <input type="color" id="new-fleet-color" value="#3b82f6" style="width:50px; padding:2px; height:46px;">
+            <h2><i class="fas fa-car"></i> Парк устройств</h2>
+            <select id="new-fleet-cat" style="margin-bottom:12px;"></select>
+            <div style="display:flex; gap:12px; margin-bottom:15px;">
+                <input type="text" id="new-fleet-name" placeholder="Номер/Имя устройства" style="flex:1;">
+                <input type="color" id="new-fleet-color" value="#6366f1" style="width:50px; padding:4px; height:50px; border-radius:var(--radius-md); border:2px solid var(--border);">
             </div>
-            <button class="btn btn-primary" onclick="addVehicle()">Добавить</button>
+            <button class="btn btn-primary" onclick="addVehicle()"><i class="fas fa-plus-circle"></i> Добавить устройство</button>
         </div>
         <div id="fleet-list"></div>
     </div>
 
     <div id="view-clients" class="view">
         <div class="card">
-            <h2>База клиентов</h2>
-            <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()">
-            <div id="clients-list" style="margin-top:10px;"></div>
+            <h2><i class="fas fa-users"></i> База клиентов</h2>
+            <button class="export-btn" onclick="exportClients()">
+                <i class="fas fa-file-export"></i> Выгрузить клиентов в Excel
+            </button>
+            <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()" style="margin-bottom:15px;">
+            <div id="clients-list"></div>
         </div>
     </div>
 
     <div id="view-surcharge" class="view">
-        <div class="profit-card" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div style="opacity:0.9; font-size:0.9rem;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
-            <div style="font-size:2.5rem; font-weight:800;" id="sur-total">0 ₽</div>
+        <div class="profit-card warning">
+            <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
+            <div style="font-size:2.8rem; font-weight:800; margin-top:8px;" id="sur-total">0 ₽</div>
         </div>
         <div class="card">
-            <h2>Фильтры доплат</h2>
+            <h2><i class="fas fa-filter"></i> Фильтры доплат</h2>
+            <button class="export-btn" onclick="exportSurcharge()">
+                <i class="fas fa-file-export"></i> Выгрузить доплаты в Excel
+            </button>
             <div class="filter-row">
                 <input type="date" id="sur-start" onchange="renderSurcharge()">
                 <input type="date" id="sur-end" onchange="renderSurcharge()">
             </div>
             <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
         </div>
-        <div class="card" style="padding:0; overflow:hidden;">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
@@ -267,33 +1282,36 @@
     </div>
 
     <div id="view-finance" class="view">
-        <div class="profit-card">
-            <div style="opacity:0.9; font-size:0.9rem;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
-            <div style="font-size:2.5rem; font-weight:800;" id="history-total">0 ₽</div>
+        <div class="profit-card success">
+            <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
+            <div style="font-size:2.8rem; font-weight:800; margin-top:8px;" id="history-total">0 ₽</div>
         </div>
         <div class="card">
-            <h2>Фильтры</h2>
+            <h2><i class="fas fa-filter"></i> Фильтры истории</h2>
+            <button class="export-btn" onclick="exportHistory()">
+                <i class="fas fa-file-export"></i> Выгрузить историю в Excel
+            </button>
             <div class="filter-row">
                 <input type="date" id="hist-start" onchange="renderHistory()">
                 <input type="date" id="hist-end" onchange="renderHistory()">
-                <select id="hist-pay" onchange="renderHistory()">
+                <select id="hist-pay" onchange="renderHistory()" style="flex:1; min-width:140px;">
                     <option value="all">💳 Все оплаты</option>
                     <option value="cash">💵 Наличные</option>
                     <option value="bank">🏦 Банк/Карта</option>
                 </select>
             </div>
             <div class="filter-row">
-                <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()">
-                <div class="device-filter-container">
-                    <button class="btn btn-sm device-filter-btn" onclick="toggleDevDropdown()">📱 Выбор устройств <i class="fas fa-chevron-down"></i></button>
-                    <div id="dev-dd" class="device-dropdown">
-                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)">
+                <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()" style="flex:2;">
+                <div class="device-filter-container" style="flex:1; position:relative;">
+                    <button class="btn btn-sm device-filter-btn" style="width:100%; background:var(--surface); color:var(--text); border:2px solid var(--border);" onclick="toggleDevDropdown()">📱 Устройства <i class="fas fa-chevron-down"></i></button>
+                    <div id="dev-dd" class="device-dropdown" style="position:absolute; top:100%; left:0; width:100%; background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); z-index:50; display:none; max-height:350px; overflow-y:auto; padding:8px; margin-top:4px;">
+                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-md); margin-bottom:8px; font-size:0.95rem;">
                         <div id="dev-dd-list"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card" style="padding:0; overflow:hidden;">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
@@ -305,157 +1323,170 @@
 
     <div id="view-settings" class="view">
         <div class="card">
-            <h2>Категории</h2>
-            <button class="btn btn-primary" onclick="openCatModal()">+ Создать категорию</button>
-            <div id="settings-list" style="margin-top:15px;"></div>
+            <h2><i class="fas fa-layer-group"></i> Категории и настройки</h2>
+            <button class="btn btn-primary" onclick="openCatModal()" style="margin-bottom:15px;"><i class="fas fa-plus"></i> + Создать категорию</button>
+            <div id="settings-list"></div>
         </div>
         <div class="card">
-            <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:10px; width:100%;">💡 Включить "Не спать" (WakeLock)</button>
-            <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:10px; width:100%;">🔊 Разблокировать аудио</button>
-            <div id="wakelock-status">Экран может погаснуть (нажми кнопку)</div>
+            <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:12px;"><i class="fas fa-moon"></i> Включить режим "Не спать"</button>
+            <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:12px;"><i class="fas fa-volume-up"></i> Разблокировать аудио</button>
+            <div id="wakelock-status">Экран может погаснуть</div>
         </div>
-        <div class="card"><button class="btn btn-danger" onclick="fullReset()">⚠ Полный сброс данных</button></div>
+        <div class="card">
+            <button class="btn btn-danger" onclick="fullReset()" style="background:var(--gradient-danger);"><i class="fas fa-trash-alt"></i> ⚠️ Полный сброс данных</button>
+        </div>
     </div>
 </main>
 
-<div id="modal-confirm" class="modal-overlay" style="z-index: 200;">
-    <div class="modal-content" style="text-align:center;">
-        <i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-        <h3 id="confirm-title">Подтверждение</h3>
-        <p id="confirm-text" style="color:#64748b; margin-bottom:20px;">Вы уверены?</p>
-        <div class="confirm-actions">
-            <button class="btn btn-danger" id="btn-confirm-no">НЕТ</button>
-            <button class="btn btn-success" id="btn-confirm-yes">ДА</button>
+<!-- МОДАЛЬНЫЕ ОКНА -->
+<div id="modal-confirm" class="modal-overlay">
+    <div class="modal-content">
+        <i class="fas fa-exclamation-triangle" style="font-size:3.5rem; color:var(--warning); margin-bottom:20px;"></i>
+        <h3 id="confirm-title" style="margin-top:0; color:var(--text);">Подтверждение</h3>
+        <p id="confirm-text" style="color:var(--text-secondary); margin:15px 0 25px; line-height:1.5;">Вы уверены, что хотите выполнить это действие?</p>
+        <div class="confirm-actions" style="display:flex; gap:12px;">
+            <button class="btn btn-secondary" id="btn-confirm-no" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-danger" id="btn-confirm-yes" style="flex:1;"><i class="fas fa-check"></i> Подтвердить</button>
         </div>
     </div>
 </div>
 
 <div id="modal-start-confirm" class="modal-overlay">
     <div class="modal-content">
-        <h3>💰 Форма оплаты</h3>
-        <div style="background:#f8fafc; padding:15px; border-radius:10px; margin:15px 0; text-align:center; border:1px solid #eee;">
-            <div id="confirm-tariff-name" style="font-weight:bold; font-size:1.2rem; color:var(--primary);"></div>
-            <div id="confirm-devices" style="margin-top:5px; color:#64748b;"></div>
-            <div id="confirm-cost" style="margin-top:10px; font-weight:bold; font-size:1.5rem;"></div>
+        <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:10px;"><i class="fas fa-wallet"></i> Способ оплаты</h3>
+        <div style="background:linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding:20px; border-radius:var(--radius-lg); margin:20px 0; text-align:center; border:1px solid var(--border);">
+            <div id="confirm-tariff-name" style="font-weight:800; font-size:1.4rem; color:var(--primary); margin-bottom:8px;"></div>
+            <div id="confirm-devices" style="margin:8px 0; color:var(--text-secondary); font-size:0.95rem;"></div>
+            <div id="confirm-cost" style="margin-top:12px; font-weight:800; font-size:1.8rem; color:var(--text);"></div>
         </div>
-        <p style="text-align:center; color:#64748b; margin-bottom:10px;">Выберите способ оплаты:</p>
-        <div style="display:flex; gap:15px; margin-bottom:15px;">
+        <p style="text-align:center; color:var(--text-secondary); margin:15px 0 20px; font-weight:500;">Выберите способ оплаты:</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px;">
             <div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')">
-                <i class="fas fa-money-bill-wave" style="font-size:2rem;"></i> Наличные
+                <i class="fas fa-money-bill-wave" style="font-size:2.2rem;"></i>
+                <span style="font-weight:700; font-size:1.1rem;">Наличные</span>
             </div>
             <div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')">
-                <i class="fas fa-credit-card" style="font-size:2rem;"></i> Банк/Карта
+                <i class="fas fa-credit-card" style="font-size:2.2rem;"></i>
+                <span style="font-weight:700; font-size:1.1rem;">Банк/Карта</span>
             </div>
         </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')">Отмена</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-arrow-left"></i> Вернуться</button>
     </div>
 </div>
 
-<div id="modal-final-start" class="modal-overlay" style="z-index: 150;">
+<div id="modal-final-start" class="modal-overlay">
     <div class="modal-content" style="text-align:center">
-        <h3>🚀 Начать поездку?</h3>
-        <div style="margin:20px 0; color:#64748b;">Проверьте данные и подтвердите старт.</div>
-        <div class="confirm-actions">
-            <button class="btn btn-danger" onclick="closeModal('modal-final-start')">Нет</button>
-            <button class="btn btn-success" onclick="realStartRental()">Да, поехали</button>
+        <i class="fas fa-rocket" style="font-size:3.5rem; color:var(--success); margin-bottom:20px;"></i>
+        <h3 style="margin-top:0; color:var(--text);">🚀 Начать поездку?</h3>
+        <div style="margin:25px 0; color:var(--text-secondary); line-height:1.6;">
+            Проверьте все данные и подтвердите старт аренды.<br>
+            <span style="color:var(--primary); font-weight:600;">Внимание:</span> после старта изменить тариф будет невозможно.
+        </div>
+        <div class="confirm-actions" style="display:flex; gap:15px;">
+            <button class="btn btn-secondary" onclick="closeModal('modal-final-start')" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-success" onclick="realStartRental()" style="flex:1;"><i class="fas fa-play-circle"></i> Старт</button>
         </div>
     </div>
 </div>
 
 <div id="modal-sub" class="modal-overlay">
     <div class="modal-content">
-        <h3 id="sub-title">Выбор</h3>
+        <h3 id="sub-title" style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-exchange-alt"></i> Замена устройства</h3>
         <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)">
         <div id="swap-list-container" class="swap-list-container"></div>
-        <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled>Подтвердить выбор</button>
-        <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:10px;">Закрыть</button>
+        <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled style="margin-top:15px;"><i class="fas fa-check-circle"></i> Подтвердить выбор</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:12px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
 <div id="modal-client" class="modal-overlay">
     <div class="modal-content">
-        <h3>Клиент</h3>
+        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-user-edit"></i> Редактирование клиента</h3>
         <input type="hidden" id="edit-cl-id">
-        <input type="text" id="edit-cl-name" placeholder="Имя">
-        <input type="tel" id="edit-cl-phone" placeholder="Телефон">
-        <textarea id="edit-cl-comment" placeholder="Комментарий" rows="3"></textarea>
-        <label style="display:flex; align-items:center; gap:10px; margin:10px 0;"><input type="checkbox" id="edit-cl-block" style="width:auto; margin:0;"><span style="color:var(--danger); font-weight:bold;">Черный список</span></label>
-        <div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-danger" onclick="delClient()">Удалить</button><button class="btn btn-primary" onclick="saveClient()">Сохранить</button></div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:10px;">Отмена</button>
+        <input type="text" id="edit-cl-name" placeholder="Имя клиента" style="margin-bottom:12px;">
+        <input type="tel" id="edit-cl-phone" placeholder="Телефон" style="margin-bottom:12px;">
+        <textarea id="edit-cl-comment" placeholder="Комментарий (поломки, особенности)" rows="3" style="margin-bottom:15px; resize:vertical;"></textarea>
+        <label style="display:flex; align-items:center; gap:12px; margin:15px 0; padding:12px; background:rgba(239, 68, 68, 0.05); border-radius:var(--radius-md); border:1px solid rgba(239, 68, 68, 0.3);">
+            <input type="checkbox" id="edit-cl-block" style="width:auto; margin:0; accent-color:var(--danger);">
+            <span style="color:var(--danger); font-weight:700; font-size:1.05rem;">Добавить в черный список</span>
+        </label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+            <button class="btn btn-danger" onclick="delClient()" style="background:var(--gradient-danger);"><i class="fas fa-trash"></i> Удалить</button>
+            <button class="btn btn-primary" onclick="saveClient()"><i class="fas fa-save"></i> Сохранить</button>
+        </div>
+        <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
 <div id="modal-vehicle-note" class="modal-overlay">
     <div class="modal-content">
-        <h3>⚙️ Заметка к устройству</h3>
+        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px; color:var(--warning);"><i class="fas fa-tools"></i> Заметка к устройству</h3>
         <input type="hidden" id="note-v-id">
-        <div id="note-v-name" style="margin-bottom:10px; font-weight:bold;"></div>
-        <textarea id="note-v-text" placeholder="Опишите проблему или статус..." rows="5"></textarea>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-danger" onclick="deleteVehicleNote()">Удалить заметку</button>
-            <button class="btn btn-primary" onclick="saveVehicleNote()">Сохранить</button>
+        <div id="note-v-name" style="margin-bottom:15px; font-weight:700; font-size:1.2rem; color:var(--text); padding:12px; background:rgba(99, 102, 241, 0.05); border-radius:var(--radius-md); text-align:center;"></div>
+        <textarea id="note-v-text" placeholder="Опишите проблему, статус или особенности устройства..." rows="5" style="margin-bottom:20px; resize:vertical; font-size:1.05rem; padding:14px;"></textarea>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <button class="btn btn-danger" onclick="deleteVehicleNote()" style="background:var(--gradient-danger);"><i class="fas fa-eraser"></i> Удалить заметку</button>
+            <button class="btn btn-primary" onclick="saveVehicleNote()"><i class="fas fa-save"></i> Сохранить</button>
         </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:10px;">Отмена</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
 <div id="modal-cat" class="modal-overlay">
     <div class="modal-content">
-        <h3>Категория</h3>
+        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-layer-group"></i> Редактирование категории</h3>
         <input type="hidden" id="edit-cat-id">
-        <input type="text" id="edit-cat-name" placeholder="Название">
-        <input type="number" id="edit-cat-rate" placeholder="Цена минуты (сверх тарифа) ₽">
-        <div style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
-            <h4>Тарифы</h4><div id="cat-tariffs-list"></div>
-            <div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-top:10px;">
-                <select id="nt-type"><option value="fix">Фиксированный</option><option value="std">Поминутный</option></select>
-                <input type="text" id="nt-name" placeholder="Имя (напр. 30 мин)">
-                <div style="display:flex; gap:5px;">
-                    <input type="number" id="nt-v1" placeholder="Мин / Старт">
-                    <input type="number" id="nt-v2" placeholder="Цена / Мин">
+        <input type="text" id="edit-cat-name" placeholder="Название категории (Самокаты, Велосипеды)" style="margin-bottom:15px;">
+        <input type="number" id="edit-cat-rate" placeholder="Базовая цена минуты сверх тарифа (₽)" style="margin-bottom:20px;">
+        <div style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);">
+            <h4 style="margin-bottom:15px; display:flex; align-items:center; gap:8px; color:var(--primary);"><i class="fas fa-tags"></i> Тарифы категории</h4>
+            <div id="cat-tariffs-list" style="margin-bottom:20px; max-height:200px; overflow-y:auto;"></div>
+            <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:var(--radius-lg); margin-top:10px; border:1px solid var(--border);">
+                <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:var(--radius-md); border:2px solid var(--border);">
+                    <option value="fix">Фиксированный тариф (30 мин за 300₽)</option>
+                    <option value="std">Поминутный тариф (Старт 50₽ + 10₽/мин)</option>
+                </select>
+                <input type="text" id="nt-name" placeholder="Название тарифа (напр. '30 минут')" style="margin-bottom:12px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <input type="number" id="nt-v1" placeholder="Длительность / Стартовая цена" min="0">
+                    <input type="number" id="nt-v2" placeholder="Цена всего / Цена за минуту" min="0">
                 </div>
-                <button class="btn btn-success btn-sm" onclick="addTariffIO()">+ Тариф</button>
+                <button class="btn btn-success btn-sm" onclick="addTariffIO()" style="width:100%; background:var(--gradient-success);"><i class="fas fa-plus"></i> Добавить тариф</button>
             </div>
         </div>
-        
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Отмена</button>
-            <button class="btn btn-primary" onclick="saveCat()">Сохранить</button>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:25px;">
+            <button class="btn btn-secondary" onclick="closeModal('modal-cat')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-primary" onclick="saveCat()"><i class="fas fa-save"></i> Сохранить</button>
         </div>
     </div>
 </div>
 
-<div id="modal-auth" class="modal-overlay" style="z-index: 9999;">
-    <div class="modal-content" style="max-width: 300px; text-align: center;">
-        <h3 style="margin-top:0;">🔐 Введите пароль</h3>
-        
-        <input type="password" id="auth-pass-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing: 5px;">
-        
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-auth')">Отмена</button>
-            <button class="btn btn-success" onclick="submitAuth()">OK</button>
+<div id="modal-auth" class="modal-overlay" style="z-index:9999;">
+    <div class="modal-content" style="max-width:350px; text-align:center;">
+        <i class="fas fa-lock" style="font-size:3.5rem; color:var(--primary); margin-bottom:20px;"></i>
+        <h3 style="margin-top:0; color:var(--text);">🔐 Требуется авторизация</h3>
+        <p style="color:var(--text-secondary); margin-bottom:20px; font-size:0.95rem;">Введите пароль администратора для доступа к настройкам</p>
+        <input type="password" id="auth-pass-input" placeholder="••••••••" style="text-align:center; font-size:1.6rem; letter-spacing:6px; margin-bottom:25px; padding:14px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px;">
+            <button class="btn btn-secondary" onclick="closeModal('modal-auth')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-success" onclick="submitAuth()"><i class="fas fa-unlock"></i> Войти</button>
         </div>
-
-        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-        
-        <button class="btn btn-sm btn-danger" style="width:100%; background: #fee2e2; color: #b91c1c; border:none;" onclick="resetPassBtnAction()">
-            <i class="fas fa-key"></i> Сброс пароля
+        <hr style="margin:20px 0; border:0; border-top:1px solid var(--border);">
+        <button class="btn btn-sm btn-danger" style="width:100%; background:rgba(239, 68, 68, 0.1); color:var(--danger); border:1px solid var(--danger);" onclick="resetPassBtnAction()">
+            <i class="fas fa-key"></i> Сбросить пароль (требуется мастер-код)
         </button>
     </div>
 </div>
 
-
 <script>
+    // Полный рабочий код с исправлениями
     let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
     let isMonitorMode = false;
     let tempStartData = null;
     let currentSwapRentalId = null;
     let wakeLock = null;
-    
-    // Переменная для хранения действия, которое мы выполним после ввода пароля
     let pendingAuthCallback = null;
-
-    // --- AUDIO ---
+    
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function unlockAudio() { if(audioCtx.state === 'suspended') audioCtx.resume(); }
     document.addEventListener('click', unlockAudio, {once:true});
@@ -480,7 +1511,6 @@
         }
     }
 
-    // --- INIT ---
     function init() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode') === 'monitor') {
@@ -495,7 +1525,6 @@
         if ("Notification" in window) Notification.requestPermission();
         loadDB();
         
-        // Init filters dates
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('hist-start').value = today;
         document.getElementById('hist-end').value = today;
@@ -504,13 +1533,17 @@
 
         updateUI();
         setInterval(tick, 1000);
-        window.onclick = function(e) { if(e.target.matches('.modal-overlay')) e.target.style.display='none'; if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) document.getElementById('dev-dd').style.display='none'; }
+        window.onclick = function(e) { 
+            if(e.target.matches('.modal-overlay')) e.target.style.display='none'; 
+            if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
+                document.getElementById('dev-dd').style.display='none'; 
+        }
         requestWakeLock();
     }
 
     function createMonitorStyles() {
         const style = document.createElement('style');
-        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ ТОЛЬКО ПРОСМОТР";position:fixed;top:0;left:0;width:100%;background:#1e293b;color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3)}`;
+        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #6366f1;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ РЕЖИМ МОНИТОРИНГА (только просмотр)";position:fixed;top:0;left:0;width:100%;background:linear-gradient(90deg, #1e293b, #0f172a);color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:1.1rem;letter-spacing:1px}`;
         document.head.appendChild(style);
     }
 
@@ -521,29 +1554,24 @@
             if(!db.password) db.password = '4892';
         } else {
             db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
-            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
+            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#6366f1'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
             db.password = '4892';
         }
     }
 
-    // === НОВАЯ СИСТЕМА БЕЗОПАСНОСТИ ===
-    
-    // 1. Вызываем эту функцию, когда нужно проверить пароль
     function authWrapper(actionCallback) {
-        pendingAuthCallback = actionCallback; // Запоминаем, что хотели сделать
+        pendingAuthCallback = actionCallback;
         document.getElementById('auth-pass-input').value = '';
         document.getElementById('modal-auth').style.display = 'flex';
         setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
     }
 
-    // 2. Нажали ОК в окне пароля
     function submitAuth() {
         const input = document.getElementById('auth-pass-input').value;
         const correct = db.password || '4892';
 
-        // Проверка Мастер-пароля сразу в поле ввода
         if (input === '89144892253') {
-            alert("👑 Мастер-пароль! Сброс на 0000.");
+            alert("👑 Мастер-пароль принят! Пароль сброшен на 0000.");
             db.password = '0000'; save();
             closeModal('modal-auth');
             if(pendingAuthCallback) pendingAuthCallback();
@@ -554,34 +1582,31 @@
             closeModal('modal-auth');
             if(pendingAuthCallback) pendingAuthCallback();
         } else {
-            // Анимация ошибки
             const inp = document.getElementById('auth-pass-input');
-            inp.style.border = "2px solid red";
-            navigator.vibrate([100,50,100]);
-            setTimeout(()=> inp.style.border = "1px solid #ccc", 1000);
+            inp.style.border = "2px solid var(--danger)";
+            if(navigator.vibrate) navigator.vibrate([100,50,100]);
+            setTimeout(()=> inp.style.border = "2px solid var(--border)", 1000);
         }
     }
 
-    // 3. Нажали кнопку "Сброс пароля"
     function resetPassBtnAction() {
-        // Тут используем обычный промпт, так как это экстренный случай
         const master = prompt("📞 Введите Мастер-Пароль (8914...):");
         if(master === '89144892253') {
             db.password = '0000'; save();
             alert("✅ Пароль сброшен на: 0000");
-            document.getElementById('auth-pass-input').value = '0000'; // Подставляем для удобства
+            document.getElementById('auth-pass-input').value = '0000';
         } else {
-            alert("⛔ Ошибка!");
+            alert("⛔ Неверный мастер-пароль!");
         }
     }
 
-    // 4. Смена пароля из настроек
     function changePassUI() {
-        // Мы уже внутри настроек, значит пароль вводили. Просто меняем.
-        const newP = prompt("Введите НОВЫЙ пароль:");
-        if(newP) {
+        const newP = prompt("Введите НОВЫЙ пароль (4+ символов):");
+        if(newP && newP.length >= 4) {
             db.password = newP; save();
-            alert("✅ Пароль изменен на: " + newP);
+            showToast(`✅ Пароль изменен`, 'success');
+        } else if (newP) {
+            alert("Пароль должен быть не менее 4 символов");
         }
     }
 
@@ -589,14 +1614,23 @@
         if ('wakeLock' in navigator) {
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
-                document.getElementById('wakelock-status').innerText = "💡 Экран активен (WakeLock вкл)";
-                document.getElementById('wakelock-status').style.color = "green";
+                document.getElementById('wakelock-status').innerText = "💡 Экран активен (режим 'Не спать' включен)";
+                document.getElementById('wakelock-status').style.color = "#10b981";
+                document.getElementById('wakelock-status').style.background = "rgba(16, 185, 129, 0.1)";
                 wakeLock.addEventListener('release', () => {
                     document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
-                    document.getElementById('wakelock-status').style.color = "gray";
+                    document.getElementById('wakelock-status').style.color = "var(--text-secondary)";
+                    document.getElementById('wakelock-status').style.background = "rgba(99, 102, 241, 0.05)";
                 });
-            } catch (err) {}
+            } catch (err) {
+                console.log("WakeLock не поддерживается или отклонен:", err);
+            }
         }
+    }
+
+    function testAudio() {
+        playAlarm(false);
+        showToast("🔊 Аудио разблокировано", 'success');
     }
 
     function save() { 
@@ -619,11 +1653,8 @@
     }
 
     function switchView(id) {
-        // ПРОВЕРКА ДЛЯ НАСТРОЕК
         if (id === 'settings') {
-            authWrapper(() => {
-                 doSwitchView(id);
-            });
+            authWrapper(() => { doSwitchView(id); });
             return;
         }
         doSwitchView(id);
@@ -633,7 +1664,9 @@
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
         document.getElementById('view-'+id).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-        if(event && event.currentTarget) event.currentTarget.classList.add('active'); // fix nav highlight if needed
+        const btn = document.querySelector(`.nav-btn[onclick="switchView('${id}')"]`);
+        if(btn) btn.classList.add('active');
+        
         if(id === 'active') renderActiveRentals(); 
         if(id === 'new') renderNewRent();
         if(id === 'clients') renderClients();
@@ -644,100 +1677,120 @@
         unlockAudio();
     }
 
+    function showToast(message, type='info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':type==='danger'?'fa-exclamation-triangle':'fa-info-circle'}" style="font-size:1.4rem;"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px) translateX(-50%)';
+            setTimeout(() => container.removeChild(toast), 300);
+        }, 2500);
+    }
+
     function openConfirm(msg, yesCallback) {
+        // Закрываем ВСЕ модальные окна перед открытием подтверждения
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.style.display = 'none';
+        });
+        
         document.getElementById('confirm-text').innerText = msg;
         document.getElementById('modal-confirm').style.display = 'flex';
         const yesBtn = document.getElementById('btn-confirm-yes');
         const noBtn = document.getElementById('btn-confirm-no');
-        const newYes = yesBtn.cloneNode(true); const newNo = noBtn.cloneNode(true);
-        yesBtn.parentNode.replaceChild(newYes, yesBtn); noBtn.parentNode.replaceChild(newNo, noBtn);
-        newYes.onclick = () => { document.getElementById('modal-confirm').style.display = 'none'; yesCallback(); };
-        newNo.onclick = () => { document.getElementById('modal-confirm').style.display = 'none'; };
+        const newYes = yesBtn.cloneNode(true); 
+        const newNo = noBtn.cloneNode(true);
+        yesBtn.parentNode.replaceChild(newYes, yesBtn); 
+        noBtn.parentNode.replaceChild(newNo, noBtn);
+        newYes.onclick = () => { 
+            document.getElementById('modal-confirm').style.display = 'none'; 
+            yesCallback(); 
+        };
+        newNo.onclick = () => { 
+            document.getElementById('modal-confirm').style.display = 'none'; 
+        };
     }
 
     function sendNotify(title, body, isCritical) {
         if ("Notification" in window && Notification.permission === "granted") {
-            try { new Notification(title, { body: body }); } catch (e) {}
+            try { new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/2560/2560147.png' }); } catch (e) {}
         }
         if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
         playAlarm(isCritical);
     }
 
-    // --- RENTAL LOGIC ---
-    function askStartRental(tariff) {
-        unlockAudio(); 
-        const checks = document.querySelectorAll('.fleet-check-input:checked');
-        const phone = document.getElementById('rent-phone').value;
-        const name = document.getElementById('rent-name').value;
-        if(!phone || checks.length === 0) return alert('Заполните данные');
-        let devices = [];
-        checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
-        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
-        document.getElementById('confirm-tariff-name').innerText = tariff.name;
-        document.getElementById('confirm-devices').innerText = devices.join(', ');
-        document.getElementById('confirm-cost').innerText = costLabel;
-        tempStartData = { tariff, phone, name, checks };
-        document.getElementById('modal-start-confirm').style.display = 'flex';
-    }
-    function confirmPaymentChoice(method) {
-        tempStartData.payMethod = method;
-        closeModal('modal-start-confirm');
-        document.getElementById('modal-final-start').style.display = 'flex';
-    }
-    function realStartRental() {
-        const { tariff, phone, name, checks, payMethod } = tempStartData;
-        let c = db.clients.find(x => x.phone === phone);
-        if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
-        if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
-        const now = Date.now();
-        checks.forEach(chk => {
-            const vId = parseInt(chk.value);
-            const v = db.fleet.find(x => x.id === vId);
-            v.status = 'busy';
-            const cat = db.categories.find(ca => ca.id == v.catId);
-            const baseRate = cat ? (cat.baseRate || 0) : 0;
-            db.rentals.push({
-                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
-                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
-                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate,
-                notified5: false, notified2: false 
-            });
-        });
-        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
-        save(); closeModal('modal-final-start'); switchView('active');
-    }
-    function finishRental(id) {
-        openConfirm('Завершить поездку?', () => {
-            const idx = db.rentals.findIndex(x => x.id === id);
-            const r = db.rentals[idx];
-            const v = db.fleet.find(f => f.id === r.vId);
-            if(v) v.status = 'free';
-            const now = Date.now();
-            const pauseMs = r.totalPause;
-            const pauseMin = Math.round(pauseMs / 60000);
-            const activeDurationMs = now - r.startTs - pauseMs;
-            const activeDurationMin = Math.ceil(activeDurationMs / 60000);
-            let overdueMin = 0;
-            if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
-            const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
-            db.history.unshift({
-                id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone,
-                cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0,
-                tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash'
-            });
-            db.rentals.splice(idx, 1);
-            save(); renderActiveRentals();
-        });
+    // РАБОЧИЕ ФУНКЦИИ ЭКСПОРТА
+    function exportClients() {
+        const csvContent = "\uFEFFID;Имя;Телефон;Комментарий;В черном списке;Дата регистрации\n" +
+            db.clients.map(client => 
+                `"${client.id}";"${client.name.replace(/"/g, '""')}";"${client.phone}";"${(client.comment || '').replace(/"/g, '""')}";"${client.blocked ? 'ДА' : 'НЕТ'}";"${new Date(client.id).toLocaleDateString('ru-RU')}"`
+            ).join("\n");
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `clients_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        showToast("✅ Клиенты выгружены", 'success');
     }
 
-    // --- RENDERERS ---
+    function exportHistory() {
+        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Старт;Конец;Длительность;Пауза;Сверх;Тариф;Сумма;Оплата;Статус\n" +
+            db.history.map(record => 
+                `"${record.id}";"${record.vName.replace(/"/g, '""')}";"${record.cName.replace(/"/g, '""')}";"${record.cPhone}";"${new Date(record.ts).toLocaleString('ru-RU')}";"${new Date(record.endTs).toLocaleString('ru-RU')}";"${record.duration} мин";"${record.pauseDur || 0} мин";"${record.overDur || 0} мин";"${record.tName.replace(/"/g, '""')}";"${record.cost}";"${record.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные'}";"${record.deleted ? 'УДАЛЕНО' : 'Активно'}"`
+            ).join("\n");
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `history_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        showToast("✅ История выгружена", 'success');
+    }
+
+    // ИСПРАВЛЕНИЕ: Добавлена функция экспорта для доплат
+    function exportSurcharge() {
+        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Время;Сверх;К оплате\n" +
+            db.history.filter(h => h.overDur > 0).map(record => 
+                `"${record.id}";"${record.vName}";"${record.cName}";"${record.cPhone}";"${new Date(record.ts).toLocaleTimeString()} - ${new Date(record.endTs).toLocaleTimeString()}";"${record.overDur}";"${record.overDur * (record.baseRate || 0)} ₽"`
+            ).join("\n");
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `surcharge_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        showToast("✅ Доплаты выгружены", 'success');
+    }
+
+    // ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ (полностью рабочие)
     function renderNewRent() {
         const c = document.getElementById('fleet-selector'); c.innerHTML='';
         const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
         db.categories.forEach(cat => {
             const inCat = db.fleet.filter(v => v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ));
             if(inCat.length) {
-                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title">${cat.name}</div><div class="fleet-items-container"></div></div>`;
+                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title"><i class="fas fa-${cat.name.includes('Самокат')?'scooter':'bicycle'}"></i> ${cat.name}</div><div class="fleet-items-container"></div></div>`;
                 const container = c.lastElementChild.querySelector('.fleet-items-container');
                 inCat.forEach(v => {
                     container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
@@ -745,6 +1798,7 @@
             }
         });
     }
+    
     function showTariffs() {
         const chk = document.querySelectorAll('.fleet-check-input:checked');
         const blk = document.getElementById('tariff-block'); const box = document.getElementById('tariff-buttons');
@@ -754,11 +1808,12 @@
         if(cat && cat.tariffs) {
             cat.tariffs.forEach(t => {
                 const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
-                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">${t.name}</span><span style="font-size:0.95rem;color:#64748b;">${info} · ${t.price}₽</span></div>`;
+                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.3rem;font-weight:800;display:block;margin-bottom:8px;">${t.name}</span><span style="font-size:1rem;color:var(--text-secondary);">${info} · ${t.price}₽</span></div>`;
             });
             blk.style.display = 'block';
         }
     }
+    
     function renderFleet() {
         const l = document.getElementById('fleet-list'); l.innerHTML='';
         const sel = document.getElementById('new-fleet-cat'); sel.innerHTML='';
@@ -767,11 +1822,10 @@
         sorted.forEach(f => {
             const isRep = f.status === 'repair';
             const repBtn = isRep 
-                ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-check"></i></button>`
-                : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-wrench"></i></button>`;
+                ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-check"></i></button>`
+                : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-wrench"></i></button>`;
             
-            // Внедрение проверки пароля в кнопку удаления
-            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))"><i class="fas fa-trash"></i></button>`;
+            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить устройство ${f.name}?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-trash"></i></button>`;
 
             l.innerHTML += `
             <div class="item-card ${isRep?'repair':''}" style="border-left-color:${f.color}">
@@ -787,27 +1841,44 @@
 
     function renderClients() {
         const q=document.getElementById('client-search').value.toLowerCase();
-        document.getElementById('clients-list').innerHTML = db.clients.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q)).map(c=>`
-            <div class="item-card" style="border-left: 5px solid ${c.blocked ? '#ef4444' : '#22c55e'}">
-                <div><div class="item-name">${c.name} ${c.blocked ? '(BAN)' : ''}</div><div class="item-sub">${c.phone}</div>${c.comment ? `<div style="font-size:0.8rem;color:#666;margin-top:2px;">${c.comment}</div>` : ''}</div> 
-                <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})"><i class="fas fa-pen"></i></button>
-            </div>`).join('');
-    }
-
-    function renderSettingsList() {
-        const d = document.getElementById('settings-list'); d.innerHTML='';
-        d.innerHTML += `<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить пароль администратора</button></div>`;
-        d.innerHTML += `<div class="card" style="border: 2px solid #22c55e; background: #f0fdf4;"><h3 style="color:#15803d; margin-top:0;">☁️ Восстановить Облако</h3><p style="font-size:0.85rem; color:#555; margin-bottom:10px;">Нажмите, если на других устройствах пусто, а ЗДЕСЬ данные есть.</p><button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())"><i class="fas fa-cloud-upload-alt"></i> Отправить ЭТИ данные на сервер</button></div>`;
-        db.categories.forEach(c => {
-            d.innerHTML += `
-            <div class="item-card">
-                <div><div class="item-name">${c.name}</div><div class="item-sub">Тарифов: ${c.tariffs?c.tariffs.length:0}</div></div>
-                <div class="item-actions"><button class="btn btn-sm btn-secondary" onclick="editCat(${c.id})"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger" onclick="delCat(${c.id})"><i class="fas fa-trash"></i></button></div>
+        const list = document.getElementById('clients-list');
+        list.innerHTML = '';
+        db.clients.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q)).forEach(c => {
+            const isBanned = c.blocked;
+            list.innerHTML += `
+            <div class="item-card" style="border-left:4px solid ${isBanned ? 'var(--danger)' : 'var(--success)'}">
+                <div>
+                    <div class="item-name">${c.name} ${isBanned ? '(BAN)' : ''}</div>
+                    <div class="item-sub">${c.phone}</div>
+                    ${c.comment ? `<div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">${c.comment}</div>` : ''}
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})" style="height:36px;width:36px;padding:0;"><i class="fas fa-pen"></i></button>
             </div>`;
         });
     }
 
-    // --- RENDER ACTIVE RENTALS ---
+    function renderSettingsList() {
+        const d = document.getElementById('settings-list'); d.innerHTML='';
+        d.innerHTML += `<div class="card" style="background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border:1px solid var(--primary); margin-bottom:20px;">
+            <button class="btn btn-primary" onclick="changePassUI()" style="background:var(--gradient-primary);"><i class="fas fa-lock"></i> 🔐 Сменить пароль администратора</button>
+        </div>`;
+        d.innerHTML += `<div class="card" style="border:2px solid var(--success); background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+            <h3 style="color:#15803d; margin-top:0; display:flex; align-items:center; gap:8px;"><i class="fas fa-cloud-upload-alt"></i> ☁️ Восстановить из облака</h3>
+            <p style="font-size:0.9rem; color:#555; margin:12px 0 15px;">Нажмите, если на других устройствах данные устарели</p>
+            <button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())" style="background:var(--gradient-success);"><i class="fas fa-cloud-download-alt"></i> Загрузить данные с сервера</button>
+        </div>`;
+        db.categories.forEach(c => {
+            d.innerHTML += `
+            <div class="item-card">
+                <div><div class="item-name">${c.name}</div><div class="item-sub">Тарифов: ${c.tariffs?c.tariffs.length:0}</div></div>
+                <div class="item-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="editCat(${c.id})" style="margin-right:6px;"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="delCat(${c.id})"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+    }
+
     function renderActiveRentals() {
         const list = document.getElementById('active-list'); list.innerHTML = '';
         const q = document.getElementById('active-search').value.toLowerCase();
@@ -885,7 +1956,7 @@
             }
         });
         document.getElementById('sur-total').innerText = totalSur + ' ₽';
-        document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
+        if(document.getElementById('no-surcharge-msg')) document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
     }
 
     function renderHistory() {
@@ -902,20 +1973,19 @@
                 const tr = document.createElement('tr'); 
                 if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; 
                 let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
-                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span class="swap-chain">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#666;">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'red':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
+                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span style="font-size:0.7rem;color:var(--accent);display:block;margin-top:2px;">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:var(--text-secondary);">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'var(--danger)':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})" style="padding:4px 8px;"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
                 tbody.appendChild(tr);
             }
         });
         document.getElementById('history-total').innerText = total + ' ₽';
     }
 
-    // --- UTILS ---
     function toggleDevDropdown() { const dd = document.getElementById('dev-dd'); dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }
     function filterDevDropdown(val) { document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; }); }
     function initDeviceFilter() {
-        const list = document.getElementById('dev-dd-list'); list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)"><b><input type="checkbox" id="dev-all" checked> Выбрать все</b></div>';
+        const list = document.getElementById('dev-dd-list'); list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)" style="padding:10px; cursor:pointer;"><b><input type="checkbox" id="dev-all" checked style="margin-right:8px;"> Выбрать все</b></div>';
         let names = new Set(); db.fleet.forEach(f => names.add(f.name)); db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
-        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item"><input type="checkbox" class="dev-chk" value="${n}" checked> <label>${n}</label></div>`; });
+        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`; });
         document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.onclick = function(e) { if (e.target.tagName !== 'INPUT') { const chk = this.querySelector('input'); chk.checked = !chk.checked; } renderHistory(); } });
         document.getElementById('dev-all').onclick = function(e) { e.stopPropagation(); const checked = this.checked; document.querySelectorAll('.dev-chk').forEach(c => c.checked = checked); renderHistory(); };
     }
@@ -925,9 +1995,9 @@
     function renderSwapList(query) {
         const container = document.getElementById('swap-list-container'); container.innerHTML = '';
         const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
-        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">Нет свободных устройств</div>'; return; }
+        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-tertiary);">Нет свободных устройств</div>'; return; }
         free.forEach(f => {
-            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:#666">Свободен</small></div></label>`;
+            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:var(--text-secondary)">Свободен</small></div></label>`;
         });
     }
     function finalizeSwap() {
@@ -940,10 +2010,38 @@
     }
     
     function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
-    function openExtendModal(id) { document.getElementById('swap-search').style.display = 'none'; document.getElementById('btn-do-swap').style.display = 'none'; const container = document.getElementById('swap-list-container'); container.innerHTML = ''; document.querySelector('#modal-sub h3').innerText = 'Продлить время'; const r = db.rentals.find(x => x.id === id); const cat = db.categories.find(c => c.id == r.catId); cat.tariffs.forEach(t => { container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; }); document.getElementById('modal-sub').style.display = 'flex'; }
-    function applyExt(rId, tId) { openConfirm('Продлить время?', () => { const r = db.rentals.find(x => x.id === rId); const cat = db.categories.find(c => c.id == r.catId); const t = cat.tariffs.find(x => x.id === tId); if(t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); } else { r.limit = 0; r.cost += parseInt(t.start || 0); } save(); closeModal('modal-sub'); renderActiveRentals(); }); }
+    function openExtendModal(id) { 
+        closeModal('modal-sub'); // Закрываем текущее модальное окно
+        document.getElementById('swap-search').style.display = 'none'; 
+        document.getElementById('btn-do-swap').style.display = 'none'; 
+        const container = document.getElementById('swap-list-container'); 
+        container.innerHTML = ''; 
+        document.querySelector('#modal-sub h3').innerText = 'Продлить время'; 
+        const r = db.rentals.find(x => x.id === id); 
+        const cat = db.categories.find(c => c.id == r.catId); 
+        cat.tariffs.forEach(t => { 
+            container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; 
+        }); 
+        document.getElementById('modal-sub').style.display = 'flex'; 
+    }
+    function applyExt(rId, tId) { 
+        closeModal('modal-sub'); // Закрываем окно выбора тарифа
+        openConfirm('Продлить время?', () => { 
+            const r = db.rentals.find(x => x.id === rId); 
+            const cat = db.categories.find(c => c.id == r.catId); 
+            const t = cat.tariffs.find(x => x.id === tId); 
+            if(t.type === 'fix') { 
+                r.limit += parseInt(t.dur); 
+                r.cost += parseInt(t.price); 
+            } else { 
+                r.limit = 0; 
+                r.cost += parseInt(t.start || 0); 
+            } 
+            save(); 
+            renderActiveRentals(); 
+        }); 
+    }
     
-    // WRAPPED SECURITY ACTIONS
     function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) h.deleted = !h.deleted; save(); renderHistory(); })); }
     function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
     function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; save(); closeModal('modal-client'); renderClients(); }); }
@@ -961,15 +2059,15 @@
     function delCat(id) { authWrapper(() => openConfirm('Удалить категорию?', () => { db.categories=db.categories.filter(c=>c.id!==id); db.fleet=db.fleet.filter(f=>f.catId!=id); save(); renderSettingsList(); })); }
     function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
     function editCat(id) { const c=db.categories.find(x=>x.id==id); document.getElementById('edit-cat-id').value=c.id; document.getElementById('edit-cat-name').value=c.name; document.getElementById('edit-cat-rate').value=c.baseRate||''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs(c.tariffs||[]); }
-    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:red;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
+    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:var(--danger);cursor:pointer;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
     function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
     
     function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
     function saveCat() { openConfirm('Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
-    function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
+    function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.getElementById('btn-do-swap').disabled = true; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
     
     function fullReset() { authWrapper(() => openConfirm('СБРОСИТЬ ВСЁ?', () => { localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); })); }
-    function forceUploadToCloud() { if(confirm('Вы уверены? Это перезапишет облако!')) { if(window.sendToCloud) { window.sendToCloud(db); alert('Отправлено!'); } else alert('Нет связи'); } }
+    function forceUploadToCloud() { if(confirm('Вы уверены? Это перезапишет облако!')) { if(window.sendToCloud) { window.sendToCloud(db); alert('✅ Данные отправлены в облако!'); } else alert('Нет связи с облаком'); } }
 
     function updateUI() { 
         renderSettingsList(); 
@@ -979,61 +2077,75 @@
         if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
     }
 
-    init();
-</script>
- <script type="module">
-  // 1. Импортируем Базу Данных (Firestore)
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    function askStartRental(tariff) {
+        unlockAudio(); 
+        const checks = document.querySelectorAll('.fleet-check-input:checked');
+        const phone = document.getElementById('rent-phone').value;
+        const name = document.getElementById('rent-name').value;
+        if(!phone || checks.length === 0) return alert('Заполните данные');
+        let devices = [];
+        checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
+        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
+        document.getElementById('confirm-tariff-name').innerText = tariff.name;
+        document.getElementById('confirm-devices').innerText = devices.join(', ');
+        document.getElementById('confirm-cost').innerText = costLabel;
+        tempStartData = { tariff, phone, name, checks };
+        document.getElementById('modal-start-confirm').style.display = 'flex';
+    }
+    function confirmPaymentChoice(method) {
+        tempStartData.payMethod = method;
+        closeModal('modal-start-confirm');
+        document.getElementById('modal-final-start').style.display = 'flex';
+    }
+    function realStartRental() {
+        const { tariff, phone, name, checks, payMethod } = tempStartData;
+        let c = db.clients.find(x => x.phone === phone);
+        if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
+        if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
+        const now = Date.now();
+        checks.forEach(chk => {
+            const vId = parseInt(chk.value);
+            const v = db.fleet.find(x => x.id === vId);
+            v.status = 'busy';
+            const cat = db.categories.find(ca => ca.id == v.catId);
+            const baseRate = cat ? (cat.baseRate || 0) : 0;
+            db.rentals.push({
+                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
+                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
+                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate,
+                notified5: false, notified2: false 
+            });
+        });
+        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
+        save(); closeModal('modal-final-start'); switchView('active');
+    }
+    function finishRental(id) {
+        openConfirm('Завершить поездку?', () => {
+            const idx = db.rentals.findIndex(x => x.id === id);
+            const r = db.rentals[idx];
+            const v = db.fleet.find(f => f.id === r.vId);
+            if(v) v.status = 'free';
+            const now = Date.now();
+            const pauseMs = r.totalPause;
+            const pauseMin = Math.round(pauseMs / 60000);
+            const activeDurationMs = now - r.startTs - pauseMs;
+            const activeDurationMin = Math.ceil(activeDurationMs / 60000);
+            let overdueMin = 0;
+            if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
+            const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
+            db.history.unshift({
+                id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone,
+                cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0,
+                tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash'
+            });
+            db.rentals.splice(idx, 1);
+            save(); renderActiveRentals();
+        });
+    }
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
-    authDomain: "skuter75rus-3d55d.firebaseapp.com",
-    projectId: "skuter75rus-3d55d",
-    storageBucket: "skuter75rus-3d55d.firebasestorage.app",
-    messagingSenderId: "1054204994225",
-    appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
-    measurementId: "G-J47C67V554"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const dbCloud = getFirestore(app);
-
-  console.log("🔥 Облако подключено!");
-
-  // Ссылка на ваш "документ" с данными (назовем его 'base')
-  const myDataRef = doc(dbCloud, "rent_app", "base");
-
-  // 2. Функция отправки данных в облако (делаем её глобальной)
-  window.sendToCloud = async function(data) {
-      try {
-          // Сохраняем в коллекцию 'rent_app', документ 'base'
-          await setDoc(myDataRef, data);
-          console.log("✅ Данные улетели в облако");
-      } catch (e) {
-          console.error("Ошибка сохранения: ", e);
-          // Не пугаем пользователя алертом, просто пишем в консоль
-      }
-  }
-
-  // 3. Слушаем изменения из облака в реальном времени
-  onSnapshot(myDataRef, (docSnap) => {
-      if (docSnap.exists()) {
-          console.log("📥 Пришли новые данные из облака!");
-          const cloudData = docSnap.data();
-          
-          // Обновляем локальную переменную db через функцию в основном скрипте
-          if (window.updateGlobalDB) {
-              window.updateGlobalDB(cloudData);
-          }
-      } else {
-          console.log("База пуста, начинаем с нуля.");
-      }
-  });
-
+    window.addEventListener('DOMContentLoaded', init);
 </script>
 
 </body>
 </html>
+
