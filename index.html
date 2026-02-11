@@ -1,19 +1,4 @@
-
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body {
-                  background-color: white; /* Ensure the iframe has a white background */
-                }
-
-                
-              </style>
-                        </head>
-                        <body>
-                            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -22,10 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Firebase SDK - ИСПРАВЛЕННЫЕ ВЕРСИИ -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <!-- ИСПРАВЛЕНО: Используем версии с -compat для совместимости с старым синтаксисом -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     
     <style>
         :root {
@@ -363,6 +348,16 @@
             color: var(--success);
         }
 
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin: 10px 0;
+            border: 1px solid #fca5a5;
+            font-size: 0.9rem;
+        }
+
         #toast-container {
             position: fixed;
             top: 20px;
@@ -516,7 +511,14 @@
                 <p style="color:var(--text-secondary); margin-bottom:25px; font-size:0.95rem;">
                     Для доступа к настройкам и управлению системой необходимо авторизоваться
                 </p>
-                <button class="auth-btn" onclick="loginWithCustomToken()">
+                
+                <!-- Ошибка аутентификации -->
+                <div class="error-message" id="auth-error" style="display:none;">
+                    <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
+                    <span id="auth-error-message">Ошибка аутентификации: </span>
+                </div>
+                
+                <button class="auth-btn" onclick="loginAsAdmin()">
                     <i class="fas fa-sign-in-alt"></i> Войти как администратор
                 </button>
                 <div id="auth-status" style="margin-top:20px; min-height:40px;"></div>
@@ -593,6 +595,7 @@
             console.error("Ошибка инициализации Firebase:", error);
             updateCloudStatus(false, "Ошибка инициализации: " + error.message);
             showToast("❌ Ошибка инициализации Firebase", 'danger');
+            showAuthError("Ошибка инициализации Firebase: " + error.message);
         }
     }
     
@@ -649,17 +652,35 @@
         }
     }
     
-    async function loginWithCustomToken() {
+    function showAuthError(message) {
+        const errorDiv = document.getElementById('auth-error');
+        const errorMsg = document.getElementById('auth-error-message');
+        
+        errorDiv.style.display = 'block';
+        errorMsg.textContent = message;
+    }
+    
+    async function loginAsAdmin() {
         try {
-            // Создаем временный токен для аутентификации
-            // В реальном приложении этот токен должен генерироваться на сервере
-            // Здесь мы используем анонимную аутентификацию для демонстрации
+            document.getElementById('auth-error').style.display = 'none';
             
-            const result = await auth.signInAnonymously();
+            // Проверяем, что аутентификация инициализирована
+            if (!auth) {
+                throw new Error("Firebase Auth не инициализирован");
+            }
+            
+            // Проверяем, что метод signInAnonymously существует
+            if (typeof auth.signInAnonymously !== 'function') {
+                throw new Error("Метод signInAnonymously не доступен. Проверьте подключение Firebase");
+            }
+            
+            // Пробуем анонимный вход
+            await auth.signInAnonymously();
             showToast("🔄 Проверка прав доступа...", 'info');
             
         } catch (error) {
             console.error("Ошибка входа:", error);
+            showAuthError("Ошибка аутентификации: " + error.message);
             showToast("❌ Ошибка аутентификации: " + error.message, 'danger');
             updateCloudStatus(false, "Ошибка аутентификации");
         }
@@ -755,7 +776,9 @@
     
     // Инициализация при загрузке
     window.addEventListener('DOMContentLoaded', () => {
+        // Инициализируем Firebase
         initFirebase();
+        
         // Автоматически переключаемся на вкладку настроек
         setTimeout(() => switchView('settings'), 100);
     });
@@ -764,21 +787,3 @@
 </body>
 </html>
 
-
-
-              <script>
-                              const firebaseConfig = {
-    apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
-    authDomain: "skuter75rus-3d55d.firebaseapp.com",
-    projectId: "skuter75rus-3d55d",
-    storageBucket: "skuter75rus-3d55d.firebasestorage.app",
-    messagingSenderId: "1054204994225",
-    appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
-    measurementId: "G-J47C67V554"
-};
-
-
-              </script>
-                        </body>
-                        </html>
-                    
