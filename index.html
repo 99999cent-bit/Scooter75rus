@@ -28,6 +28,7 @@
     
     <style>
         :root {
+            /* Премиальная цветовая палитра */
             --primary: #6366f1;
             --primary-dark: #4f46e5;
             --primary-light: #818cf8;
@@ -36,10 +37,14 @@
             --danger: #ef4444;
             --warning: #fbbf24;
             --success: #10b981;
+            
+            /* Градиенты */
             --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
             --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            
+            /* Нейтральные цвета */
             --bg: #f5f7fa;
             --surface: #ffffff;
             --surface-dark: #1f2937;
@@ -50,15 +55,21 @@
             --text-secondary: #6b7280;
             --text-tertiary: #9ca3af;
             --text-on-dark: #f9fafb;
+            
+            /* Статусные цвета */
             --status-free: #10b981;
             --status-busy: #6366f1;
             --status-repair: #f59e0b;
             --status-paused: #9333ea;
+            
+            /* Тени */
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            /* Скругления */
             --radius-xs: 4px;
             --radius-sm: 8px;
             --radius-md: 12px;
@@ -66,13 +77,19 @@
             --radius-xl: 24px;
             --radius-2xl: 32px;
             --radius-full: 9999px;
+            
+            /* Анимации */
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Размеры */
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
             --spacing-lg: 24px;
             --spacing-xl: 32px;
+            
+            /* Глубины */
             --z-header: 100;
             --z-suggestions: 10000;
             --z-modal: 9999;
@@ -101,249 +118,13 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ЭКРАН ВЫБОРА/СОЗДАНИЯ АККАУНТОВ */
-        .auth-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 999999;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .auth-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 32px;
-            padding: 40px;
-            max-width: 550px;
-            width: 100%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .auth-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 25px;
-        }
-        
-        .auth-subtitle {
-            color: #64748b;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        
-        .account-list {
-            width: 100%;
-            margin: 20px 0;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-        
-        .account-item {
-            background: white;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-        
-        .account-item:hover {
-            transform: translateX(5px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-        
-        .account-item.active {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-        }
-        
-        .account-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex: 1;
-        }
-        
-        .account-color {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-        }
-        
-        .account-name {
-            font-weight: 700;
-            font-size: 1.15rem;
-            color: var(--text);
-            text-align: left;
-            flex: 1;
-        }
-        
-        .account-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .account-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            border: none;
-            background: var(--surface);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .account-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.1);
-        }
-        
-        .account-btn.delete:hover {
-            background: var(--danger);
-        }
-        
-        .auth-btn {
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 12px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-        }
-        
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.6);
-        }
-        
-        .auth-btn.secondary {
-            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-        }
-        
-        .auth-btn.danger {
-            background: var(--gradient-danger);
-        }
-        
-        .auth-input {
-            width: 100%;
-            padding: 16px;
-            margin: 12px 0;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            font-size: 1.1rem;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        
-        .auth-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-            outline: none;
-        }
-        
-        .forgot-password {
-            color: var(--primary);
-            text-decoration: underline;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.95rem;
-            margin-top: 15px;
-            padding: 5px 10px;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        
-        .forgot-password:hover {
-            background: rgba(99, 102, 241, 0.1);
-        }
-        
-        .color-picker {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            margin: 20px 0;
-        }
-        
-        .color-option {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        
-        .color-option.selected {
-            border-color: white;
-            transform: scale(1.1);
-            box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
-        }
-        
-        .color-option:hover {
-            transform: scale(1.05);
-        }
-        
-        /* ОСНОВНОЙ ИНТЕРФЕЙС */
         header {
             background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 100%);
             backdrop-filter: blur(20px);
-            padding: 8px 16px;
+            padding: var(--spacing-sm) var(--spacing-md);
             box-shadow: var(--shadow);
             display: flex;
-            gap: 8px;
+            gap: var(--spacing-xs);
             overflow-x: auto;
             flex-shrink: 0;
             z-index: var(--z-header);
@@ -355,16 +136,16 @@
         .nav-btn {
             background: transparent;
             border: none;
-            padding: 8px 16px;
-            border-radius: 9999px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-full);
             color: var(--text-secondary);
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-xs);
             white-space: nowrap;
-            transition: all 0.3s;
+            transition: var(--transition);
             font-size: 0.9rem;
             position: relative;
         }
@@ -389,13 +170,13 @@
             width: 8px;
             height: 8px;
             background: white;
-            border-radius: 9999px;
+            border-radius: var(--radius-full);
         }
 
         .badge {
             background: var(--gradient-danger);
             color: white;
-            border-radius: 9999px;
+            border-radius: var(--radius-full);
             padding: 2px 8px;
             font-size: 0.7rem;
             margin-left: 4px;
@@ -405,7 +186,7 @@
 
         main {
             flex: 1;
-            padding: 16px;
+            padding: var(--spacing-md);
             padding-bottom: 280px;
             overflow-y: auto;
             max-width: 1000px;
@@ -425,18 +206,24 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card {
             background: var(--surface);
-            padding: 24px;
-            border-radius: 24px;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-xl);
             box-shadow: var(--shadow-lg);
-            margin-bottom: 16px;
+            margin-bottom: var(--spacing-md);
             border: 1px solid var(--border);
-            transition: all 0.3s;
+            transition: var(--transition);
         }
 
         .card:hover {
@@ -445,13 +232,13 @@
         }
 
         h2 {
-            margin: 0 0 16px 0;
+            margin: 0 0 var(--spacing-md) 0;
             font-size: 1.4rem;
             font-weight: 700;
             color: var(--text);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-sm);
         }
 
         h2 i {
@@ -461,13 +248,13 @@
 
         input, select, textarea {
             width: 100%;
-            padding: 16px;
-            margin-bottom: 8px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
             border: 2px solid var(--border);
-            border-radius: 16px;
+            border-radius: var(--radius-lg);
             box-sizing: border-box;
             font-size: 1rem;
-            transition: all 0.3s;
+            transition: var(--transition);
             background: var(--surface);
             font-family: inherit;
             font-weight: 500;
@@ -486,18 +273,18 @@
 
         .btn {
             width: 100%;
-            padding: 16px;
+            padding: var(--spacing-md);
             border: none;
-            border-radius: 16px;
+            border-radius: var(--radius-lg);
             font-weight: 600;
             cursor: pointer;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-sm);
             font-size: 1rem;
-            transition: all 0.3s;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow);
@@ -520,7 +307,7 @@
 
         .btn:active {
             transform: scale(0.98);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-primary { background: var(--gradient-primary); }
@@ -530,16 +317,16 @@
         .btn-warning { background: var(--gradient-warning); }
         .btn-sm {
             width: auto;
-            padding: 8px 16px;
+            padding: var(--spacing-sm) var(--spacing-md);
             font-size: 0.85rem;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
         }
 
         .active-row {
             background: var(--surface);
             color: var(--text);
-            border-radius: 24px;
-            margin-bottom: 16px;
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-md);
             display: flex;
             align-items: center;
             overflow: hidden;
@@ -547,12 +334,29 @@
             height: 90px;
             position: relative;
             border: 2px solid transparent;
-            transition: all 0.3s;
+            transition: var(--transition);
         }
 
         .active-row:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
+        }
+
+        .active-row::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, var(--status-busy) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+
+        .active-row:hover::before {
+            opacity: 1;
         }
 
         .ar-color {
@@ -563,13 +367,13 @@
         }
 
         .ar-info-block {
-            padding: 0 16px;
+            padding: 0 var(--spacing-md);
             display: flex;
             flex-direction: column;
             justify-content: center;
             min-width: 160px;
             cursor: pointer;
-            gap: 4px;
+            gap: var(--spacing-xs);
         }
 
         .ar-device {
@@ -584,7 +388,7 @@
         .ar-client-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-xs);
             font-size: 0.85rem;
             color: var(--text-secondary);
         }
@@ -594,7 +398,7 @@
             text-decoration: none;
             font-weight: 600;
             border-bottom: 1px dashed var(--primary);
-            transition: all 0.3s;
+            transition: var(--transition);
         }
 
         .ar-phone-link:hover {
@@ -605,7 +409,7 @@
         .ar-timer-container {
             flex: 1;
             text-align: right;
-            padding-right: 16px;
+            padding-right: var(--spacing-md);
         }
 
         .ar-timer {
@@ -637,7 +441,7 @@
             justify-content: center;
             border-right: 1px solid var(--border);
             padding: 0;
-            transition: all 0.3s;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -666,7 +470,7 @@
         .ar-btn i {
             font-size: 1.4rem;
             margin-bottom: 4px;
-            transition: all 0.3s;
+            transition: var(--transition);
         }
 
         .ar-btn-label {
@@ -719,15 +523,15 @@
 
         .item-card {
             background: var(--surface);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 8px;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
             box-shadow: var(--shadow);
             border: 2px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -757,7 +561,7 @@
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--text);
-            margin-bottom: 4px;
+            margin-bottom: var(--spacing-xs);
         }
 
         .item-sub {
@@ -767,13 +571,13 @@
 
         .item-actions {
             display: flex;
-            gap: 8px;
+            gap: var(--spacing-xs);
         }
 
         .gear-btn {
             width: 40px;
             height: 40px;
-            border-radius: 9999px;
+            border-radius: var(--radius-full);
             border: 2px solid var(--border);
             background: var(--surface);
             cursor: pointer;
@@ -781,7 +585,7 @@
             align-items: center;
             justify-content: center;
             color: var(--text-secondary);
-            transition: all 0.3s;
+            transition: var(--transition);
             box-shadow: var(--shadow-sm);
         }
 
@@ -826,8 +630,8 @@
 
         .modal-content {
             background: var(--surface);
-            padding: 32px;
-            border-radius: 32px;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-2xl);
             width: 90%;
             max-width: 450px;
             max-height: 85vh;
@@ -859,7 +663,7 @@
         .history-table th {
             background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
             text-align: left;
-            padding: 16px 8px;
+            padding: var(--spacing-md) var(--spacing-sm);
             border-bottom: 2px solid var(--border);
             color: var(--text-secondary);
             position: sticky;
@@ -870,7 +674,7 @@
         }
 
         .history-table td {
-            padding: 16px 8px;
+            padding: var(--spacing-md) var(--spacing-sm);
             border-bottom: 1px solid var(--border);
             vertical-align: top;
             color: var(--text);
@@ -880,6 +684,7 @@
             background: rgba(99, 102, 241, 0.03);
         }
 
+        /* ИСПРАВЛЕНИЕ: Добавляем перечеркивание для удаленных записей */
         .tr-deleted td {
             text-decoration: line-through !important;
             color: var(--text-tertiary) !important;
@@ -905,19 +710,19 @@
             max-width: 450px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--spacing-sm);
             pointer-events: none;
         }
 
         .toast {
             background: var(--surface-dark);
             color: white;
-            padding: 16px 24px;
-            border-radius: 24px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-xl);
             box-shadow: var(--shadow-xl);
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: var(--spacing-md);
             font-weight: 600;
             animation: toastSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto;
@@ -954,9 +759,9 @@
             background: var(--gradient-primary);
             color: white;
             text-align: center;
-            padding: 32px;
-            border-radius: 32px;
-            margin-bottom: 16px;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-2xl);
+            margin-bottom: var(--spacing-md);
             box-shadow: var(--shadow-xl);
             position: relative;
             overflow: hidden;
@@ -983,21 +788,21 @@
 
         .filter-row {
             display: flex;
-            gap: 8px;
+            gap: var(--spacing-sm);
             flex-wrap: wrap;
-            margin-bottom: 8px;
+            margin-bottom: var(--spacing-sm);
             align-items: center;
         }
 
         .swap-search, .new-rent-search {
             width: 100%;
-            padding: 16px;
+            padding: var(--spacing-md);
             border: 2px solid var(--border);
-            border-radius: 16px;
-            margin-bottom: 8px;
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-sm);
             box-sizing: border-box;
             font-size: 1rem;
-            transition: all 0.3s;
+            transition: var(--transition);
         }
 
         .swap-search:focus, .new-rent-search:focus {
@@ -1008,17 +813,17 @@
         .tariff-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
         }
 
         .tariff-card {
             border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
             cursor: pointer;
             text-align: center;
-            transition: all 0.3s;
+            transition: var(--transition);
             background: var(--surface);
             box-shadow: var(--shadow);
         }
@@ -1035,18 +840,18 @@
         }
 
         .pay-choice-btn {
-            padding: 32px;
-            border-radius: 24px;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-xl);
             border: 3px solid transparent;
             font-size: 1.1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            gap: var(--spacing-md);
             cursor: pointer;
             flex: 1;
             background: var(--surface);
-            transition: all 0.3s;
+            transition: var(--transition);
             box-shadow: var(--shadow);
         }
 
@@ -1068,14 +873,14 @@
         }
 
         .list-opt {
-            padding: 16px;
-            border-radius: 12px;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
             background: var(--surface);
         }
 
@@ -1097,7 +902,7 @@
         .pay-icon {
             font-weight: 600;
             padding: 4px 10px;
-            border-radius: 9999px;
+            border-radius: var(--radius-full);
             font-size: 0.75rem;
             display: inline-block;
             margin-top: 4px;
@@ -1120,9 +925,9 @@
             display: none;
             background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
             color: #b91c1c;
-            padding: 16px;
-            border-radius: 16px;
-            margin-bottom: 16px;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-md);
             font-weight: 700;
             text-align: center;
             border: 2px solid var(--danger);
@@ -1141,18 +946,18 @@
             max-height: 350px;
             overflow-y: auto;
             border: 1px solid var(--border);
-            border-radius: 16px;
-            margin-bottom: 16px;
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-md);
             background: var(--surface);
         }
 
         .swap-radio-item {
             display: flex;
             align-items: center;
-            padding: 16px;
+            padding: var(--spacing-md);
             border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
             background: var(--surface);
         }
 
@@ -1163,26 +968,26 @@
         .swap-radio-input {
             width: 24px;
             height: 24px;
-            margin-right: 16px;
+            margin-right: var(--spacing-md);
             accent-color: var(--primary);
         }
 
         .cat-row {
             display: flex;
             justify-content: space-between;
-            padding: 16px 0;
+            padding: var(--spacing-md) 0;
             border-bottom: 1px solid var(--border);
             align-items: center;
         }
 
         .client-card {
             background: var(--surface);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 8px;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
             box-shadow: var(--shadow);
             border-left: 4px solid var(--success);
-            transition: all 0.3s;
+            transition: var(--transition);
         }
 
         .client-card.banned {
@@ -1198,10 +1003,10 @@
         .fleet-category-block {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            transition: all 0.3s;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            transition: var(--transition);
         }
 
         .fleet-category-block:hover {
@@ -1211,32 +1016,32 @@
 
         .fleet-cat-title {
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: var(--spacing-sm);
             font-size: 1rem;
             color: var(--text);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-xs);
         }
 
         .fleet-items-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: var(--spacing-sm);
         }
 
         .fleet-check-label {
             display: inline-flex;
             align-items: center;
             background: var(--surface);
-            padding: 16px 24px;
-            border-radius: 16px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
             border: 2px solid var(--border);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
             user-select: none;
             width: auto;
-            gap: 8px;
+            gap: var(--spacing-sm);
         }
 
         .fleet-check-label:hover {
@@ -1259,22 +1064,23 @@
             display: flex;
             align-items: center;
             color: var(--text);
-            gap: 8px;
+            gap: var(--spacing-sm);
         }
 
+        /* ИСПРАВЛЕНИЕ: Выпадающие списки внутри полей ввода */
         .input-wrapper {
             position: relative;
-            margin-bottom: 16px;
+            margin-bottom: var(--spacing-md);
         }
 
         .suggestions-box {
             position: absolute;
-            bottom: 100%;
+            bottom: 100%; /* Располагается СВЕРХУ поля ввода */
             left: 0;
             right: 0;
             background: var(--surface);
             border: 2px solid var(--border);
-            border-radius: 16px 16px 0 0;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
             max-height: 250px;
             overflow-y: auto;
             z-index: var(--z-suggestions);
@@ -1284,11 +1090,11 @@
         }
 
         .suggestion-item {
-            padding: 16px;
+            padding: var(--spacing-md);
             border-bottom: 1px solid var(--border);
             cursor: pointer;
             font-size: 0.95rem;
-            transition: all 0.3s;
+            transition: var(--transition);
             background: var(--surface);
         }
 
@@ -1301,26 +1107,27 @@
             font-size: 0.75rem;
             color: var(--text-secondary);
             text-align: center;
-            margin-top: 8px;
-            padding: 8px;
-            border-radius: 12px;
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
             background: rgba(99, 102, 241, 0.05);
             border: 1px solid var(--border);
         }
 
+        /* Кнопки экспорта */
         .export-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             padding: 10px 20px;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s;
-            margin-bottom: 16px;
+            transition: var(--transition);
+            margin-bottom: var(--spacing-md);
             box-shadow: var(--shadow);
         }
 
@@ -1341,7 +1148,7 @@
             color: var(--text-secondary);
             margin-top: 8px;
             padding: 8px;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             background: rgba(99, 102, 241, 0.05);
             font-weight: 600;
         }
@@ -1360,7 +1167,7 @@
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
             padding: 4px 10px;
-            border-radius: 9999px;
+            border-radius: var(--radius-full);
             font-size: 0.75rem;
             font-weight: 700;
             display: inline-flex;
@@ -1369,218 +1176,85 @@
             margin-left: 8px;
         }
 
-        .account-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            color: var(--text);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 9999;
-            border: 2px solid var(--border);
-        }
-        
-        .account-color-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        
-        .switch-account-btn {
-            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-            color: white;
-            border: none;
-            padding: 6px 15px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-left: 12px;
-            transition: all 0.3s;
-        }
-        
-        .switch-account-btn:hover {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-            transform: translateY(-1px);
-        }
-
         @media (max-width: 768px) {
-            .auth-container { padding: 30px 20px; }
-            .auth-title { font-size: 1.8rem; }
-            .account-list { max-height: 300px; }
-            main { padding: 16px; padding-bottom: 320px; }
-            .card { padding: 16px; }
-            .ar-actions { width: 160px; }
-            .ar-device { font-size: 1.5rem; }
-            .ar-timer { font-size: 2.2rem; }
-            .tariff-grid { grid-template-columns: 1fr; }
-            .modal-content { padding: 24px; max-width: 95%; }
+            main {
+                padding: var(--spacing-md);
+                padding-bottom: 320px;
+            }
+            
+            .card {
+                padding: var(--spacing-md);
+            }
+            
+            .ar-actions {
+                width: 160px;
+            }
+            
+            .ar-device {
+                font-size: 1.5rem;
+            }
+            
+            .ar-timer {
+                font-size: 2.2rem;
+            }
+            
+            .tariff-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: var(--spacing-lg);
+                max-width: 95%;
+            }
         }
 
         @media (max-width: 480px) {
-            .auth-container { border-radius: 24px; }
-            .auth-btn { padding: 16px; font-size: 1.1rem; }
-            .color-picker { grid-template-columns: repeat(4, 1fr); }
-            .color-option { width: 35px; height: 35px; font-size: 12px; }
-            header { padding: 4px 8px; }
-            .nav-btn { padding: 4px 8px; font-size: 0.8rem; }
-            .active-row { height: 80px; }
-            .ar-actions { width: 140px; }
-            .ar-device { font-size: 1.3rem; }
-            .ar-timer { font-size: 1.8rem; }
-            .ar-btn-label { font-size: 0.5rem; }
+            header {
+                padding: var(--spacing-xs) var(--spacing-sm);
+            }
+            
+            .nav-btn {
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 0.8rem;
+            }
+            
+            .active-row {
+                height: 80px;
+            }
+            
+            .ar-actions {
+                width: 140px;
+            }
+            
+            .ar-device {
+                font-size: 1.3rem;
+            }
+            
+            .ar-timer {
+                font-size: 1.8rem;
+            }
+            
+            .ar-btn-label {
+                font-size: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- ЭКРАН АВТОРИЗАЦИИ -->
-<div id="auth-screen" class="auth-screen">
-    <div class="auth-container">
-        <h1 class="auth-title">
-            <i class="fas fa-store"></i> Управление точками проката
-        </h1>
-        <p class="auth-subtitle">
-            Создайте или выберите точку проката для работы. Каждая точка имеет отдельные данные и пароль.
-        </p>
-        
-        <div class="account-list" id="account-list">
-            <div style="padding:20px; text-align:center; color:var(--text-tertiary);">
-                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:15px;"></i>
-                <div>Загрузка списка точек проката...</div>
-            </div>
-        </div>
-        
-        <button class="auth-btn" id="create-account-btn">
-            <i class="fas fa-plus-circle"></i> Добавить новую точку проката
-        </button>
-    </div>
-</div>
-
-<!-- МОДАЛЬНОЕ ОКНО СОЗДАНИЯ АККАУНТА -->
-<div id="create-account-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 500px;">
-        <h2 style="margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-plus"></i> Новая точка проката
-        </h2>
-        <p style="color: var(--text-secondary); margin-bottom: 25px;">
-            Создайте новую точку проката с уникальным названием и цветом
-        </p>
-        
-        <input type="text" id="new-account-name" placeholder="Название точки (напр. 'Центральный прокат')" style="margin-bottom: 20px;">
-        
-        <p style="text-align: left; margin-bottom: 12px; font-weight: 600; color: var(--text);">Выберите цвет:</p>
-        <div class="color-picker" id="color-picker">
-            <!-- Цвета будут добавлены динамически -->
-        </div>
-        
-        <div style="background: rgba(255, 243, 224, 0.3); border-left: 4px solid var(--warning); padding: 15px; border-radius: 12px; margin: 20px 0; text-align: left;">
-            <p style="margin: 0; font-weight: 600; color: #92400e;">
-                <i class="fas fa-lock"></i> Пароль по умолчанию: <strong>0000</strong>
-            </p>
-            <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: #78350f;">
-                Вы сможете изменить пароль в настройках точки после создания
-            </p>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
-            <button class="btn btn-secondary" id="cancel-create-btn">
-                <i class="fas fa-times"></i> Отмена
-            </button>
-            <button class="btn btn-primary" id="confirm-create-btn">
-                <i class="fas fa-check"></i> Создать точку
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- МОДАЛЬНОЕ ОКНО ВВОДА ПАРОЛЯ -->
-<div id="password-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 450px;">
-        <h2 style="margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-key"></i> Вход в точку проката
-        </h2>
-        <p id="password-account-name" style="color: var(--text-secondary); margin-bottom: 25px; font-weight: 600;"></p>
-        
-        <input type="password" id="account-password" placeholder="Введите пароль (по умолчанию: 0000)" class="auth-input" value="0000">
-        
-        <button class="auth-btn" id="verify-password-btn" style="margin-top: 10px;">
-            <i class="fas fa-sign-in-alt"></i> Войти в точку
-        </button>
-        
-        <button class="forgot-password" id="forgot-password-btn" style="margin-top:15px;">
-            <i class="fas fa-question-circle"></i> Забыли пароль?
-        </button>
-    </div>
-</div>
-
-<!-- МОДАЛЬНОЕ ОКНО СБРОСА ПАРОЛЯ -->
-<div id="forgot-password-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 450px;">
-        <h2 style="margin-top: 0; color: var(--danger); display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-unlock-alt"></i> Сброс пароля
-        </h2>
-        <p style="color: var(--text-secondary); margin-bottom: 20px; text-align: left;">
-            Для сброса пароля введите мастер-код администратора
-        </p>
-        
-        <input type="password" id="master-password" placeholder="Мастер-код администратора" class="auth-input">
-        
-        <div style="background: rgba(255, 243, 224, 0.3); border-left: 4px solid var(--warning); padding: 15px; border-radius: 12px; margin: 20px 0; text-align: left;">
-            <p style="margin: 0; font-weight: 600; color: #92400e;">
-                <i class="fas fa-info-circle"></i> Мастер-код: <strong>89144892253</strong>
-            </p>
-            <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: #78350f;">
-                После сброса пароль точки будет установлен в "0000"
-            </p>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
-            <button class="btn btn-secondary" id="cancel-forgot-btn">
-                <i class="fas fa-times"></i> Отмена
-            </button>
-            <button class="btn btn-danger" id="reset-password-btn">
-                <i class="fas fa-sync-alt"></i> Сбросить пароль
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ИНДИКАТОР ТЕКУЩЕГО АККАУНТА -->
-<div id="account-badge" class="account-badge" style="display: none;">
-    <span class="account-color-indicator" id="account-color-indicator"></span>
-    <span id="account-name-display">Аккаунт</span>
-    <button class="switch-account-btn" id="switch-account-btn">
-        <i class="fas fa-exchange-alt"></i> Сменить
-    </button>
-</div>
-
-<!-- ОСНОВНОЙ ИНТЕРФЕЙС ПРИЛОЖЕНИЯ -->
 <div id="toast-container"></div>
 
-<header style="display: none;" id="main-header">
-    <button class="nav-btn active" id="nav-active"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
-    <button class="nav-btn" id="nav-new"><i class="fas fa-plus"></i> Новая</button>
-    <button class="nav-btn" id="nav-fleet"><i class="fas fa-bicycle"></i> Парк</button>
-    <button class="nav-btn" id="nav-clients"><i class="fas fa-users"></i> Клиенты</button>
-    <button class="nav-btn" id="nav-surcharge"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
-    <button class="nav-btn" id="nav-finance"><i class="fas fa-chart-line"></i> История</button>
-    <button class="nav-btn" id="nav-settings"><i class="fas fa-cog"></i></button>
+<header>
+    <button class="nav-btn active" onclick="switchView('active')"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
+    <button class="nav-btn" onclick="switchView('new')"><i class="fas fa-plus"></i> Новая</button>
+    <button class="nav-btn" onclick="switchView('fleet')"><i class="fas fa-bicycle"></i> Парк</button>
+    <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
+    <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
+    <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
+    <button class="nav-btn" onclick="switchView('settings')"><i class="fas fa-cog"></i></button>
 </header>
 
-<main style="display: none;" id="main-content">
+<main>
     <div id="view-new" class="view">
         <div class="card">
             <h2><i class="fas fa-file-contract"></i> Оформление аренды</h2>
@@ -1623,9 +1297,9 @@
             <select id="new-fleet-cat" style="margin-bottom:12px;"></select>
             <div style="display:flex; gap:12px; margin-bottom:15px;">
                 <input type="text" id="new-fleet-name" placeholder="Номер/Имя устройства" style="flex:1;">
-                <input type="color" id="new-fleet-color" value="#6366f1" style="width:50px; padding:4px; height:50px; border-radius:12px; border:2px solid var(--border);">
+                <input type="color" id="new-fleet-color" value="#6366f1" style="width:50px; padding:4px; height:50px; border-radius:var(--radius-md); border:2px solid var(--border);">
             </div>
-            <button class="btn btn-primary" id="add-vehicle-btn"><i class="fas fa-plus-circle"></i> Добавить устройство</button>
+            <button class="btn btn-primary" onclick="addVehicle()"><i class="fas fa-plus-circle"></i> Добавить устройство</button>
         </div>
         <div id="fleet-list"></div>
     </div>
@@ -1633,10 +1307,10 @@
     <div id="view-clients" class="view">
         <div class="card">
             <h2><i class="fas fa-users"></i> База клиентов</h2>
-            <button class="export-btn" id="export-clients-btn">
+            <button class="export-btn" onclick="exportClients()">
                 <i class="fas fa-file-export"></i> Выгрузить клиентов в Excel
             </button>
-            <input type="text" id="client-search" placeholder="Поиск клиента..." style="margin-bottom:15px;">
+            <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()" style="margin-bottom:15px;">
             <div id="clients-list"></div>
         </div>
     </div>
@@ -1648,7 +1322,7 @@
         </div>
         <div class="card">
             <h2><i class="fas fa-filter"></i> Фильтры доплат</h2>
-            <button class="export-btn" id="export-surcharge-btn">
+            <button class="export-btn" onclick="exportSurcharge()">
                 <i class="fas fa-file-export"></i> Выгрузить доплаты в Excel
             </button>
             <div class="filter-row">
@@ -1657,7 +1331,7 @@
             </div>
             <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
         </div>
-        <div class="card" style="padding:0; overflow:hidden; border-radius:24px;">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
@@ -1674,7 +1348,7 @@
         </div>
         <div class="card">
             <h2><i class="fas fa-filter"></i> Фильтры истории</h2>
-            <button class="export-btn" id="export-history-btn">
+            <button class="export-btn" onclick="exportHistory()">
                 <i class="fas fa-file-export"></i> Выгрузить историю в Excel
             </button>
             <div class="filter-row">
@@ -1689,15 +1363,15 @@
             <div class="filter-row">
                 <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()" style="flex:2;">
                 <div class="device-filter-container" style="flex:1; position:relative;">
-                    <button class="btn btn-sm device-filter-btn" style="width:100%; background:var(--surface); color:var(--text); border:2px solid var(--border);" id="device-filter-btn">📱 Устройства <i class="fas fa-chevron-down"></i></button>
-                    <div id="dev-dd" class="device-dropdown" style="position:absolute; top:100%; left:0; width:100%; background:var(--surface); border:2px solid var(--border); border-radius:16px; box-shadow:var(--shadow-lg); z-index:50; display:none; max-height:350px; overflow-y:auto; padding:8px; margin-top:4px;">
-                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:12px; margin-bottom:8px; font-size:0.95rem;">
+                    <button class="btn btn-sm device-filter-btn" style="width:100%; background:var(--surface); color:var(--text); border:2px solid var(--border);" onclick="toggleDevDropdown()">📱 Устройства <i class="fas fa-chevron-down"></i></button>
+                    <div id="dev-dd" class="device-dropdown" style="position:absolute; top:100%; left:0; width:100%; background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); z-index:50; display:none; max-height:350px; overflow-y:auto; padding:8px; margin-top:4px;">
+                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-md); margin-bottom:8px; font-size:0.95rem;">
                         <div id="dev-dd-list"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card" style="padding:0; overflow:hidden; border-radius:24px;">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
@@ -1710,31 +1384,22 @@
     <div id="view-settings" class="view">
         <div class="card">
             <h2><i class="fas fa-layer-group"></i> Категории и настройки</h2>
-            <button class="btn btn-primary" id="open-cat-modal-btn" style="margin-bottom:15px;"><i class="fas fa-plus"></i> + Создать категорию</button>
+            <button class="btn btn-primary" onclick="openCatModal()" style="margin-bottom:15px;"><i class="fas fa-plus"></i> + Создать категорию</button>
             <div id="settings-list"></div>
         </div>
         <div class="card">
-            <button class="btn btn-success" id="wake-lock-btn" style="margin-bottom:12px;"><i class="fas fa-moon"></i> Включить режим "Не спать"</button>
-            <button class="btn btn-secondary" id="test-audio-btn" style="margin-bottom:12px;"><i class="fas fa-volume-up"></i> Разблокировать аудио</button>
+            <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:12px;"><i class="fas fa-moon"></i> Включить режим "Не спать"</button>
+            <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:12px;"><i class="fas fa-volume-up"></i> Разблокировать аудио</button>
             <div id="wakelock-status">Экран может погаснуть</div>
             <div class="sync-status" style="margin-top:15px;">
                 <i class="fas fa-cloud"></i> Статус синхронизации: <span id="firebase-status">Не подключено</span>
             </div>
-            <button class="btn btn-warning" id="force-upload-btn" style="margin-top:15px; background:var(--gradient-warning);">
+            <button class="btn btn-warning" onclick="forceUploadToCloud()" style="margin-top:15px; background:var(--gradient-warning);">
                 <i class="fas fa-cloud-upload-alt"></i> Принудительно загрузить данные в облако
             </button>
         </div>
         <div class="card">
-            <h3 style="margin:0 0 15px 0; color:var(--primary);"><i class="fas fa-user-shield"></i> Безопасность точки</h3>
-            <button class="btn btn-primary" id="change-password-btn" style="background:var(--gradient-primary); margin-bottom:12px;">
-                <i class="fas fa-key"></i> Изменить пароль точки
-            </button>
-            <button class="btn btn-danger" id="delete-account-btn" style="background:var(--gradient-danger);">
-                <i class="fas fa-trash-alt"></i> Удалить эту точку проката
-            </button>
-        </div>
-        <div class="card">
-            <button class="btn btn-danger" id="full-reset-btn" style="background:var(--gradient-danger);"><i class="fas fa-trash-alt"></i> ⚠️ Полный сброс данных</button>
+            <button class="btn btn-danger" onclick="fullReset()" style="background:var(--gradient-danger);"><i class="fas fa-trash-alt"></i> ⚠️ Полный сброс данных</button>
         </div>
     </div>
 </main>
@@ -1755,23 +1420,23 @@
 <div id="modal-start-confirm" class="modal-overlay">
     <div class="modal-content">
         <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:10px;"><i class="fas fa-wallet"></i> Способ оплаты</h3>
-        <div style="background:linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding:20px; border-radius:16px; margin:20px 0; text-align:center; border:1px solid var(--border);">
+        <div style="background:linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding:20px; border-radius:var(--radius-lg); margin:20px 0; text-align:center; border:1px solid var(--border);">
             <div id="confirm-tariff-name" style="font-weight:800; font-size:1.4rem; color:var(--primary); margin-bottom:8px;"></div>
             <div id="confirm-devices" style="margin:8px 0; color:var(--text-secondary); font-size:0.95rem;"></div>
             <div id="confirm-cost" style="margin-top:12px; font-weight:800; font-size:1.8rem; color:var(--text);"></div>
         </div>
         <p style="text-align:center; color:var(--text-secondary); margin:15px 0 20px; font-weight:500;">Выберите способ оплаты:</p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px;">
-            <div class="pay-choice-btn pay-choice-cash" id="pay-cash-btn">
+            <div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')">
                 <i class="fas fa-money-bill-wave" style="font-size:2.2rem;"></i>
                 <span style="font-weight:700; font-size:1.1rem;">Наличные</span>
             </div>
-            <div class="pay-choice-btn pay-choice-bank" id="pay-bank-btn">
+            <div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')">
                 <i class="fas fa-credit-card" style="font-size:2.2rem;"></i>
                 <span style="font-weight:700; font-size:1.1rem;">Банк/Карта</span>
             </div>
         </div>
-        <button class="btn btn-secondary" id="back-to-start-btn" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-arrow-left"></i> Вернуться</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-arrow-left"></i> Вернуться</button>
     </div>
 </div>
 
@@ -1784,8 +1449,8 @@
             <span style="color:var(--primary); font-weight:600;">Внимание:</span> после старта изменить тариф будет невозможно.
         </div>
         <div class="confirm-actions" style="display:flex; gap:15px;">
-            <button class="btn btn-secondary" id="cancel-final-start-btn" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-            <button class="btn btn-success" id="confirm-final-start-btn" style="flex:1;"><i class="fas fa-play-circle"></i> Старт</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-final-start')" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-success" onclick="realStartRental()" style="flex:1;"><i class="fas fa-play-circle"></i> Старт</button>
         </div>
     </div>
 </div>
@@ -1793,10 +1458,10 @@
 <div id="modal-sub" class="modal-overlay">
     <div class="modal-content">
         <h3 id="sub-title" style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-exchange-alt"></i> Замена устройства</h3>
-        <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства...">
+        <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)">
         <div id="swap-list-container" class="swap-list-container"></div>
-        <button class="btn btn-primary" id="btn-do-swap" disabled style="margin-top:15px;"><i class="fas fa-check-circle"></i> Подтвердить выбор</button>
-        <button class="btn btn-secondary" id="cancel-swap-btn" style="margin-top:12px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+        <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled style="margin-top:15px;"><i class="fas fa-check-circle"></i> Подтвердить выбор</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:12px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
@@ -1807,15 +1472,15 @@
         <input type="text" id="edit-cl-name" placeholder="Имя клиента" style="margin-bottom:12px;">
         <input type="tel" id="edit-cl-phone" placeholder="Телефон" style="margin-bottom:12px;">
         <textarea id="edit-cl-comment" placeholder="Комментарий (поломки, особенности)" rows="3" style="margin-bottom:15px; resize:vertical;"></textarea>
-        <label style="display:flex; align-items:center; gap:12px; margin:15px 0; padding:12px; background:rgba(239, 68, 68, 0.05); border-radius:12px; border:1px solid rgba(239, 68, 68, 0.3);">
+        <label style="display:flex; align-items:center; gap:12px; margin:15px 0; padding:12px; background:rgba(239, 68, 68, 0.05); border-radius:var(--radius-md); border:1px solid rgba(239, 68, 68, 0.3);">
             <input type="checkbox" id="edit-cl-block" style="width:auto; margin:0; accent-color:var(--danger);">
             <span style="color:var(--danger); font-weight:700; font-size:1.05rem;">Добавить в черный список</span>
         </label>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
-            <button class="btn btn-danger" id="delete-client-btn" style="background:var(--gradient-danger);"><i class="fas fa-trash"></i> Удалить</button>
-            <button class="btn btn-primary" id="save-client-btn"><i class="fas fa-save"></i> Сохранить</button>
+            <button class="btn btn-danger" onclick="delClient()" style="background:var(--gradient-danger);"><i class="fas fa-trash"></i> Удалить</button>
+            <button class="btn btn-primary" onclick="saveClient()"><i class="fas fa-save"></i> Сохранить</button>
         </div>
-        <button class="btn btn-secondary" id="close-client-modal-btn" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
@@ -1823,13 +1488,13 @@
     <div class="modal-content">
         <h3 style="margin-top:0; display:flex; align-items:center; gap:10px; color:var(--warning);"><i class="fas fa-tools"></i> Заметка к устройству</h3>
         <input type="hidden" id="note-v-id">
-        <div id="note-v-name" style="margin-bottom:15px; font-weight:700; font-size:1.2rem; color:var(--text); padding:12px; background:rgba(99, 102, 241, 0.05); border-radius:12px; text-align:center;"></div>
+        <div id="note-v-name" style="margin-bottom:15px; font-weight:700; font-size:1.2rem; color:var(--text); padding:12px; background:rgba(99, 102, 241, 0.05); border-radius:var(--radius-md); text-align:center;"></div>
         <textarea id="note-v-text" placeholder="Опишите проблему, статус или особенности устройства..." rows="5" style="margin-bottom:20px; resize:vertical; font-size:1.05rem; padding:14px;"></textarea>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <button class="btn btn-danger" id="delete-note-btn" style="background:var(--gradient-danger);"><i class="fas fa-eraser"></i> Удалить заметку</button>
-            <button class="btn btn-primary" id="save-note-btn"><i class="fas fa-save"></i> Сохранить</button>
+            <button class="btn btn-danger" onclick="deleteVehicleNote()" style="background:var(--gradient-danger);"><i class="fas fa-eraser"></i> Удалить заметку</button>
+            <button class="btn btn-primary" onclick="saveVehicleNote()"><i class="fas fa-save"></i> Сохранить</button>
         </div>
-        <button class="btn btn-secondary" id="close-note-modal-btn" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
@@ -1842,8 +1507,8 @@
         <div style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);">
             <h4 style="margin-bottom:15px; display:flex; align-items:center; gap:8px; color:var(--primary);"><i class="fas fa-tags"></i> Тарифы категории</h4>
             <div id="cat-tariffs-list" style="margin-bottom:20px; max-height:200px; overflow-y:auto;"></div>
-            <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:16px; margin-top:10px; border:1px solid var(--border);">
-                <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:12px; border:2px solid var(--border);">
+            <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:var(--radius-lg); margin-top:10px; border:1px solid var(--border);">
+                <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:var(--radius-md); border:2px solid var(--border);">
                     <option value="fix">Фиксированный тариф (30 мин за 300₽)</option>
                     <option value="std">Поминутный тариф (Старт 50₽ + 10₽/мин)</option>
                 </select>
@@ -1852,12 +1517,12 @@
                     <input type="number" id="nt-v1" placeholder="Длительность / Стартовая цена" min="0">
                     <input type="number" id="nt-v2" placeholder="Цена всего / Цена за минуту" min="0">
                 </div>
-                <button class="btn btn-success btn-sm" id="add-tariff-btn" style="width:100%; background:var(--gradient-success);"><i class="fas fa-plus"></i> Добавить тариф</button>
+                <button class="btn btn-success btn-sm" onclick="addTariffIO()" style="width:100%; background:var(--gradient-success);"><i class="fas fa-plus"></i> Добавить тариф</button>
             </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:25px;">
-            <button class="btn btn-secondary" id="close-cat-modal-btn" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-            <button class="btn btn-primary" id="save-cat-btn"><i class="fas fa-save"></i> Сохранить</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-cat')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-primary" onclick="saveCat()"><i class="fas fa-save"></i> Сохранить</button>
         </div>
     </div>
 </div>
@@ -1869,18 +1534,18 @@
         <p style="color:var(--text-secondary); margin-bottom:20px; font-size:0.95rem;">Введите пароль администратора для доступа к настройкам</p>
         <input type="password" id="auth-pass-input" placeholder="••••••••" style="text-align:center; font-size:1.6rem; letter-spacing:6px; margin-bottom:25px; padding:14px;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px;">
-            <button class="btn btn-secondary" id="cancel-auth-btn" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-            <button class="btn btn-success" id="submit-auth-btn"><i class="fas fa-unlock"></i> Войти</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-auth')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-success" onclick="submitAuth()"><i class="fas fa-unlock"></i> Войти</button>
         </div>
         <hr style="margin:20px 0; border:0; border-top:1px solid var(--border);">
-        <button class="btn btn-sm btn-danger" id="reset-pass-btn" style="width:100%; background:rgba(239, 68, 68, 0.1); color:var(--danger); border:1px solid var(--danger);">
+        <button class="btn btn-sm btn-danger" style="width:100%; background:rgba(239, 68, 68, 0.1); color:var(--danger); border:1px solid var(--danger);" onclick="resetPassBtnAction()">
             <i class="fas fa-key"></i> Сбросить пароль (требуется мастер-код)
         </button>
     </div>
 </div>
 
 <script>
-    // === КОНФИГУРАЦИЯ FIREBASE ===
+    // === КОНФИГУРАЦИЯ FIREBASE С ВАШИМИ ДАННЫМИ ===
     const firebaseConfig = {
         apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
         authDomain: "skuter75rus-3d55d.firebaseapp.com",
@@ -1892,662 +1557,67 @@
         measurementId: "G-J47C67V554"
     };
 
-    // Глобальные переменные
+    // Глобальные переменные для Firebase
     let firebaseApp = null;
     let firebaseDb = null;
     let isFirebaseConnected = false;
     let lastSyncTime = 0;
     
-    // Переменные для системы аккаунтов
-    let currentAccountId = localStorage.getItem('currentAccountId') || null;
-    let currentAccountName = '';
-    let currentAccountColor = '';
-    let accountsList = {}; // Список всех аккаунтов
-    
-    // Доступные цвета для точек проката
-    const ACCOUNT_COLORS = [
-        { color: '#10b981', icon: 'fa-scooter' },   // Зеленый - самокаты
-        { color: '#f59e0b', icon: 'fa-bicycle' },   // Оранжевый - велосипеды
-        { color: '#6366f1', icon: 'fa-motorcycle' }, // Фиолетовый - мопеды
-        { color: '#ef4444', icon: 'fa-motorcycle' }, // Красный - мотоциклы
-        { color: '#8b5cf6', icon: 'fa-car' },        // Индиго - авто
-        { color: '#ec4899', icon: 'fa-skateboard' }, // Розовый - скейтборды
-        { color: '#3b82f6', icon: 'fa-taxi' },       // Синий - такси
-        { color: '#14b8a6', icon: 'fa-ship' }        // Бирюзовый - водный транспорт
-    ];
-
-    // === ИНИЦИАЛИЗАЦИЯ FIREBASE ===
+    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ FIREBASE ===
     function initFirebase() {
         try {
+            // Проверяем, не инициализировано ли уже приложение
             if (!firebaseApp) {
                 firebaseApp = firebase.initializeApp(firebaseConfig);
                 firebaseDb = firebaseApp.database();
                 firebaseDb.goOnline();
                 
-                // Отслеживание состояния подключения
+                // Отслеживаем состояние подключения
                 firebaseDb.ref('.info/connected').on('value', (snapshot) => {
                     const connected = snapshot.val();
                     isFirebaseConnected = connected;
                     updateSyncStatus(connected);
                     
                     if (connected) {
-                        console.log("✅ Firebase подключен");
-                        // Загружаем список аккаунтов
-                        loadAccountsList();
+                        console.log("✅ Firebase подключен к базе данных");
+                        
+                        // Подписываемся на изменения в базе данных
+                        firebaseDb.ref('rentmaster').on('value', (snapshot) => {
+                            const newData = snapshot.val();
+                            if (newData) {
+                                // Обновляем глобальную базу данных
+                                window.updateGlobalDB(newData);
+                                lastSyncTime = Date.now();
+                                document.getElementById('sync-state').innerText = 'синхронизировано';
+                                document.getElementById('sync-state').className = 'sync-online';
+                                showToast("🔄 Данные синхронизированы с облаком", 'success');
+                            }
+                        }, (error) => {
+                            console.error("❌ Ошибка чтения данных из Firebase:", error);
+                            showToast("⚠️ Ошибка синхронизации с облаком", 'warning');
+                        });
                     } else {
-                        console.log("⚠️ Firebase отключен");
-                        showToast("⚠️ Нет подключения к облаку", 'warning');
-                        // Показываем сохраненные аккаунты из локального хранилища
-                        renderAccountsList();
-                        // Создаем тестовую точку если нет сохраненных
-                        createTestAccountIfEmpty();
+                        console.log("⚠️ Firebase отключен от базы данных");
                     }
                 });
-            } else {
-                // Firebase уже инициализирован, загружаем аккаунты
-                loadAccountsList();
+                
+                // Проверяем подключение через 3 секунды
+                setTimeout(() => {
+                    if (!isFirebaseConnected) {
+                        console.warn("⚠️ Firebase не подключился в течение 3 секунд");
+                        showToast("⚠️ Проблема с подключением к облаку", 'warning');
+                    }
+                }, 3000);
+                
             }
         } catch (error) {
-            console.error("❌ Ошибка инициализации Firebase:", error);
-            showToast("❌ Ошибка подключения к облаку", 'danger');
-            // Показываем пустой список аккаунтов для возможности работы в офлайне
-            renderAccountsList();
-            // Создаем тестовую точку если нет сохраненных
-            createTestAccountIfEmpty();
+            console.error("❌ КРИТИЧЕСКАЯ ОШИБКА инициализации Firebase:", error);
+            showToast("❌ Ошибка подключения к облаку. Проверьте конфигурацию.", 'danger');
+            updateSyncStatus(false);
         }
     }
     
-    // Загрузка списка аккаунтов из облака
-    function loadAccountsList() {
-        if (!firebaseDb) {
-            // Если нет подключения к Firebase, показываем сохраненные аккаунты из локального хранилища
-            const savedAccounts = localStorage.getItem('accountsList');
-            if (savedAccounts) {
-                accountsList = JSON.parse(savedAccounts);
-            }
-            renderAccountsList();
-            // Создаем тестовую точку если нет сохраненных
-            createTestAccountIfEmpty();
-            return;
-        }
-        
-        firebaseDb.ref('accounts').once('value')
-            .then((snapshot) => {
-                accountsList = snapshot.val() || {};
-                // Сохраняем в локальное хранилище для офлайн-доступа
-                localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                renderAccountsList();
-                
-                // Создаем тестовую точку если нет сохраненных
-                createTestAccountIfEmpty();
-                
-                // Если выбран аккаунт и он существует, показываем основной интерфейс
-                if (currentAccountId && accountsList[currentAccountId]) {
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('main-content').style.display = 'block';
-                    document.getElementById('account-badge').style.display = 'flex';
-                    initAppForAccount();
-                }
-            })
-            .catch((error) => {
-                console.error("❌ Ошибка загрузки списка аккаунтов:", error);
-                // Показываем сохраненные аккаунты из локального хранилища
-                const savedAccounts = localStorage.getItem('accountsList');
-                if (savedAccounts) {
-                    accountsList = JSON.parse(savedAccounts);
-                }
-                renderAccountsList();
-                // Создаем тестовую точку если нет сохраненных
-                createTestAccountIfEmpty();
-            });
-    }
-    
-    // Создание тестовой точки если нет сохраненных аккаунтов
-    function createTestAccountIfEmpty() {
-        if (Object.keys(accountsList).length === 0) {
-            console.log("Создаем тестовую точку проката...");
-            
-            // Создаем тестовую точку
-            const testAccountId = 'acc_test_' + Date.now();
-            const testAccount = {
-                id: testAccountId,
-                name: 'Тестовая точка проката',
-                color: '#10b981',
-                icon: 'fa-scooter',
-                password: '0000',
-                createdAt: Date.now()
-            };
-            
-            // Сохраняем в локальное хранилище
-            accountsList[testAccountId] = testAccount;
-            localStorage.setItem('accountsList', JSON.stringify(accountsList));
-            
-            // Создаем данные для точки
-            const testData = {
-                categories: [{id:1, name: 'Тестовая точка проката', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
-                fleet: [],
-                clients: [],
-                rentals: [],
-                history: [],
-                password: '4892'
-            };
-            
-            localStorage.setItem(`rm_final_keyboard_fix_${testAccountId}`, JSON.stringify(testData));
-            
-            // Сохраняем в облако если есть подключение
-            if (firebaseDb) {
-                firebaseDb.ref(`accounts/${testAccountId}`).set(testAccount)
-                    .then(() => {
-                        firebaseDb.ref(`rentmaster/${testAccountId}`).set(testData)
-                            .then(() => {
-                                console.log("✅ Тестовая точка создана и сохранена в облаке");
-                                renderAccountsList();
-                                // Автоматически входим в тестовую точку
-                                autoLoginToTestAccount(testAccountId);
-                            })
-                            .catch((error) => {
-                                console.error("Ошибка создания данных тестовой точки:", error);
-                                renderAccountsList();
-                                autoLoginToTestAccount(testAccountId);
-                            });
-                    })
-                    .catch((error) => {
-                        console.error("Ошибка создания аккаунта:", error);
-                        renderAccountsList();
-                        autoLoginToTestAccount(testAccountId);
-                    });
-            } else {
-                console.log("✅ Тестовая точка создана в офлайн-режиме");
-                renderAccountsList();
-                // Автоматически входим в тестовую точку
-                autoLoginToTestAccount(testAccountId);
-            }
-        }
-    }
-    
-    // Автоматический вход в тестовую точку
-    function autoLoginToTestAccount(accountId) {
-        currentAccountId = accountId;
-        currentAccountName = accountsList[accountId].name;
-        currentAccountColor = accountsList[accountId].color;
-        localStorage.setItem('currentAccountId', accountId);
-        
-        // Показываем основной интерфейс
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('main-header').style.display = 'flex';
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('account-badge').style.display = 'flex';
-        
-        // Обновляем индикатор аккаунта
-        updateAccountBadge();
-        
-        // Инициализируем приложение
-        initAppForAccount();
-        
-        showToast(`✅ Добро пожаловать в "${currentAccountName}"!`, 'success');
-    }
-    
-    // Отображение списка аккаунтов
-    function renderAccountsList() {
-        const container = document.getElementById('account-list');
-        container.innerHTML = '';
-        
-        if (Object.keys(accountsList).length === 0) {
-            container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-tertiary);">Нет созданных точек проката.<br>Нажмите кнопку ниже, чтобы добавить первую точку.</div>';
-            return;
-        }
-        
-        Object.entries(accountsList).forEach(([id, account]) => {
-            const div = document.createElement('div');
-            div.className = 'account-item';
-            if (currentAccountId === id) div.classList.add('active');
-            div.innerHTML = `
-                <div class="account-info" onclick="selectAccount('${id}')">
-                    <span class="account-color" style="background:${account.color}"><i class="fas ${account.icon || 'fa-store'}"></i></span>
-                    <div class="account-name">${account.name}</div>
-                </div>
-                <div class="account-actions">
-                    <button class="account-btn delete" onclick="event.stopPropagation(); confirmDeleteAccount('${id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            container.appendChild(div);
-        });
-    }
-    
-    // Выбор аккаунта (запрашиваем пароль)
-    function selectAccount(accountId) {
-        if (!accountsList[accountId]) return;
-        
-        currentAccountId = accountId;
-        currentAccountName = accountsList[accountId].name;
-        currentAccountColor = accountsList[accountId].color;
-        
-        // Показываем модальное окно ввода пароля
-        document.getElementById('password-account-name').innerText = accountsList[accountId].name;
-        document.getElementById('account-password').value = '0000'; // По умолчанию 0000
-        document.getElementById('password-modal').style.display = 'flex';
-    }
-    
-    // Проверка пароля аккаунта
-    function verifyAccountPassword() {
-        const password = document.getElementById('account-password').value || '0000';
-        const correctPassword = accountsList[currentAccountId].password || '0000';
-        
-        if (password === correctPassword) {
-            document.getElementById('password-modal').style.display = 'none';
-            localStorage.setItem('currentAccountId', currentAccountId);
-            
-            // Показываем основной интерфейс
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'block';
-            document.getElementById('account-badge').style.display = 'flex';
-            
-            // Обновляем индикатор аккаунта
-            updateAccountBadge();
-            
-            // Инициализируем приложение
-            initAppForAccount();
-            
-            showToast(`✅ Вход выполнен в "${currentAccountName}"`, 'success');
-        } else {
-            showToast("❌ Неверный пароль", 'danger');
-            document.getElementById('account-password').style.border = "2px solid var(--danger)";
-            setTimeout(() => {
-                document.getElementById('account-password').style.border = "2px solid var(--border)";
-            }, 1500);
-        }
-    }
-    
-    // Обновление индикатора аккаунта
-    function updateAccountBadge() {
-        if (!currentAccountId || !accountsList[currentAccountId]) return;
-        
-        document.getElementById('account-name-display').innerText = accountsList[currentAccountId].name;
-        document.getElementById('account-color-indicator').style.backgroundColor = accountsList[currentAccountId].color;
-        
-        // Обновляем цвета в интерфейсе
-        document.documentElement.style.setProperty('--primary', accountsList[currentAccountId].color);
-        document.documentElement.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${accountsList[currentAccountId].color} 0%, ${shadeColor(accountsList[currentAccountId].color, -20)} 100%)`);
-    }
-    
-    // Вспомогательная функция для затемнения цвета
-    function shadeColor(color, percent) {
-        let R = parseInt(color.substring(1,3),16);
-        let G = parseInt(color.substring(3,5),16);
-        let B = parseInt(color.substring(5,7),16);
-        
-        R = parseInt(R * (100 + percent) / 100);
-        G = parseInt(G * (100 + percent) / 100);
-        B = parseInt(B * (100 + percent) / 100);
-        
-        R = (R<255)?R:255;  
-        G = (G<255)?G:255;  
-        B = (B<255)?B:255;  
-        
-        R = Math.max(0, R).toString(16).padStart(2, '0');
-        G = Math.max(0, G).toString(16).padStart(2, '0');
-        B = Math.max(0, B).toString(16).padStart(2, '0');
-        
-        return `#${R}${G}${B}`;
-    }
-    
-    // Показать модальное окно создания аккаунта
-    function showCreateAccountModal() {
-        console.log("Открытие модального окна создания аккаунта");
-        
-        // Очищаем и заполняем цвета
-        const colorPicker = document.getElementById('color-picker');
-        colorPicker.innerHTML = '';
-        
-        ACCOUNT_COLORS.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'color-option';
-            div.style.backgroundColor = item.color;
-            div.innerHTML = `<i class="fas fa-${item.icon}"></i>`;
-            div.onclick = () => selectAccountColor(index);
-            colorPicker.appendChild(div);
-        });
-        
-        // Выбираем первый цвет по умолчанию
-        colorPicker.firstChild.classList.add('selected');
-        document.getElementById('new-account-name').value = 'Новая точка проката';
-        document.getElementById('create-account-modal').style.display = 'flex';
-    }
-    
-    // Выбор цвета для нового аккаунта
-    function selectAccountColor(index) {
-        document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-        document.querySelectorAll('.color-option')[index].classList.add('selected');
-    }
-    
-    // Создание нового аккаунта
-    function createNewAccount() {
-        console.log("Создание новой точки проката...");
-        
-        const name = document.getElementById('new-account-name').value.trim();
-        if (!name) {
-            showToast("⚠️ Введите название точки проката", 'warning');
-            return;
-        }
-        
-        // Получаем выбранный цвет
-        const selectedColorIndex = [...document.querySelectorAll('.color-option')].findIndex(el => el.classList.contains('selected'));
-        const selectedColor = ACCOUNT_COLORS[selectedColorIndex] || ACCOUNT_COLORS[0];
-        
-        // Генерируем уникальный ID
-        const newAccountId = 'acc_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-        
-        // Создаем новый аккаунт
-        const newAccount = {
-            id: newAccountId,
-            name: name,
-            color: selectedColor.color,
-            icon: selectedColor.icon,
-            password: '0000', // Пароль по умолчанию
-            createdAt: Date.now()
-        };
-        
-        console.log("Создан новый аккаунт:", newAccount);
-        
-        // Сохраняем в облако если есть подключение
-        if (firebaseDb) {
-            console.log("Сохранение в Firebase...");
-            firebaseDb.ref(`accounts/${newAccountId}`).set(newAccount)
-                .then(() => {
-                    console.log("Аккаунт сохранен в Firebase");
-                    // Создаем пустую структуру данных для точки
-                    const defaultData = {
-                        categories: [{id:1, name: name, baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
-                        fleet: [],
-                        clients: [],
-                        rentals: [],
-                        history: [],
-                        password: '4892'
-                    };
-                    
-                    firebaseDb.ref(`rentmaster/${newAccountId}`).set(defaultData)
-                        .then(() => {
-                            console.log("Данные точки сохранены в Firebase");
-                            closeCreateAccountModal();
-                            showToast(`✅ Точка проката "${name}" создана! Пароль по умолчанию: 0000`, 'success');
-                            // Обновляем список аккаунтов
-                            accountsList[newAccountId] = newAccount;
-                            localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                            renderAccountsList();
-                            
-                            // Автоматически входим
-                            currentAccountId = newAccountId;
-                            currentAccountName = name;
-                            currentAccountColor = selectedColor.color;
-                            localStorage.setItem('currentAccountId', newAccountId);
-                            document.getElementById('auth-screen').style.display = 'none';
-                            document.getElementById('main-header').style.display = 'flex';
-                            document.getElementById('main-content').style.display = 'block';
-                            document.getElementById('account-badge').style.display = 'flex';
-                            updateAccountBadge();
-                            initAppForAccount();
-                        })
-                        .catch((error) => {
-                            console.error("Ошибка создания данных точки:", error);
-                            showToast("❌ Ошибка создания точки", 'danger');
-                        });
-                })
-                .catch((error) => {
-                    console.error("Ошибка создания аккаунта:", error);
-                    showToast("❌ Ошибка создания точки проката", 'danger');
-                });
-        } else {
-            console.log("Сохранение в офлайн-режиме...");
-            // Работаем в офлайн-режиме
-            accountsList[newAccountId] = newAccount;
-            localStorage.setItem('accountsList', JSON.stringify(accountsList));
-            localStorage.setItem(`rm_final_keyboard_fix_${newAccountId}`, JSON.stringify({
-                categories: [{id:1, name: name, baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
-                fleet: [],
-                clients: [],
-                rentals: [],
-                history: [],
-                password: '4892'
-            }));
-            closeCreateAccountModal();
-            showToast(`✅ Точка проката "${name}" создана! (офлайн-режим)`, 'success');
-            renderAccountsList();
-            
-            // Автоматически входим
-            currentAccountId = newAccountId;
-            currentAccountName = name;
-            currentAccountColor = selectedColor.color;
-            localStorage.setItem('currentAccountId', newAccountId);
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'block';
-            document.getElementById('account-badge').style.display = 'flex';
-            updateAccountBadge();
-            initAppForAccount();
-        }
-    }
-    
-    // Закрыть модальное окно создания
-    function closeCreateAccountModal() {
-        document.getElementById('create-account-modal').style.display = 'none';
-    }
-    
-    // Сменить аккаунт (выйти в меню выбора)
-    function switchAccount() {
-        save(); // Сохраняем текущие данные
-        document.getElementById('main-header').style.display = 'none';
-        document.getElementById('main-content').style.display = 'none';
-        document.getElementById('account-badge').style.display = 'none';
-        document.getElementById('auth-screen').style.display = 'flex';
-    }
-    
-    // Удалить аккаунт (с подтверждением)
-    function confirmDeleteAccount(accountId) {
-        if (confirm(`Вы уверены, что хотите удалить точку "${accountsList[accountId].name}"?\n\nВсе данные этой точки будут безвозвратно удалены!`)) {
-            deleteAccount(accountId);
-        }
-    }
-    
-    // Удаление аккаунта
-    function deleteAccount(accountId) {
-        if (firebaseDb) {
-            // Удаляем данные приложения
-            firebaseDb.ref(`rentmaster/${accountId}`).remove()
-                .then(() => {
-                    // Удаляем информацию об аккаунте
-                    firebaseDb.ref(`accounts/${accountId}`).remove()
-                        .then(() => {
-                            // Удаляем из локального хранилища
-                            delete accountsList[accountId];
-                            localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                            localStorage.removeItem(`rm_final_keyboard_fix_${accountId}`);
-                            
-                            // Если это текущий аккаунт, выходим
-                            if (currentAccountId === accountId) {
-                                currentAccountId = null;
-                                localStorage.removeItem('currentAccountId');
-                                switchAccount();
-                            }
-                            renderAccountsList();
-                            showToast("✅ Точка проката удалена", 'success');
-                        })
-                        .catch((error) => {
-                            console.error("Ошибка удаления аккаунта:", error);
-                            showToast("❌ Ошибка удаления точки", 'danger');
-                        });
-                })
-                .catch((error) => {
-                    console.error("Ошибка удаления данных точки:", error);
-                    showToast("❌ Ошибка удаления данных", 'danger');
-                });
-        } else {
-            // Офлайн-режим
-            delete accountsList[accountId];
-            localStorage.setItem('accountsList', JSON.stringify(accountsList));
-            localStorage.removeItem(`rm_final_keyboard_fix_${accountId}`);
-            
-            if (currentAccountId === accountId) {
-                currentAccountId = null;
-                localStorage.removeItem('currentAccountId');
-                switchAccount();
-            }
-            renderAccountsList();
-            showToast("✅ Точка проката удалена (офлайн)", 'success');
-        }
-    }
-    
-    // Удалить текущую точку (из настроек)
-    function deleteCurrentAccount() {
-        if (currentAccountId && confirm(`Вы уверены, что хотите удалить точку "${currentAccountName}"?\n\nВсе данные этой точки будут безвозвратно удалены!`)) {
-            deleteAccount(currentAccountId);
-        }
-    }
-    
-    // Изменить пароль текущей точки
-    function changeAccountPassword() {
-        const newPassword = prompt("Введите новый пароль для точки проката (минимум 4 символа):");
-        if (!newPassword || newPassword.length < 4) {
-            alert("Пароль должен содержать минимум 4 символа!");
-            return;
-        }
-        
-        if (confirm(`Вы уверены, что хотите изменить пароль точки "${currentAccountName}" на "${newPassword}"?`)) {
-            if (firebaseDb) {
-                firebaseDb.ref(`accounts/${currentAccountId}/password`).set(newPassword)
-                    .then(() => {
-                        accountsList[currentAccountId].password = newPassword;
-                        localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                        showToast("✅ Пароль точки успешно изменен", 'success');
-                    })
-                    .catch((error) => {
-                        console.error("Ошибка изменения пароля:", error);
-                        showToast("❌ Ошибка изменения пароля", 'danger');
-                    });
-            } else {
-                // Офлайн-режим
-                accountsList[currentAccountId].password = newPassword;
-                localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                showToast("✅ Пароль точки изменен (офлайн)", 'success');
-            }
-        }
-    }
-    
-    // Показать модальное окно сброса пароля
-    function showForgotPasswordModal() {
-        document.getElementById('master-password').value = '';
-        document.getElementById('forgot-password-modal').style.display = 'flex';
-    }
-    
-    // Закрыть модальное окно сброса пароля
-    function closeForgotPasswordModal() {
-        document.getElementById('forgot-password-modal').style.display = 'none';
-    }
-    
-    // Сброс пароля точки через мастер-код
-    function resetAccountPassword() {
-        const masterCode = document.getElementById('master-password').value;
-        if (masterCode === '89144892253') {
-            const newPassword = '0000';
-            
-            if (firebaseDb) {
-                firebaseDb.ref(`accounts/${currentAccountId}/password`).set(newPassword)
-                    .then(() => {
-                        closeForgotPasswordModal();
-                        document.getElementById('password-modal').style.display = 'none';
-                        accountsList[currentAccountId].password = newPassword;
-                        localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                        showToast(`✅ Пароль точки "${currentAccountName}" сброшен на "0000"`, 'success');
-                        
-                        // Автоматически входим с новым паролем
-                        localStorage.setItem('currentAccountId', currentAccountId);
-                        document.getElementById('auth-screen').style.display = 'none';
-                        document.getElementById('main-header').style.display = 'flex';
-                        document.getElementById('main-content').style.display = 'block';
-                        document.getElementById('account-badge').style.display = 'flex';
-                        updateAccountBadge();
-                        initAppForAccount();
-                    })
-                    .catch((error) => {
-                        console.error("Ошибка сброса пароля:", error);
-                        showToast("❌ Ошибка сброса пароля", 'danger');
-                    });
-            } else {
-                // Офлайн-режим
-                closeForgotPasswordModal();
-                document.getElementById('password-modal').style.display = 'none';
-                accountsList[currentAccountId].password = newPassword;
-                localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                showToast(`✅ Пароль точки "${currentAccountName}" сброшен на "0000" (офлайн)`, 'success');
-                
-                // Автоматически входим
-                localStorage.setItem('currentAccountId', currentAccountId);
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-header').style.display = 'flex';
-                document.getElementById('main-content').style.display = 'block';
-                document.getElementById('account-badge').style.display = 'flex';
-                updateAccountBadge();
-                initAppForAccount();
-            }
-        } else {
-            showToast("❌ Неверный мастер-код", 'danger');
-            document.getElementById('master-password').style.border = "2px solid var(--danger)";
-            setTimeout(() => {
-                document.getElementById('master-password').style.border = "2px solid var(--border)";
-            }, 1500);
-        }
-    }
-    
-    // === ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ДЛЯ ВЫБРАННОГО АККАУНТА ===
-    function initAppForAccount() {
-        if (!currentAccountId) return;
-        
-        // Загружаем данные для текущего аккаунта
-        loadDB();
-        
-        // Подписываемся на изменения в данных текущего аккаунта (если есть подключение)
-        if (firebaseDb) {
-            firebaseDb.ref(`rentmaster/${currentAccountId}`).on('value', (snapshot) => {
-                const newData = snapshot.val();
-                if (newData) {
-                    window.updateGlobalDB(newData);
-                    lastSyncTime = Date.now();
-                    document.getElementById('sync-state').innerText = 'синхронизировано';
-                    document.getElementById('sync-state').className = 'sync-online';
-                }
-            });
-        }
-        
-        // Устанавливаем сегодняшнюю дату для фильтров
-        const today = new Date().toISOString().split('T')[0];
-        if (document.getElementById('hist-start')) {
-            document.getElementById('hist-start').value = today;
-            document.getElementById('hist-end').value = today;
-            document.getElementById('sur-start').value = today;
-            document.getElementById('sur-end').value = today;
-        }
-        
-        // Обновляем интерфейс
-        updateUI();
-        
-        // Запускаем таймер
-        setInterval(tick, 1000);
-        
-        // Обработчики кликов
-        window.onclick = function(e) { 
-            if(e.target.matches('.modal-overlay')) e.target.style.display='none'; 
-            if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
-                document.getElementById('dev-dd').style.display='none'; 
-        };
-        
-        // Включаем режим "Не спать"
-        requestWakeLock();
-    }
-    
-    // Обновление статуса синхронизации
+    // Обновление статуса синхронизации в интерфейсе
     function updateSyncStatus(connected) {
         const statusElement = document.getElementById('firebase-status');
         const syncStateElement = document.getElementById('sync-state');
@@ -2567,68 +1637,79 @@
         }
     }
     
-    // Отправка данных в облако
+    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ДАННЫХ В ОБЛАКО ===
     function sendToCloud(data) {
-        if (!isFirebaseConnected || !firebaseDb || !currentAccountId) return;
+        // Отправляем данные ТОЛЬКО если есть подключение к Firebase
+        if (!isFirebaseConnected || !firebaseDb) {
+            console.warn("⚠️ Данные не отправлены: нет подключения к облаку");
+            // Не показываем тост при автоматической синхронизации, чтобы не спамить
+            return;
+        }
         
-        firebaseDb.ref(`rentmaster/${currentAccountId}`).set(data)
-            .catch((error) => {
-                console.error("Ошибка отправки в облако:", error);
-                showToast("❌ Ошибка синхронизации", 'danger');
-            });
+        try {
+            // Отправляем данные в узел 'rentmaster'
+            firebaseDb.ref('rentmaster').set(data)
+                .then(() => {
+                    lastSyncTime = Date.now();
+                    console.log("✅ Данные успешно отправлены в облако");
+                    
+                    // Обновляем статус только при ручной синхронизации
+                    if (document.getElementById('sync-state').innerText === 'принудительно') {
+                        document.getElementById('sync-state').innerText = 'синхронизировано';
+                        document.getElementById('sync-state').className = 'sync-online';
+                    }
+                })
+                .catch((error) => {
+                    console.error("❌ Ошибка отправки в облако:", error);
+                    showToast("❌ Ошибка отправки данных в облако", 'danger');
+                    updateSyncStatus(false);
+                });
+        } catch (error) {
+            console.error("❌ КРИТИЧЕСКАЯ ОШИБКА при отправке данных:", error);
+            showToast("❌ Критическая ошибка синхронизации", 'danger');
+            updateSyncStatus(false);
+        }
     }
     
-    // Сохранение данных
+    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ===
     function save() { 
-        if (!currentAccountId) return;
+        localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
         
-        // Сохраняем локально с префиксом аккаунта
-        const storageKey = `rm_final_keyboard_fix_${currentAccountId}`;
-        localStorage.setItem(storageKey, JSON.stringify(db)); 
-        
-        // Отправляем в облако если есть подключение
-        if (isFirebaseConnected && firebaseDb) {
-            sendToCloud(db);
-        }
-    }
-    
-    // Загрузка данных
-    function loadDB() {
-        if (!currentAccountId) return;
-        
-        const storageKey = `rm_final_keyboard_fix_${currentAccountId}`;
-        const local = localStorage.getItem(storageKey);
-        
-        if(local) {
-            try {
-                db = JSON.parse(local);
-                if(!db.password) db.password = '4892';
-            } catch (e) {
-                console.error("Ошибка парсинга данных:", e);
-                // Используем данные по умолчанию
-                db = getDefaultData();
+        // Отправляем данные в облако КАЖДЫЕ 10 СЕКУНД при наличии активных аренд
+        // или сразу при завершении аренды/изменении данных
+        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
+            if (window.sendToCloud) {
+                window.sendToCloud(db);
             }
-        } else {
-            // Данные по умолчанию
-            db = getDefaultData();
         }
     }
     
-    // Получение данных по умолчанию
-    function getDefaultData() {
-        const accountName = accountsList[currentAccountId] ? accountsList[currentAccountId].name : 'Новая точка';
-        return {
-            categories: [{id:1, name: accountName, baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
-            fleet: [],
-            clients: [],
-            rentals: [],
-            history: [],
-            password: '4892'
-        };
+    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ПРИНУДИТЕЛЬНОЙ ЗАГРУЗКИ ===
+    function forceUploadToCloud() { 
+        if (!isFirebaseConnected || !firebaseDb) {
+            alert('⚠️ Firebase не подключен. Проверьте:\n1. Конфигурацию в коде\n2. Подключение к интернету\n3. Правила безопасности в консоли Firebase');
+            return;
+        }
+        
+        if(confirm('Вы уверены? Это перезапишет данные в облаке!')) { 
+            document.getElementById('sync-state').innerText = 'принудительно';
+            document.getElementById('sync-state').className = 'sync-warning';
+            
+            if(window.sendToCloud) { 
+                window.sendToCloud(db); 
+                setTimeout(() => {
+                    alert('✅ Данные успешно отправлены в облако!');
+                    document.getElementById('sync-state').innerText = 'синхронизировано';
+                    document.getElementById('sync-state').className = 'sync-online';
+                }, 1500);
+            } else {
+                alert('⚠️ Функция отправки в облако не определена.');
+            }
+        } 
     }
-
-    // === ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ===
-    let db = getDefaultData();
+    
+    // === ОСТАЛЬНОЙ КОД ПРИЛОЖЕНИЯ (БЕЗ ИЗМЕНЕНИЙ) ===
+    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
     let isMonitorMode = false;
     let tempStartData = null;
     let currentSwapRentalId = null;
@@ -2660,20 +1741,179 @@
     }
 
     function init() {
-        console.log("Инициализация приложения...");
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('mode') === 'monitor') {
+            isMonitorMode = true;
+            createMonitorStyles();
+            loadDB();
+            setTimeout(() => switchView('active'), 100);
+            setInterval(tick, 1000);
+            return; 
+        }
+
+        if ("Notification" in window) Notification.requestPermission();
+        loadDB();
         
-        // Инициализируем Firebase
+        // ИНИЦИАЛИЗИРУЕМ FIREBASE ПЕРЕД ЗАГРУЗКОЙ ДАННЫХ
         initFirebase();
         
-        // Назначаем обработчики событий для кнопок
-        document.getElementById('create-account-btn').addEventListener('click', showCreateAccountModal);
-        document.getElementById('cancel-create-btn').addEventListener('click', closeCreateAccountModal);
-        document.getElementById('confirm-create-btn').addEventListener('click', createNewAccount);
-        document.getElementById('verify-password-btn').addEventListener('click', verifyAccountPassword);
-        document.getElementById('forgot-password-btn').addEventListener('click', showForgotPasswordModal);
-        document.getElementById('cancel-forgot-btn').addEventListener('click', closeForgotPasswordModal);
-        document.getElementById('reset-password-btn').addEventListener('click', resetAccountPassword);
-        document.getElementById('switch-account-btn').addEventListener('click', switchAccount);
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('hist-start').value = today;
+        document.getElementById('hist-end').value = today;
+        document.getElementById('sur-start').value = today;
+        document.getElementById('sur-end').value = today;
+
+        updateUI();
+        setInterval(tick, 1000);
+        window.onclick = function(e) { 
+            if(e.target.matches('.modal-overlay')) e.target.style.display='none'; 
+            if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
+                document.getElementById('dev-dd').style.display='none'; 
+        }
+        requestWakeLock();
+    }
+
+    function createMonitorStyles() {
+        const style = document.createElement('style');
+        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #6366f1;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ РЕЖИМ МОНИТОРИНГА (только просмотр)";position:fixed;top:0;left:0;width:100%;background:linear-gradient(90deg, #1e293b, #0f172a);color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:1.1rem;letter-spacing:1px}`;
+        document.head.appendChild(style);
+    }
+
+    function loadDB() {
+        const local = localStorage.getItem('rm_final_keyboard_fix');
+        if(local) {
+            db = JSON.parse(local);
+            if(!db.password) db.password = '4892';
+        } else {
+            db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
+            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#6366f1'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
+            db.password = '4892';
+        }
+    }
+
+    function authWrapper(actionCallback) {
+        pendingAuthCallback = actionCallback;
+        document.getElementById('auth-pass-input').value = '';
+        document.getElementById('modal-auth').style.display = 'flex';
+        setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
+    }
+
+    function submitAuth() {
+        const input = document.getElementById('auth-pass-input').value;
+        const correct = db.password || '4892';
+
+        if (input === '89144892253') {
+            alert("👑 Мастер-пароль принят! Пароль сброшен на 0000.");
+            db.password = '0000'; save();
+            closeModal('modal-auth');
+            if(pendingAuthCallback) pendingAuthCallback();
+            return;
+        }
+
+        if (input === correct) {
+            closeModal('modal-auth');
+            if(pendingAuthCallback) pendingAuthCallback();
+        } else {
+            const inp = document.getElementById('auth-pass-input');
+            inp.style.border = "2px solid var(--danger)";
+            if(navigator.vibrate) navigator.vibrate([100,50,100]);
+            setTimeout(()=> inp.style.border = "2px solid var(--border)", 1000);
+        }
+    }
+
+    function resetPassBtnAction() {
+        const master = prompt("📞 Введите Мастер-Пароль (8914...):");
+        if(master === '89144892253') {
+            db.password = '0000'; save();
+            alert("✅ Пароль сброшен на: 0000");
+            document.getElementById('auth-pass-input').value = '0000';
+        } else {
+            alert("⛔ Неверный мастер-пароль!");
+        }
+    }
+
+    function changePassUI() {
+        const newP = prompt("Введите НОВЫЙ пароль (4+ символов):");
+        if(newP && newP.length >= 4) {
+            db.password = newP; save();
+            showToast(`✅ Пароль изменен`, 'success');
+        } else if (newP) {
+            alert("Пароль должен быть не менее 4 символов");
+        }
+    }
+
+    async function requestWakeLock() {
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                document.getElementById('wakelock-status').innerText = "💡 Экран активен (режим 'Не спать' включен)";
+                document.getElementById('wakelock-status').style.color = "#10b981";
+                document.getElementById('wakelock-status').style.background = "rgba(16, 185, 129, 0.1)";
+                wakeLock.addEventListener('release', () => {
+                    document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
+                    document.getElementById('wakelock-status').style.color = "var(--text-secondary)";
+                    document.getElementById('wakelock-status').style.background = "rgba(99, 102, 241, 0.05)";
+                });
+            } catch (err) {
+                console.log("WakeLock не поддерживается или отклонен:", err);
+            }
+        }
+    }
+
+    function testAudio() {
+        playAlarm(false);
+        showToast("🔊 Аудио разблокировано", 'success');
+    }
+
+    function save() { 
+        localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
+        
+        // Отправляем данные в облако ТОЛЬКО если есть активные аренды или недавние изменения
+        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
+            if (window.sendToCloud) window.sendToCloud(db);
+        }
+    }
+
+    window.updateGlobalDB = function(newData) {
+        if (!newData) return;
+        
+        // Защита от перезаписи активных аренд пустыми данными
+        if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
+            const cHist = newData.history ? newData.history.length : 0;
+            const lHist = db.history ? db.history.length : 0;
+            if (cHist <= lHist) {
+                console.log("🛑 Blocked empty sync - сохраняем локальные активные аренды");
+                return; 
+            }
+        }
+        
+        db = { ...newData, password: newData.password || db.password || '4892' };
+        updateUI();   
+    }
+
+    function switchView(id) {
+        if (id === 'settings') {
+            authWrapper(() => { doSwitchView(id); });
+            return;
+        }
+        doSwitchView(id);
+    }
+
+    function doSwitchView(id) {
+        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+        document.getElementById('view-'+id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+        const btn = document.querySelector(`.nav-btn[onclick="switchView('${id}')"]`);
+        if(btn) btn.classList.add('active');
+        
+        if(id === 'active') renderActiveRentals(); 
+        if(id === 'new') renderNewRent();
+        if(id === 'clients') renderClients();
+        if(id === 'fleet') renderFleet();
+        if(id === 'finance') { initDeviceFilter(); renderHistory(); }
+        if(id === 'surcharge') renderSurcharge();
+        if(id === 'settings') renderSettingsList();
+        unlockAudio();
     }
 
     function showToast(message, type='info') {
@@ -2689,84 +1929,472 @@
         }, 2500);
     }
 
-    // ОСТАЛЬНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ БЕЗ ИЗМЕНЕНИЙ
-    function switchView(id) { /* ... */ }
-    function doSwitchView(id) { /* ... */ }
-    function exportClients() { /* ... */ }
-    function exportHistory() { /* ... */ }
-    function exportSurcharge() { /* ... */ }
-    function renderNewRent() { /* ... */ }
-    function showTariffs() { /* ... */ }
-    function renderFleet() { /* ... */ }
-    function renderClients() { /* ... */ }
-    function renderSettingsList() { /* ... */ }
-    function renderActiveRentals() { /* ... */ }
-    function getTimeLeft(r) { /* ... */ }
-    function tick() { /* ... */ }
-    function renderSurcharge() { /* ... */ }
-    function renderHistory() { /* ... */ }
-    function toggleDevDropdown() { /* ... */ }
-    function filterDevDropdown(val) { /* ... */ }
-    function initDeviceFilter() { /* ... */ }
-    function toggleAllDev(el) { /* ... */ }
-    function openSwapModal(id) { /* ... */ }
-    function renderSwapList(query) { /* ... */ }
-    function finalizeSwap() { /* ... */ }
-    function togglePause(id) { /* ... */ }
-    function openExtendModal(id) { /* ... */ }
-    function applyExt(rId, tId) { /* ... */ }
-    function toggleHistoryStatus(id) { /* ... */ }
-    function toggleRepair(id) { /* ... */ }
-    function saveClient() { /* ... */ }
-    function delClient() { /* ... */ }
-    function openClientModal(id) { /* ... */ }
-    function handleInput(type, val) { /* ... */ }
-    function fillClient(ph, nm) { /* ... */ }
-    function addVehicle() { /* ... */ }
-    function openVehicleNote(id) { /* ... */ }
-    function saveVehicleNote() { /* ... */ }
-    function deleteVehicleNote() { /* ... */ }
-    function delCat(id) { /* ... */ }
-    function openCatModal() { /* ... */ }
-    function editCat(id) { /* ... */ }
-    function renderCatTariffs(tariffs) { /* ... */ }
-    function addTariffIO() { /* ... */ }
-    function delTariff(i) { /* ... */ }
-    function saveCat() { /* ... */ }
-    function closeModal(id) { /* ... */ }
-    function fullReset() { /* ... */ }
-    function forceUploadToCloud() { /* ... */ }
-    function updateUI() { /* ... */ }
-    function askStartRental(tariff) { /* ... */ }
-    function confirmPaymentChoice(method) { /* ... */ }
-    function realStartRental() { /* ... */ }
-    function finishRental(id) { /* ... */ }
-    function sendNotify(title, body, isCritical) { /* ... */ }
-    function authWrapper(actionCallback) { /* ... */ }
-    function submitAuth() { /* ... */ }
-    function resetPassBtnAction() { /* ... */ }
-    function changePassUI() { /* ... */ }
-    function requestWakeLock() { /* ... */ }
-    function testAudio() { /* ... */ }
-    function window.updateGlobalDB(newData) { /* ... */ }
+    function openConfirm(msg, yesCallback) {
+        // Закрываем ВСЕ модальные окна перед открытием подтверждения
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.style.display = 'none';
+        });
+        
+        document.getElementById('confirm-text').innerText = msg;
+        document.getElementById('modal-confirm').style.display = 'flex';
+        const yesBtn = document.getElementById('btn-confirm-yes');
+        const noBtn = document.getElementById('btn-confirm-no');
+        const newYes = yesBtn.cloneNode(true); 
+        const newNo = noBtn.cloneNode(true);
+        yesBtn.parentNode.replaceChild(newYes, yesBtn); 
+        noBtn.parentNode.replaceChild(newNo, noBtn);
+        newYes.onclick = () => { 
+            document.getElementById('modal-confirm').style.display = 'none'; 
+            yesCallback(); 
+        };
+        newNo.onclick = () => { 
+            document.getElementById('modal-confirm').style.display = 'none'; 
+        };
+    }
+
+    function sendNotify(title, body, isCritical) {
+        if ("Notification" in window && Notification.permission === "granted") {
+            try { new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/2560/2560147.png' }); } catch (e) {}
+        }
+        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
+        playAlarm(isCritical);
+    }
+
+    // ФУНКЦИИ ЭКСПОРТА
+    function exportClients() {
+        const csvContent = "\uFEFFID;Имя;Телефон;Комментарий;В черном списке;Дата регистрации\n" +
+            db.clients.map(client => 
+                `"${client.id}";"${client.name.replace(/"/g, '""')}";"${client.phone}";"${(client.comment || '').replace(/"/g, '""')}";"${client.blocked ? 'ДА' : 'НЕТ'}";"${new Date(client.id).toLocaleDateString('ru-RU')}"`
+            ).join("\n");
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `clients_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        showToast("✅ Клиенты выгружены", 'success');
+    }
+
+    function exportHistory() {
+        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Старт;Конец;Длительность;Пауза;Сверх;Тариф;Сумма;Оплата;Статус\n" +
+            db.history.map(record => 
+                `"${record.id}";"${record.vName.replace(/"/g, '""')}";"${record.cName.replace(/"/g, '""')}";"${record.cPhone}";"${new Date(record.ts).toLocaleString('ru-RU')}";"${new Date(record.endTs).toLocaleString('ru-RU')}";"${record.duration} мин";"${record.pauseDur || 0} мин";"${record.overDur || 0} мин";"${record.tName.replace(/"/g, '""')}";"${record.cost}";"${record.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные'}";"${record.deleted ? 'УДАЛЕНО' : 'Активно'}"`
+            ).join("\n");
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `history_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        showToast("✅ История выгружена", 'success');
+    }
+
+    function exportSurcharge() {
+        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Время;Сверх;К оплате\n" +
+            db.history.filter(h => h.overDur > 0).map(record => 
+                `"${record.id}";"${record.vName}";"${record.cName}";"${record.cPhone}";"${new Date(record.ts).toLocaleTimeString()} - ${new Date(record.endTs).toLocaleTimeString()}";"${record.overDur}";"${record.overDur * (record.baseRate || 0)} ₽"`
+            ).join("\n");
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `surcharge_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        showToast("✅ Доплаты выгружены", 'success');
+    }
+
+    // === ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ===
+    function renderNewRent() {
+        const c = document.getElementById('fleet-selector'); c.innerHTML='';
+        const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
+        db.categories.forEach(cat => {
+            const inCat = db.fleet.filter(v => v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ));
+            if(inCat.length) {
+                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title"><i class="fas fa-${cat.name.includes('Самокат')?'scooter':'bicycle'}"></i> ${cat.name}</div><div class="fleet-items-container"></div></div>`;
+                const container = c.lastElementChild.querySelector('.fleet-items-container');
+                inCat.forEach(v => {
+                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
+                });
+            }
+        });
+    }
+    
+    function showTariffs() {
+        const chk = document.querySelectorAll('.fleet-check-input:checked');
+        const blk = document.getElementById('tariff-block'); const box = document.getElementById('tariff-buttons');
+        if(!chk.length) { blk.style.display='none'; return; }
+        const catId = chk[0].getAttribute('data-cat'); const cat = db.categories.find(c => c.id == catId);
+        box.innerHTML = '';
+        if(cat && cat.tariffs) {
+            cat.tariffs.forEach(t => {
+                const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
+                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.3rem;font-weight:800;display:block;margin-bottom:8px;">${t.name}</span><span style="font-size:1rem;color:var(--text-secondary);">${info} · ${t.price}₽</span></div>`;
+            });
+            blk.style.display = 'block';
+        }
+    }
+    
+    function renderFleet() {
+        const l = document.getElementById('fleet-list'); l.innerHTML='';
+        const sel = document.getElementById('new-fleet-cat'); sel.innerHTML='';
+        db.categories.forEach(c => sel.innerHTML+=`<option value="${c.id}">${c.name}</option>`);
+        const sorted = [...db.fleet].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+        sorted.forEach(f => {
+            const isRep = f.status === 'repair';
+            const repBtn = isRep 
+                ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-check"></i></button>`
+                : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-wrench"></i></button>`;
+            
+            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить устройство ${f.name}?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-trash"></i></button>`;
+
+            l.innerHTML += `
+            <div class="item-card ${isRep?'repair':''}" style="border-left-color:${f.color}">
+                <div><div class="item-name">${f.name}</div><div class="item-sub">${isRep?'В РЕМОНТЕ':'Готов к работе'}</div></div>
+                <div class="item-actions">
+                    <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})"><i class="fas fa-cog"></i></button>
+                    ${repBtn}
+                    ${delBtn}
+                </div>
+            </div>`;
+        });
+    }
+
+    function renderClients() {
+        const q=document.getElementById('client-search').value.toLowerCase();
+        const list = document.getElementById('clients-list');
+        list.innerHTML = '';
+        db.clients.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q)).forEach(c => {
+            const isBanned = c.blocked;
+            list.innerHTML += `
+            <div class="item-card" style="border-left:4px solid ${isBanned ? 'var(--danger)' : 'var(--success)'}">
+                <div>
+                    <div class="item-name">${c.name} ${isBanned ? '(BAN)' : ''}</div>
+                    <div class="item-sub">${c.phone}</div>
+                    ${c.comment ? `<div style="font-size:0.85rem;color:var(--text-tertiary);margin-top:4px;">${c.comment}</div>` : ''}
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})" style="height:36px;width:36px;padding:0;"><i class="fas fa-pen"></i></button>
+            </div>`;
+        });
+    }
+
+    function renderSettingsList() {
+        const d = document.getElementById('settings-list'); d.innerHTML='';
+        d.innerHTML += `<div class="card" style="background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border:1px solid var(--primary); margin-bottom:20px;">
+            <button class="btn btn-primary" onclick="changePassUI()" style="background:var(--gradient-primary);"><i class="fas fa-lock"></i> 🔐 Сменить пароль администратора</button>
+        </div>`;
+        d.innerHTML += `<div class="card" style="border:2px solid var(--success); background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+            <h3 style="color:#15803d; margin-top:0; display:flex; align-items:center; gap:8px;"><i class="fas fa-cloud-upload-alt"></i> ☁️ Восстановить из облака</h3>
+            <p style="font-size:0.9rem; color:#555; margin:12px 0 15px;">Нажмите, если на других устройствах данные устарели</p>
+            <button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())" style="background:var(--gradient-success);"><i class="fas fa-cloud-download-alt"></i> Загрузить данные с сервера</button>
+        </div>`;
+        db.categories.forEach(c => {
+            d.innerHTML += `
+            <div class="item-card">
+                <div><div class="item-name">${c.name}</div><div class="item-sub">Тарифов: ${c.tariffs?c.tariffs.length:0}</div></div>
+                <div class="item-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="editCat(${c.id})" style="margin-right:6px;"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="delCat(${c.id})"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function renderActiveRentals() {
+        const list = document.getElementById('active-list'); list.innerHTML = '';
+        const q = document.getElementById('active-search').value.toLowerCase();
+        const isMonitor = window.location.search.includes('mode=monitor');
+        let filtered = db.rentals.filter(r => r.cName.toLowerCase().includes(q) || r.cPhone.includes(q) || r.vName.toLowerCase().includes(q));
+        filtered.sort((a, b) => getTimeLeft(a) - getTimeLeft(b));
+        
+        const badge = document.getElementById('badge-cnt');
+        if(badge) { badge.innerText = filtered.length; badge.style.display = filtered.length ? 'inline-block' : 'none'; }
+        const noMsg = document.getElementById('no-active-msg');
+        if(noMsg) noMsg.style.display = filtered.length ? 'none' : 'block';
+        
+        filtered.forEach(r => {
+            const left = getTimeLeft(r);
+            let rowClass = 'active-row' + (r.paused ? ' paused' : '') + (r.limit > 0 && left < 0 ? ' overdue' : (r.limit > 0 && left < 120000 ? ' danger-mode' : (r.limit > 0 && left < 300000 ? ' warning-mode' : '')));
+            let clientHtml = isMonitor 
+                ? `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">${r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****'}</span></div>`
+                : `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <a href="tel:${r.cPhone}" class="ar-phone-link">${r.cPhone}</a></div>`;
+
+            const div = document.createElement('div'); div.className = rowClass;
+            div.innerHTML = `
+                <div class="ar-color" style="background:${r.vColor}"></div>
+                <div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены">
+                    <div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>
+                    ${clientHtml}
+                </div>
+                <div class="ar-timer-container"><span class="ar-timer" id="t-${r.id}">--:--</span></div>
+                <div class="ar-actions">
+                    <button class="ar-btn pause" ondblclick="togglePause(${r.id})"><i class="fas ${r.paused ? 'fa-play':'fa-pause'}"></i><span class="ar-btn-label">${r.paused?'СТАРТ':'ПАУЗА'}</span><div class="ar-dbl">2x</div></button>
+                    <button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><div class="ar-dbl">2x</div></button>
+                    <button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><div class="ar-dbl">2x</div></button>
+                </div>`;
+            list.appendChild(div);
+        });
+        tick();
+    }
+    
+    function getTimeLeft(r) { if(r.limit === 0) return 999999999; const now = Date.now(); const pauseNow = r.paused ? (now - r.pauseStart) : 0; return (r.limit * 60000) - (now - r.startTs - r.totalPause - pauseNow); }
+    function tick() {
+        const now = Date.now();
+        db.rentals.forEach(r => {
+            const el = document.getElementById(`t-${r.id}`); if(!el) return;
+            if(r.paused) { el.innerText = "ПАУЗА"; el.className = "ar-timer"; return; }
+            const elapsed = now - r.startTs - r.totalPause;
+            let display = "";
+            if(r.limit > 0) {
+                const left = (r.limit * 60000) - elapsed; 
+                const abs = Math.abs(left);
+                display = (left < 0 ? "-" : "") + `${Math.floor(abs/60000)}:${Math.floor((abs%60000)/1000).toString().padStart(2,'0')}`;
+                if (left > 0) {
+                    if (left < 300000 && !r.notified5) { sendNotify("⏳ Внимание!", `У ${r.vName} осталось < 5 мин!`, false); r.notified5 = true; save(); renderActiveRentals(); }
+                    if (left < 120000 && !r.notified2) { sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); r.notified2 = true; save(); renderActiveRentals(); }
+                }
+            } else { 
+                display = `${Math.floor(elapsed/60000)}:${Math.floor((elapsed%60000)/1000).toString().padStart(2,'0')}`;
+                el.className = "ar-timer";
+            }
+            el.innerText = display;
+        });
+    }
+
+    function renderSurcharge() {
+        const tbody = document.getElementById('surcharge-rows'); tbody.innerHTML = ''; 
+        const startVal = document.getElementById('sur-start').value; const endVal = document.getElementById('sur-end').value; const searchVal = document.getElementById('sur-search').value.toLowerCase();
+        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        let totalSur = 0; let hasData = false;
+        db.history.forEach(h => {
+            if(h.overDur > 0 && !h.deleted) {
+                if(h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)))) {
+                    hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay;
+                    const tr = document.createElement('tr'); tr.className = 'surcharge-row';
+                    tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td>${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td>`;
+                    tbody.appendChild(tr);
+                }
+            }
+        });
+        document.getElementById('sur-total').innerText = totalSur + ' ₽';
+        if(document.getElementById('no-surcharge-msg')) document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
+    }
+
+    function renderHistory() {
+        const startVal = document.getElementById('hist-start').value; const endVal = document.getElementById('hist-end').value; const searchVal = document.getElementById('hist-search').value.toLowerCase(); const payFilter = document.getElementById('hist-pay').value;
+        const allDevChecked = document.getElementById('dev-all')?.checked; const checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')).map(c => c.value);
+        const tbody = document.getElementById('history-rows'); tbody.innerHTML = '';
+        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        let total = 0;
+        db.history.forEach(h => {
+            const matchesTime = h.ts >= startTs && h.ts <= endTs; const matchesSearch = !searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)); const matchesPay = (payFilter === 'all') || (h.payMethod === payFilter);
+            let matchesDev = allDevChecked ? true : checkedDevs.some(dev => h.vName.includes(dev));
+            if (matchesTime && matchesSearch && matchesDev && matchesPay) {
+                if(!h.deleted) total += parseInt(h.cost);
+                const tr = document.createElement('tr'); 
+                if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; 
+                let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
+                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span style="font-size:0.7rem;color:var(--accent);display:block;margin-top:2px;">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:var(--text-secondary);">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'var(--danger)':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})" style="padding:4px 8px;"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
+                tbody.appendChild(tr);
+            }
+        });
+        document.getElementById('history-total').innerText = total + ' ₽';
+    }
+
+    function toggleDevDropdown() { const dd = document.getElementById('dev-dd'); dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }
+    function filterDevDropdown(val) { document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; }); }
+    function initDeviceFilter() {
+        const list = document.getElementById('dev-dd-list'); list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)" style="padding:10px; cursor:pointer;"><b><input type="checkbox" id="dev-all" checked style="margin-right:8px;"> Выбрать все</b></div>';
+        let names = new Set(); db.fleet.forEach(f => names.add(f.name)); db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
+        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`; });
+        document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.onclick = function(e) { if (e.target.tagName !== 'INPUT') { const chk = this.querySelector('input'); chk.checked = !chk.checked; } renderHistory(); } });
+        document.getElementById('dev-all').onclick = function(e) { e.stopPropagation(); const checked = this.checked; document.querySelectorAll('.dev-chk').forEach(c => c.checked = checked); renderHistory(); };
+    }
+    function toggleAllDev(el) { const chk = el.querySelector('input'); if(event.target.tagName !== 'INPUT') { chk.checked = !chk.checked; chk.onclick({stopPropagation:()=>{}}); } }
+    
+    function openSwapModal(id) { currentSwapRentalId = id; document.getElementById('swap-search').value = ''; document.getElementById('btn-do-swap').disabled = true; renderSwapList(''); document.getElementById('modal-sub').style.display = 'flex'; }
+    function renderSwapList(query) {
+        const container = document.getElementById('swap-list-container'); container.innerHTML = '';
+        const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
+        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-tertiary);">Нет свободных устройств</div>'; return; }
+        free.forEach(f => {
+            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:var(--text-secondary);">Свободен</small></div></label>`;
+        });
+    }
+    function finalizeSwap() {
+        const selected = document.querySelector('input[name="swap-radio"]:checked'); if (!selected) return;
+        openConfirm('Подтвердить замену устройства?', () => {
+            const newVId = parseInt(selected.value); const r = db.rentals.find(x => x.id === currentSwapRentalId); const oldV = db.fleet.find(f => f.id === r.vId); if(oldV) oldV.status = 'free'; const newV = db.fleet.find(f => f.id === newVId); newV.status = 'busy';
+            r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId; if(!r.swapHistory) r.swapHistory = [oldV.name]; r.swapHistory.push(newV.name);
+            save(); closeModal('modal-sub'); renderActiveRentals();
+        });
+    }
+    
+    function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
+    function openExtendModal(id) { 
+        closeModal('modal-sub'); // Закрываем текущее модальное окно
+        document.getElementById('swap-search').style.display = 'none'; 
+        document.getElementById('btn-do-swap').style.display = 'none'; 
+        const container = document.getElementById('swap-list-container'); 
+        container.innerHTML = ''; 
+        document.querySelector('#modal-sub h3').innerText = 'Продлить время'; 
+        const r = db.rentals.find(x => x.id === id); 
+        const cat = db.categories.find(c => c.id == r.catId); 
+        cat.tariffs.forEach(t => { 
+            container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; 
+        }); 
+        document.getElementById('modal-sub').style.display = 'flex'; 
+    }
+    function applyExt(rId, tId) { 
+        closeModal('modal-sub'); // Закрываем окно выбора тарифа
+        openConfirm('Продлить время?', () => { 
+            const r = db.rentals.find(x => x.id === rId); 
+            const cat = db.categories.find(c => c.id == r.catId); 
+            const t = cat.tariffs.find(x => x.id === tId); 
+            if(t.type === 'fix') { 
+                r.limit += parseInt(t.dur); 
+                r.cost += parseInt(t.price); 
+            } else { 
+                r.limit = 0; 
+                r.cost += parseInt(t.start || 0); 
+            } 
+            save(); 
+            renderActiveRentals(); 
+        }); 
+    }
+    
+    function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) h.deleted = !h.deleted; save(); renderHistory(); })); }
+    function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
+    function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; save(); closeModal('modal-client'); renderClients(); }); }
+    function delClient() { authWrapper(() => openConfirm('Удалить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); db.clients = db.clients.filter(x => x.id !== id); save(); closeModal('modal-client'); renderClients(); })); }
+    
+    function openClientModal(id) { const c = db.clients.find(x => x.id === id); document.getElementById('edit-cl-id').value = c.id; document.getElementById('edit-cl-name').value = c.name; document.getElementById('edit-cl-phone').value = c.phone; document.getElementById('edit-cl-comment').value = c.comment || ''; document.getElementById('edit-cl-block').checked = c.blocked; document.getElementById('modal-client').style.display = 'flex'; }
+    function handleInput(type, val) { const box = document.getElementById('suggest-'+type); if(val.length < 2) { box.style.display='none'; return; } const matches = db.clients.filter(c => c[type].toLowerCase().includes(val.toLowerCase())); if(matches.length > 0) { box.innerHTML = matches.map(c => `<div class="suggestion-item" onclick="fillClient('${c.phone}', '${c.name}')"><div><strong>${c.phone}</strong></div><div>${c.name}</div></div>`).join(''); box.style.display = 'block'; } else { box.style.display = 'none'; } const exact = db.clients.find(c => c.phone === val); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
+    function fillClient(ph, nm) { document.getElementById('rent-phone').value = ph; document.getElementById('rent-name').value = nm; document.querySelectorAll('.suggestions-box').forEach(b => b.style.display='none'); const exact = db.clients.find(c => c.phone === ph); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
+    function addVehicle() { openConfirm('Добавить устройство?', () => { const n = document.getElementById('new-fleet-name').value; const c = document.getElementById('new-fleet-color').value; const cat = document.getElementById('new-fleet-cat').value; if(n) { db.fleet.push({id:Date.now(), name:n, color:c, catId:cat, status:'free'}); save(); renderFleet(); } }); }
+    
+    function openVehicleNote(id) { const v = db.fleet.find(f => f.id === id); document.getElementById('note-v-id').value = v.id; document.getElementById('note-v-name').innerText = `Заметка для: ${v.name}`; document.getElementById('note-v-text').value = v.notes || ''; document.getElementById('modal-vehicle-note').style.display = 'flex'; }
+    function saveVehicleNote() { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = document.getElementById('note-v-text').value; save(); closeModal('modal-vehicle-note'); renderFleet(); }
+    function deleteVehicleNote() { authWrapper(() => { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = ''; save(); closeModal('modal-vehicle-note'); renderFleet(); }); }
+
+    function delCat(id) { authWrapper(() => openConfirm('Удалить категорию?', () => { db.categories=db.categories.filter(c=>c.id!==id); db.fleet=db.fleet.filter(f=>f.catId!=id); save(); renderSettingsList(); })); }
+    function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
+    function editCat(id) { const c=db.categories.find(x=>x.id==id); document.getElementById('edit-cat-id').value=c.id; document.getElementById('edit-cat-name').value=c.name; document.getElementById('edit-cat-rate').value=c.baseRate||''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs(c.tariffs||[]); }
+    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:var(--danger);cursor:pointer;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
+    function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
+    
+    function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
+    function saveCat() { openConfirm('Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
+    function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.getElementById('btn-do-swap').disabled = true; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
+    
+    function fullReset() { authWrapper(() => openConfirm('СБРОСИТЬ ВСЁ?', () => { localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); })); }
+    function forceUploadToCloud() { 
+        if(confirm('Вы уверены? Это перезапишет облако!')) { 
+            if(window.sendToCloud) { 
+                window.sendToCloud(db); 
+                alert('✅ Данные отправлены в облако!'); 
+            } else {
+                alert('⚠️ Firebase не настроен. Проверьте конфигурацию в коде.');
+            }
+        } 
+    }
+
+    function updateUI() { 
+        renderSettingsList(); 
+        renderFleet(); 
+        if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
+        if(document.getElementById('view-finance').classList.contains('active')) { initDeviceFilter(); renderHistory(); } 
+        if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
+    }
+
+    function askStartRental(tariff) {
+        unlockAudio(); 
+        const checks = document.querySelectorAll('.fleet-check-input:checked');
+        const phone = document.getElementById('rent-phone').value;
+        const name = document.getElementById('rent-name').value;
+        if(!phone || checks.length === 0) return alert('Заполните данные');
+        let devices = [];
+        checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
+        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
+        document.getElementById('confirm-tariff-name').innerText = tariff.name;
+        document.getElementById('confirm-devices').innerText = devices.join(', ');
+        document.getElementById('confirm-cost').innerText = costLabel;
+        tempStartData = { tariff, phone, name, checks };
+        document.getElementById('modal-start-confirm').style.display = 'flex';
+    }
+    function confirmPaymentChoice(method) {
+        tempStartData.payMethod = method;
+        closeModal('modal-start-confirm');
+        document.getElementById('modal-final-start').style.display = 'flex';
+    }
+    function realStartRental() {
+        const { tariff, phone, name, checks, payMethod } = tempStartData;
+        let c = db.clients.find(x => x.phone === phone);
+        if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
+        if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
+        const now = Date.now();
+        checks.forEach(chk => {
+            const vId = parseInt(chk.value);
+            const v = db.fleet.find(x => x.id === vId);
+            v.status = 'busy';
+            const cat = db.categories.find(ca => ca.id == v.catId);
+            const baseRate = cat ? (cat.baseRate || 0) : 0;
+            db.rentals.push({
+                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
+                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
+                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate,
+                notified5: false, notified2: false 
+            });
+        });
+        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
+        save(); closeModal('modal-final-start'); switchView('active');
+    }
+    function finishRental(id) {
+        openConfirm('Завершить поездку?', () => {
+            const idx = db.rentals.findIndex(x => x.id === id);
+            const r = db.rentals[idx];
+            const v = db.fleet.find(f => f.id === r.vId);
+            if(v) v.status = 'free';
+            const now = Date.now();
+            const pauseMs = r.totalPause;
+            const pauseMin = Math.round(pauseMs / 60000);
+            const activeDurationMs = now - r.startTs - pauseMs;
+            const activeDurationMin = Math.ceil(activeDurationMs / 60000);
+            let overdueMin = 0;
+            if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
+            const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
+            db.history.unshift({
+                id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone,
+                cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0,
+                tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash'
+            });
+            db.rentals.splice(idx, 1);
+            save(); renderActiveRentals();
+        });
+    }
 
     // Инициализация приложения
     window.addEventListener('DOMContentLoaded', init);
     
-    // Экспортируем функции для глобального доступа
+    // Экспортируем функцию для глобального доступа
     window.sendToCloud = sendToCloud;
-    window.selectAccount = selectAccount;
-    window.switchAccount = switchAccount;
-    window.verifyAccountPassword = verifyAccountPassword;
-    window.showForgotPasswordModal = showForgotPasswordModal;
-    window.resetAccountPassword = resetAccountPassword;
-    window.closeForgotPasswordModal = closeForgotPasswordModal;
-    window.showCreateAccountModal = showCreateAccountModal;
-    window.closeCreateAccountModal = closeCreateAccountModal;
-    window.createNewAccount = createNewAccount;
-    window.confirmDeleteAccount = confirmDeleteAccount;
-    window.deleteCurrentAccount = deleteCurrentAccount;
-    window.changeAccountPassword = changeAccountPassword;
 </script>
 
 </body>
@@ -2775,55 +2403,126 @@
 
 
               <script>
-                              function showCreateAccountModal() {
-    console.log("Открытие модального окна создания аккаунта");
-    
-    // Очищаем и заполняем цвета
-    const colorPicker = document.getElementById('color-picker');
-    colorPicker.innerHTML = '';
-    
-    ACCOUNT_COLORS.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'color-option';
-        div.style.backgroundColor = item.color;
-        div.innerHTML = `<i class="fas fa-${item.icon}"></i>`;
-        div.onclick = () => selectAccountColor(index);
-        colorPicker.appendChild(div);
-    });
-    
-    // Выбираем первый цвет по умолчанию
-    colorPicker.firstChild.classList.add('selected');
-    document.getElementById('new-account-name').value = 'Новая точка проката';
-    document.getElementById('create-account-modal').style.display = 'flex';
+                              function initFirebase() {
+    try {
+        if (!firebaseApp) {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            firebaseDb = firebaseApp.database();
+            
+            // Отслеживаем состояние подключения
+            firebaseDb.ref('.info/connected').on('value', (snapshot) => {
+                const connected = snapshot.val();
+                isFirebaseConnected = connected;
+                updateSyncStatus(connected);
+                
+                if (connected) {
+                    // Подписываемся на изменения в базе данных
+                    firebaseDb.ref('rentmaster').on('value', (snapshot) => {
+                        const newData = snapshot.val();
+                        if (newData) {
+                            window.updateGlobalDB(newData);
+                            lastSyncTime = Date.now();
+                            document.getElementById('sync-state').innerText = 'синхронизировано';
+                            document.getElementById('sync-state').className = 'sync-online';
+                            showToast("🔄 Данные синхронизированы с облаком", 'success');
+                        }
+                    }, (error) => {
+                        console.error("❌ Ошибка чтения данных из Firebase:", error);
+                        showToast("⚠️ Ошибка синхронизации с облаком", 'warning');
+                    });
+                }
+            });
+            
+            // Проверяем подключение через 3 секунды
+            setTimeout(() => {
+                if (!isFirebaseConnected) {
+                    console.warn("⚠️ Firebase не подключился в течение 3 секунд");
+                    showToast("⚠️ Проблема с подключением к облаку", 'warning');
+                }
+            }, 3000);
+        }
+    } catch (error) {
+        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА инициализации Firebase:", error);
+        showToast("❌ Ошибка подключения к облаку. Проверьте конфигурацию.", 'danger');
+        updateSyncStatus(false);
+    }
 }
 
-function createNewAccount() {
-    const name = document.getElementById('new-account-name').value.trim();
-    if (!name) {
-        showToast("⚠️ Введите название точки проката", 'warning');
+function sendToCloud(data) {
+    // Отправляем данные ТОЛЬКО если есть подключение к Firebase
+    if (!isFirebaseConnected || !firebaseDb) {
+        console.warn("⚠️ Данные не отправлены: нет подключения к облаку");
         return;
     }
-    // ...
+    
+    try {
+        firebaseDb.ref('rentmaster').set(data)
+            .then(() => {
+                lastSyncTime = Date.now();
+                console.log("✅ Данные успешно отправлены в облако");
+            })
+            .catch((error) => {
+                console.error("❌ Ошибка отправки в облако:", error);
+                showToast("❌ Ошибка отправки данных в облако", 'danger');
+                updateSyncStatus(false);
+            });
+    } catch (error) {
+        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА при отправке данных:", error);
+        showToast("❌ Критическая ошибка синхронизации", 'danger');
+        updateSyncStatus(false);
+    }
 }
 
-function showCreateAccountModal() {
-    console.log("Открытие модального окна создания аккаунта");
-    // ...
+window.updateGlobalDB = function(newData) {
+    if (!newData) return;
+    
+    // Защита от перезаписи активных аренд пустыми данными
+    if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
+        const cHist = newData.history ? newData.history.length : 0;
+        const lHist = db.history ? db.history.length : 0;
+        if (cHist <= lHist) {
+            console.log("🛑 Blocked empty sync - сохраняем локальные активные аренды");
+            return; 
+        }
+    }
+    
+    db = { ...newData, password: newData.password || db.password || '4892' };
+    updateUI();   
 }
 
-function init() {
-    console.log("Инициализация приложения...");
+function updateSyncStatus(connected) {
+    const statusElement = document.getElementById('firebase-status');
+    const syncStateElement = document.getElementById('sync-state');
     
-    // Инициализируем Firebase
-    initFirebase();
+    if (connected) {
+        statusElement.innerText = 'Подключено';
+        statusElement.className = 'sync-online';
+        syncStateElement.innerText = 'онлайн';
+        syncStateElement.className = 'sync-online';
+        document.querySelector('.firebase-badge').style.display = 'inline-flex';
+    } else {
+        statusElement.innerText = 'Отключено';
+        statusElement.className = 'sync-offline';
+        syncStateElement.innerText = 'оффлайн';
+        syncStateElement.className = 'sync-offline';
+        document.querySelector('.firebase-badge').style.display = 'none';
+    }
+}
+
+function save() { 
+    localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
     
-    // Назначаем обработчики событий для кнопок
-    document.getElementById('create-account-btn').addEventListener('click', showCreateAccountModal);
-    // ...
+    // Отправляем данные в облако КАЖДЫЕ 10 СЕКУНД при наличии активных аренд
+    // или сразу при завершении аренды/изменении данных
+    if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
+        if (window.sendToCloud) {
+            window.sendToCloud(db);
+        }
+    }
 }
 
 
               </script>
                         </body>
                         </html>
-                
+                    
