@@ -7,9 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
-    <!-- ИСПРАВЛЕНО: Используем версии с -compat для совместимости с старым синтаксисом -->
+    <!-- Firebase SDK - Используем совместимые версии -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     
     <style>
@@ -518,8 +517,8 @@
                     <span id="auth-error-message">Ошибка аутентификации: </span>
                 </div>
                 
-                <button class="auth-btn" onclick="loginAsAdmin()">
-                    <i class="fas fa-sign-in-alt"></i> Войти как администратор
+                <button class="auth-btn" onclick="openAdminAuthModal()">
+                    <i class="fas fa-key"></i> Ввести ключ администратора
                 </button>
                 <div id="auth-status" style="margin-top:20px; min-height:40px;"></div>
             </div>
@@ -548,6 +547,30 @@
     </div>
 </main>
 
+<!-- Модальное окно для ввода ключа администратора -->
+<div id="admin-auth-modal" class="modal-overlay" style="display:none; z-index:9999;">
+    <div class="modal-content" style="max-width:400px; text-align:center;">
+        <i class="fas fa-key" style="font-size:3.5rem; color:var(--primary); margin-bottom:20px;"></i>
+        <h3 style="margin-top:0; color:var(--text);">🔐 Вход как администратор</h3>
+        <p style="color:var(--text-secondary); margin:15px 0 25px; font-size:0.95rem;">
+            Введите ключ администратора для доступа к системе
+        </p>
+        
+        <input type="text" id="admin-key-input" placeholder="Ваш ключ администратора" 
+               style="width:90%; padding:14px; border-radius:var(--radius-md); border:2px solid var(--border); 
+                      font-size:1.1rem; margin-bottom:20px; text-align:center; letter-spacing:2px; font-family:monospace;">
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:25px;">
+            <button class="btn btn-secondary" onclick="closeAdminAuthModal()" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-success" onclick="submitAdminKey()" style="background:var(--gradient-success);">
+                <i class="fas fa-unlock"></i> Войти
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     // === ИСПРАВЛЕННАЯ КОНФИГУРАЦИЯ FIREBASE ===
     const firebaseConfig = {
@@ -561,32 +584,21 @@
     };
 
     // Инициализация Firebase
-    let app, auth, db;
-    let currentUser = null;
+    let app, db;
     let isAuthenticated = false;
+    const ADMIN_KEY = "6sflAa12dpTgQd5Gf8aFhhGjnS23"; // Ваш ключ администратора
     
     function initFirebase() {
         try {
             // Инициализируем приложение
             app = firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
             db = firebase.firestore();
             
             // Настройка правил безопасности
             db.settings({ ignoreUndefinedProperties: true });
             
-            // Прослушивание состояния аутентификации
-            auth.onAuthStateChanged((user) => {
-                currentUser = user;
-                isAuthenticated = !!user;
-                
-                if (user) {
-                    // Проверяем права доступа
-                    checkUserPermissions(user.uid);
-                } else {
-                    updateAuthStatus(false);
-                }
-            });
+            // Проверяем подключение к Firestore
+            checkConnection();
             
             updateCloudStatus(true, "Firebase инициализирован");
             showToast("✅ Firebase успешно инициализирован", 'success');
@@ -599,41 +611,19 @@
         }
     }
     
-    function checkUserPermissions(uid) {
-        const authorizedUID = "6sflAa12dpTgQd5Gf8aFhhGjnS23";
-        
-        if (uid === authorizedUID) {
-            updateAuthStatus(true, uid);
-            showToast("✅ Добро пожаловать, администратор!", 'success');
-            // Показываем контент настроек
-            document.getElementById('settings-content').style.display = 'block';
-        } else {
-            updateAuthStatus(false, uid);
-            showToast("⚠️ Недостаточно прав для доступа", 'warning');
-            signOutUser();
-        }
-    }
-    
-    function updateAuthStatus(isAuth, uid = '') {
-        const statusDiv = document.getElementById('auth-status');
-        const settingsContent = document.getElementById('settings-content');
-        
-        if (isAuth) {
-            statusDiv.innerHTML = `
-                <div class="user-info">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Авторизован как: ${uid.substring(0, 12)}...</span>
-                </div>
-            `;
-            settingsContent.style.display = 'block';
-        } else {
-            statusDiv.innerHTML = `
-                <div style="color:var(--danger); padding:10px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-md);">
-                    <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
-                    Не авторизован
-                </div>
-            `;
-            settingsContent.style.display = 'none';
+    function checkConnection() {
+        try {
+            // Проверяем подключение к Firestore
+            db.collection('test').doc('connection').get()
+                .then(() => {
+                    updateCloudStatus(true, "Подключение активно");
+                })
+                .catch(() => {
+                    updateCloudStatus(false, "Ошибка подключения");
+                });
+        } catch (error) {
+            console.error("Ошибка проверки подключения:", error);
+            updateCloudStatus(false, "Ошибка проверки подключения");
         }
     }
     
@@ -660,50 +650,70 @@
         errorMsg.textContent = message;
     }
     
-    async function loginAsAdmin() {
-        try {
-            document.getElementById('auth-error').style.display = 'none';
+    function openAdminAuthModal() {
+        document.getElementById('admin-auth-modal').style.display = 'flex';
+        document.getElementById('admin-key-input').value = '';
+        document.getElementById('admin-key-input').focus();
+    }
+    
+    function closeAdminAuthModal() {
+        document.getElementById('admin-auth-modal').style.display = 'none';
+    }
+    
+    function submitAdminKey() {
+        const input = document.getElementById('admin-key-input').value.trim();
+        const keyInput = document.getElementById('admin-key-input');
+        
+        if (!input) {
+            keyInput.style.borderColor = "var(--danger)";
+            showToast("⚠️ Введите ключ администратора", 'warning');
+            return;
+        }
+        
+        // Проверяем, совпадает ли введенный ключ с нашим
+        if (input === ADMIN_KEY) {
+            isAuthenticated = true;
+            updateAuthStatus(true, input);
+            showToast("✅ Добро пожаловать, администратор!", 'success');
+            closeAdminAuthModal();
+        } else {
+            keyInput.style.borderColor = "var(--danger)";
+            keyInput.style.boxShadow = "0 0 0 3px rgba(239, 68, 68, 0.3)";
+            showToast("❌ Неверный ключ администратора", 'danger');
             
-            // Проверяем, что аутентификация инициализирована
-            if (!auth) {
-                throw new Error("Firebase Auth не инициализирован");
-            }
-            
-            // Проверяем, что метод signInAnonymously существует
-            if (typeof auth.signInAnonymously !== 'function') {
-                throw new Error("Метод signInAnonymously не доступен. Проверьте подключение Firebase");
-            }
-            
-            // Пробуем анонимный вход
-            await auth.signInAnonymously();
-            showToast("🔄 Проверка прав доступа...", 'info');
-            
-        } catch (error) {
-            console.error("Ошибка входа:", error);
-            showAuthError("Ошибка аутентификации: " + error.message);
-            showToast("❌ Ошибка аутентификации: " + error.message, 'danger');
-            updateCloudStatus(false, "Ошибка аутентификации");
+            // Сброс стиля через 2 секунды
+            setTimeout(() => {
+                keyInput.style.borderColor = "var(--border)";
+                keyInput.style.boxShadow = "none";
+            }, 2000);
         }
     }
     
-    async function signOutUser() {
-        try {
-            await auth.signOut();
-            updateAuthStatus(false);
-            showToast("✅ Выход выполнен успешно", 'success');
-        } catch (error) {
-            console.error("Ошибка выхода:", error);
-            showToast("❌ Ошибка при выходе", 'danger');
+    function updateAuthStatus(isAuth, key = '') {
+        const statusDiv = document.getElementById('auth-status');
+        const settingsContent = document.getElementById('settings-content');
+        
+        if (isAuth) {
+            statusDiv.innerHTML = `
+                <div class="user-info">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Авторизован как: ${key.substring(0, 12)}...</span>
+                </div>
+            `;
+            settingsContent.style.display = 'block';
+        } else {
+            statusDiv.innerHTML = `
+                <div style="color:var(--danger); padding:10px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-md);">
+                    <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
+                    Не авторизован
+                </div>
+            `;
+            settingsContent.style.display = 'none';
         }
     }
     
     async function testConnection() {
         try {
-            if (!isAuthenticated) {
-                showToast("⚠️ Сначала войдите в систему", 'warning');
-                return;
-            }
-            
             // Проверяем подключение к Firestore
             const testDoc = await db.collection('test').doc('connection').get();
             
@@ -770,7 +780,7 @@
         
         // Обновляем статус авторизации при переключении на настройки
         if (id === 'settings') {
-            updateAuthStatus(isAuthenticated, currentUser?.uid || '');
+            updateAuthStatus(isAuthenticated, isAuthenticated ? ADMIN_KEY : '');
         }
     }
     
@@ -786,5 +796,4 @@
 
 </body>
 </html>
-
 
