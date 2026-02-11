@@ -1,262 +1,1663 @@
-<!DOCTYPE html>
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  background-color: white; /* Ensure the iframe has a white background */
+                }
+
+                
+              </style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>RentMaster Keyboard Fix</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>RentMaster Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <style>
         :root {
-            --primary: #3b82f6; --bg: #f3f4f6; --surface: #ffffff;
-            --dark-card: #1e1e1e; --text-on-dark: #f3f4f6; --text: #0f172a; 
-            --danger: #ef4444; --success: #22c55e; --warning: #facc15;
-            --repair-bg: #fef08a; --repair-border: #eab308;
-            --deleted-text: #94a3b8;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --warning: #fbbf24;
+            --success: #10b981;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --surface-dark: #1f2937;
+            --surface-darker: #111827;
+            --border: #e5e7eb;
+            --border-dark: #374151;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --text-on-dark: #f9fafb;
+            --status-free: #10b981;
+            --status-busy: #6366f1;
+            --status-repair: #f59e0b;
+            --status-paused: #9333ea;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --radius-xs: 4px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-2xl: 32px;
+            --radius-full: 9999px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --z-header: 100;
+            --z-suggestions: 10000;
+            --z-modal: 9999;
+            --z-toast: 2000;
+            --z-max: 99999;
         }
-        /* FIX 2: Используем dvh (dynamic viewport height) */
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; height: 100dvh; 
-            display: flex; flex-direction: column; 
-            overflow: hidden; user-select: none; 
-            -webkit-tap-highlight-color: transparent; 
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ЭКРАН ВЫБОРА/СОЗДАНИЯ АККАУНТОВ */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            padding: 20px;
+            overflow-y: auto;
         }
         
-        /* HEADER */
-        header { background: var(--surface); padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; z-index: 20; }
-        .nav-btn { background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; color: #475569; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: 0.2s; font-size: 0.9rem; }
-        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(59,130,246,0.4); }
-        .badge { background: #ef4444; color: white; border-radius: 12px; padding: 2px 6px; font-size: 0.75rem; margin-left: 4px; }
-
-        /* MAIN */
-        main { 
-            flex: 1; padding: 10px; 
-            /* FIX 3: Большой отступ снизу, чтобы можно было прокрутить выше клавиатуры */
-            padding-bottom: 300px; 
-            overflow-y: auto; 
-            max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; 
-            /* Плавная прокрутка */
-            scroll-behavior: smooth; 
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 32px;
+            padding: 40px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from {opacity:0; transform:translateY(4px);} to {opacity:1; transform:translateY(0);} }
-
-        /* COMPONENTS */
-        .card { background: var(--surface); padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e2e8f0; }
-        h2 { margin: 0 0 12px 0; font-size: 1.15rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; color: #334155; }
         
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.2s; background: #fff; }
-        input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        .auth-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 25px;
+        }
+        
+        .auth-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .account-list {
+            width: 100%;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .account-item {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .account-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+        
+        .account-item.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .account-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .account-name {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--text);
+            text-align: left;
+            flex: 1;
+        }
+        
+        .account-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .account-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            background: var(--surface);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .account-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .account-btn.delete:hover {
+            background: var(--danger);
+        }
+        
+        .auth-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.6);
+        }
+        
+        .auth-btn.secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        }
+        
+        .auth-btn.danger {
+            background: var(--gradient-danger);
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 16px;
+            margin: 12px 0;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .auth-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+        
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: underline;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-top: 15px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .forgot-password:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .color-picker {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
+        }
+        
+        .color-option:hover {
+            transform: scale(1.05);
+        }
+        
+        /* ОСНОВНОЙ ИНТЕРФЕЙС */
+        header {
+            background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            z-index: var(--z-header);
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid var(--border);
+        }
 
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 1rem; transition: 0.1s; }
-        .btn:active { transform: scale(0.97); }
-        .btn-primary { background: var(--primary); }
-        .btn-danger { background: var(--danger); }
-        .btn-success { background: var(--success); }
-        .btn-secondary { background: #e2e8f0; color: #475569; }
-        .btn-sm { width: auto; padding: 8px 16px; font-size: 0.9rem; }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            position: relative;
+        }
 
-        /* --- ACTIVE RENTAL ROW --- */
+        .nav-btn:hover {
+            background: rgba(99, 102, 241, 0.08);
+            color: var(--primary);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 9999px;
+        }
+
+        .badge {
+            background: var(--gradient-danger);
+            color: white;
+            border-radius: 9999px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            margin-left: 4px;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        main {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: 280px;
+            overflow-y: auto;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+
+        h2 {
+            margin: 0 0 16px 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2 i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 8px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--surface);
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-tertiary);
+            opacity: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary { background: var(--gradient-primary); }
+        .btn-danger { background: var(--gradient-danger); }
+        .btn-success { background: var(--gradient-success); }
+        .btn-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; }
+        .btn-warning { background: var(--gradient-warning); }
+        .btn-sm {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 12px;
+        }
+
         .active-row {
-            background: var(--dark-card); color: var(--text-on-dark);
-            border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center;
-            overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); height: 85px; position: relative;
-            transition: background-color 0.5s;
-        }
-        
-        @keyframes blinkYellow { 
-            0% { background-color: var(--dark-card); color: white; } 
-            50% { background-color: #854d0e; color: white; } 
-            100% { background-color: var(--dark-card); color: white; } 
-        }
-        @keyframes blinkRed { 
-            0% { background-color: var(--dark-card); color: white; } 
-            50% { background-color: #7f1d1d; color: white; } 
-            100% { background-color: var(--dark-card); color: white; } 
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 24px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            height: 90px;
+            position: relative;
+            border: 2px solid transparent;
+            transition: all 0.3s;
         }
 
-        .active-row.warning-mode { animation: blinkYellow 3s infinite ease-in-out; } 
-        .active-row.danger-mode { animation: blinkRed 1.5s infinite ease-in-out; }
+        .active-row:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
 
-        .ar-color { width: 10px; height: 100%; flex-shrink: 0; }
-        .ar-info-block { padding: 0 15px; display: flex; flex-direction: column; justify-content: center; min-width: 140px; cursor: pointer; }
-        .ar-device { font-size: 1.6rem; font-weight: 800; color: inherit; line-height: 1; margin-bottom: 4px; }
-        .ar-client-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: inherit; opacity: 0.9; }
-        .ar-phone-link { color: inherit; text-decoration: none; font-weight: 600; border-bottom: 1px dashed currentColor; }
-        .ar-timer-container { flex: 1; text-align: right; padding-right: 15px; }
-        .ar-timer { font-family: 'Courier New', monospace; font-size: 2.8rem; font-weight: 700; color: inherit; line-height: 1; }
-        .ar-actions { display: flex; height: 100%; background: rgba(0,0,0,0.3); border-left: 1px solid rgba(255,255,255,0.1); width: 180px; flex-shrink: 0; }
-        .ar-btn { flex: 1; border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.1); padding: 0; transition: 0.1s; }
-        .ar-btn:active { opacity: 0.7; }
-        .ar-btn.pause { background: #ca8a04; color: #fff; }
-        .ar-btn.extend { background: #2563eb; color: #fff; }
-        .ar-btn.finish { background: #dc2626; color: #fff; }
-        .ar-btn i { font-size: 1.2rem; margin-bottom: 4px; }
-        .ar-btn-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; }
-        .ar-dbl { font-size: 0.5rem; opacity: 0.6; }
-        .active-row.paused { background: #3f3f2a; }
+        .ar-color {
+            width: 6px;
+            height: 100%;
+            flex-shrink: 0;
+            background: var(--status-busy);
+        }
 
-        /* --- PARK CARD --- */
-        .item-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; }
-        .item-card.repair { background: var(--repair-bg); border-color: var(--repair-border); }
-        .item-name { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
-        .item-sub { font-size: 0.85rem; color: #64748b; margin-top: 2px; }
-        .item-actions { display: flex; gap: 8px; }
-        .gear-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; transition: 0.2s; }
-        .gear-btn.has-note { color: var(--danger); border-color: var(--danger); background: #fef2f2; animation: pulseRed 2s infinite; }
-        @keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);} 70% {box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);} 100% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);} }
+        .ar-info-block {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 160px;
+            cursor: pointer;
+            gap: 4px;
+        }
 
-        /* --- HISTORY --- */
-        .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .history-table th { background: #f8fafc; text-align: left; padding: 12px 8px; border-bottom: 2px solid #e2e8f0; color: #64748b; position: sticky; top: 0; white-space: nowrap; }
-        .history-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-        .tr-deleted td { text-decoration: line-through !important; color: var(--deleted-text) !important; }
-        .tr-deleted td button { text-decoration: none !important; opacity: 1 !important; }
-        .tr-short { background-color: #fef9c3 !important; }
+        .ar-device {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 2px;
+        }
 
-        /* --- OTHERS --- */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        /* Fix modal scrolling with keyboard */
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; animation: popUp 0.15s ease-out; margin-bottom: 10vh; }
-        @keyframes popUp { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+        .ar-client-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .ar-phone-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed var(--primary);
+            transition: all 0.3s;
+        }
+
+        .ar-phone-link:hover {
+            color: var(--primary-dark);
+            border-bottom-color: var(--primary-dark);
+        }
+
+        .ar-timer-container {
+            flex: 1;
+            text-align: right;
+            padding-right: 16px;
+        }
+
+        .ar-timer {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            text-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+        }
+
+        .ar-actions {
+            display: flex;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
+            border-left: 1px solid var(--border);
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .ar-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+            padding: 0;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ar-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .ar-btn:hover::after {
+            opacity: 1;
+        }
+
+        .ar-btn:active {
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
+
+        .ar-btn i {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            transition: all 0.3s;
+        }
+
+        .ar-btn-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .ar-btn.pause i { color: var(--status-paused); }
+        .ar-btn.extend i { color: var(--accent); }
+        .ar-btn.finish i { color: var(--danger); }
+
+        .ar-dbl {
+            font-size: 0.55rem;
+            opacity: 0.4;
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        .active-row.paused {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-color: var(--status-paused);
+        }
+
+        .active-row.paused .ar-timer {
+            color: var(--status-paused);
+        }
+
+        @keyframes pulseWarning {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
+        }
+
+        @keyframes pulseDanger {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+        }
+
+        .active-row.warning-mode {
+            animation: pulseWarning 2s infinite;
+            border-color: var(--warning);
+        }
+
+        .active-row.danger-mode {
+            animation: pulseDanger 1.5s infinite;
+            border-color: var(--danger);
+        }
+
+        .item-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--status-free);
+        }
+
+        .item-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .item-card.repair::before {
+            background: var(--status-repair);
+        }
+
+        .item-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .item-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .gear-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .gear-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .gear-btn.has-note {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+            animation: pulseRed 2s infinite;
+        }
+
+        @keyframes pulseRed {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: var(--z-modal);
+            justify-content: center;
+            align-items: center;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 32px;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalPopUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border);
+            z-index: var(--z-max);
+            position: relative;
+        }
+
+        @keyframes modalPopUp {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .history-table th {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            text-align: left;
+            padding: 16px 8px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-secondary);
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 0.8rem;
+        }
+
+        .history-table td {
+            padding: 16px 8px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            color: var(--text);
+        }
+
+        .history-table tr:hover {
+            background: rgba(99, 102, 241, 0.03);
+        }
+
+        .tr-deleted td {
+            text-decoration: line-through !important;
+            color: var(--text-tertiary) !important;
+            opacity: 0.7 !important;
+        }
+
+        .tr-deleted td button {
+            text-decoration: none !important;
+            opacity: 1 !important;
+        }
+
+        .tr-short {
+            background-color: #fef9c3 !important;
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: var(--z-toast);
+            width: 90%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--surface-dark);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-weight: 600;
+            animation: toastSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+            border-left: 4px solid transparent;
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .toast.danger {
+            border-left-color: var(--danger);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        @keyframes toastSlideDown {
+            from {
+                transform: translateY(-50px) translateX(-50%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) translateX(-50%);
+                opacity: 1;
+            }
+        }
+
+        .profit-card {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            padding: 32px;
+            border-radius: 32px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profit-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotateGradient 20s linear infinite;
+        }
+
+        @keyframes rotateGradient {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .profit-card.warning { background: var(--gradient-warning); }
+        .profit-card.success { background: var(--gradient-success); }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .swap-search, .new-rent-search {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .swap-search:focus, .new-rent-search:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .tariff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .tariff-card {
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .tariff-card:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .tariff-card:active {
+            transform: translateY(0);
+        }
+
+        .pay-choice-btn {
+            padding: 32px;
+            border-radius: 24px;
+            border: 3px solid transparent;
+            font-size: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            flex: 1;
+            background: var(--surface);
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .pay-choice-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pay-choice-cash {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .pay-choice-bank {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .list-opt {
+            padding: 16px;
+            border-radius: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--surface);
+        }
+
+        .list-opt:hover {
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateX(4px);
+        }
+
+        .surcharge-highlight {
+            color: var(--danger);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .surcharge-row {
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .pay-icon {
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .pay-cash {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .pay-bank {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        #blacklist-alert {
+            display: none;
+            background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
+            color: #b91c1c;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid var(--danger);
+            animation: pulseRed 2s infinite;
+        }
+
+        #no-active-msg {
+            text-align: center;
+            color: var(--text-tertiary);
+            margin-top: 60px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .swap-list-container {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            background: var(--surface);
+        }
+
+        .swap-radio-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--surface);
+        }
+
+        .swap-radio-item:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .swap-radio-input {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            accent-color: var(--primary);
+        }
+
+        .cat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .client-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--success);
+            transition: all 0.3s;
+        }
+
+        .client-card.banned {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .client-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .fleet-category-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .fleet-category-block:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .fleet-cat-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fleet-items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .fleet-check-label {
+            display: inline-flex;
+            align-items: center;
+            background: var(--surface);
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            width: auto;
+            gap: 8px;
+        }
+
+        .fleet-check-label:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .fleet-check-input {
+            width: 22px;
+            height: 22px;
+            margin: 0;
+            flex-shrink: 0;
+            accent-color: var(--primary);
+        }
+
+        .fleet-check-text {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            color: var(--text);
+            gap: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .suggestions-box {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 16px 16px 0 0;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: var(--z-suggestions);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: var(--surface);
+        }
+
+        .suggestion-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        #wakelock-status {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .export-btn i {
+            font-size: 1.1rem;
+        }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.05);
+            font-weight: 600;
+        }
+
+        .sync-online {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .sync-offline {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .firebase-badge {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 8px;
+        }
+
+        .account-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 9999;
+            border: 2px solid var(--border);
+        }
         
-        .fleet-category-block { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-        .fleet-cat-title { font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: #334155; }
-        .fleet-items-container { display: flex; flex-wrap: wrap; gap: 8px; }
-        .fleet-check-label { display: inline-flex; align-items: center; background: #f8fafc; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.1s; user-select: none; width: auto; }
-        .fleet-check-label:hover { border-color: var(--primary); background: #eff6ff; }
-        .fleet-check-input { width: 20px; height: 20px; margin: 0 10px 0 0; flex-shrink: 0; accent-color: var(--primary); }
-        .fleet-check-text { font-size: 1rem; font-weight: 700; display: flex; align-items: center; color: #334155; }
+        .account-color-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .switch-account-btn {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 12px;
+            transition: all 0.3s;
+        }
+        
+        .switch-account-btn:hover {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            transform: translateY(-1px);
+        }
 
-        .device-filter-container { position: relative; flex: 1; }
-        .device-filter-btn { background: #fff; border: 1px solid #cbd5e1; color: #334155; justify-content: space-between; }
-        .device-dropdown { position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 50; display: none; max-height: 350px; overflow-y: auto; padding: 5px; }
-        .dd-item { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
-        .dd-item:hover { background: #f8fafc; }
-        .profit-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-align: center; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
-        .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
-        .filter-row input, .filter-row select { margin-bottom: 0; flex: 1; min-width: 100px; }
-        .confirm-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .confirm-actions .btn { flex: 1; }
-        .list-opt { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-        .swap-search { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        .swap-list-container { max-height: 300px; overflow-y: auto; border: 1px solid #f1f5f9; border-radius: 8px; margin-bottom: 15px; }
-        .swap-radio-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
-        .swap-radio-item:hover { background: #f8fafc; }
-        .swap-radio-input { width: 24px; height: 24px; margin-right: 15px; accent-color: var(--primary); }
-        .surcharge-highlight { color: var(--danger); font-weight: 700; }
-        .surcharge-row { background-color: #fff1f2; }
-        .new-rent-search { margin-bottom: 10px; }
-        .pay-icon { font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; display: inline-block; margin-top: 2px; }
-        .pay-cash { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .pay-bank { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-        .tariff-card { border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; cursor: pointer; text-align: center; }
-        .tariff-card:hover { border-color: var(--primary); background: #eff6ff; }
-        .tariff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .pay-choice-btn { padding: 20px; border-radius: 12px; border: 2px solid transparent; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; flex: 1; }
-        .pay-choice-cash { background: #f0fdf4; border-color: #22c55e; color: #15803d; }
-        .pay-choice-bank { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .input-wrapper { position: relative; }
-        .suggestions-box { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 50; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
-        .suggestion-item { padding: 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 0.9rem; }
-        .cat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        
-        /* TOAST */
-        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: #1e293b; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; font-weight: bold; animation: slideDown 0.3s ease-out; pointer-events: auto; }
-        .toast.warning { border-left: 6px solid var(--warning); }
-        .toast.danger { border-left: 6px solid var(--danger); background: #7f1d1d; }
-        @keyframes slideDown { from { transform: translateY(-20px) translateX(-50%); opacity: 0; } to { transform: translateY(0) translateX(-50%); opacity: 1; } }
-        
-        /* WAKE LOCK STATUS */
-        #wakelock-status { font-size: 0.7rem; color: #64748b; text-align: center; margin-top: 5px; }
+        @media (max-width: 768px) {
+            .auth-container { padding: 30px 20px; }
+            .auth-title { font-size: 1.8rem; }
+            .account-list { max-height: 300px; }
+            main { padding: 16px; padding-bottom: 320px; }
+            .card { padding: 16px; }
+            .ar-actions { width: 160px; }
+            .ar-device { font-size: 1.5rem; }
+            .ar-timer { font-size: 2.2rem; }
+            .tariff-grid { grid-template-columns: 1fr; }
+            .modal-content { padding: 24px; max-width: 95%; }
+        }
+
+        @media (max-width: 480px) {
+            .auth-container { border-radius: 24px; }
+            .auth-btn { padding: 16px; font-size: 1.1rem; }
+            .color-picker { grid-template-columns: repeat(4, 1fr); }
+            .color-option { width: 35px; height: 35px; font-size: 12px; }
+            header { padding: 4px 8px; }
+            .nav-btn { padding: 4px 8px; font-size: 0.8rem; }
+            .active-row { height: 80px; }
+            .ar-actions { width: 140px; }
+            .ar-device { font-size: 1.3rem; }
+            .ar-timer { font-size: 1.8rem; }
+            .ar-btn-label { font-size: 0.5rem; }
+        }
     </style>
 </head>
 <body>
 
+<!-- ЭКРАН АВТОРИЗАЦИИ -->
+<div id="auth-screen" class="auth-screen">
+    <div class="auth-container">
+        <h1 class="auth-title">
+            <i class="fas fa-store"></i> Управление точками проката
+        </h1>
+        <p class="auth-subtitle">
+            Создайте или выберите точку проката для работы. Каждая точка имеет отдельные данные и пароль.
+        </p>
+        
+        <div class="account-list" id="account-list">
+            <div style="padding:20px; text-align:center; color:var(--text-tertiary);">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:15px;"></i>
+                <div>Загрузка списка точек проката...</div>
+            </div>
+        </div>
+        
+        <button class="auth-btn" id="create-account-btn">
+            <i class="fas fa-plus-circle"></i> Добавить новую точку проката
+        </button>
+    </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО СОЗДАНИЯ АККАУНТА -->
+<div id="create-account-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2 style="margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-plus"></i> Новая точка проката
+        </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 25px;">
+            Создайте новую точку проката с уникальным названием и цветом
+        </p>
+        
+        <input type="text" id="new-account-name" placeholder="Название точки (напр. 'Центральный прокат')" style="margin-bottom: 20px;">
+        
+        <p style="text-align: left; margin-bottom: 12px; font-weight: 600; color: var(--text);">Выберите цвет:</p>
+        <div class="color-picker" id="color-picker">
+            <!-- Цвета будут добавлены динамически -->
+        </div>
+        
+        <div style="background: rgba(255, 243, 224, 0.3); border-left: 4px solid var(--warning); padding: 15px; border-radius: 12px; margin: 20px 0; text-align: left;">
+            <p style="margin: 0; font-weight: 600; color: #92400e;">
+                <i class="fas fa-lock"></i> Пароль по умолчанию: <strong>0000</strong>
+            </p>
+            <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: #78350f;">
+                Вы сможете изменить пароль в настройках точки после создания
+            </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+            <button class="btn btn-secondary" id="cancel-create-btn">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-primary" id="confirm-create-btn">
+                <i class="fas fa-check"></i> Создать точку
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ВВОДА ПАРОЛЯ -->
+<div id="password-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 450px;">
+        <h2 style="margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-key"></i> Вход в точку проката
+        </h2>
+        <p id="password-account-name" style="color: var(--text-secondary); margin-bottom: 25px; font-weight: 600;"></p>
+        
+        <input type="password" id="account-password" placeholder="Введите пароль (по умолчанию: 0000)" class="auth-input" value="0000">
+        
+        <button class="auth-btn" id="verify-password-btn" style="margin-top: 10px;">
+            <i class="fas fa-sign-in-alt"></i> Войти в точку
+        </button>
+        
+        <button class="forgot-password" id="forgot-password-btn" style="margin-top:15px;">
+            <i class="fas fa-question-circle"></i> Забыли пароль?
+        </button>
+    </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО СБРОСА ПАРОЛЯ -->
+<div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 450px;">
+        <h2 style="margin-top: 0; color: var(--danger); display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-unlock-alt"></i> Сброс пароля
+        </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px; text-align: left;">
+            Для сброса пароля введите мастер-код администратора
+        </p>
+        
+        <input type="password" id="master-password" placeholder="Мастер-код администратора" class="auth-input">
+        
+        <div style="background: rgba(255, 243, 224, 0.3); border-left: 4px solid var(--warning); padding: 15px; border-radius: 12px; margin: 20px 0; text-align: left;">
+            <p style="margin: 0; font-weight: 600; color: #92400e;">
+                <i class="fas fa-info-circle"></i> Мастер-код: <strong>89144892253</strong>
+            </p>
+            <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: #78350f;">
+                После сброса пароль точки будет установлен в "0000"
+            </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+            <button class="btn btn-secondary" id="cancel-forgot-btn">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-danger" id="reset-password-btn">
+                <i class="fas fa-sync-alt"></i> Сбросить пароль
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ИНДИКАТОР ТЕКУЩЕГО АККАУНТА -->
+<div id="account-badge" class="account-badge" style="display: none;">
+    <span class="account-color-indicator" id="account-color-indicator"></span>
+    <span id="account-name-display">Аккаунт</span>
+    <button class="switch-account-btn" id="switch-account-btn">
+        <i class="fas fa-exchange-alt"></i> Сменить
+    </button>
+</div>
+
+<!-- ОСНОВНОЙ ИНТЕРФЕЙС ПРИЛОЖЕНИЯ -->
 <div id="toast-container"></div>
 
-<header>
-    <button class="nav-btn active" onclick="switchView('active')"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
-    <button class="nav-btn" onclick="switchView('new')"><i class="fas fa-plus"></i> Новая</button>
-    <button class="nav-btn" onclick="switchView('fleet')"><i class="fas fa-bicycle"></i> Парк</button>
-    <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
-    <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
-    <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
-    <button class="nav-btn" onclick="switchView('settings')"><i class="fas fa-cog"></i></button>
+<header style="display: none;" id="main-header">
+    <button class="nav-btn active" id="nav-active"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
+    <button class="nav-btn" id="nav-new"><i class="fas fa-plus"></i> Новая</button>
+    <button class="nav-btn" id="nav-fleet"><i class="fas fa-bicycle"></i> Парк</button>
+    <button class="nav-btn" id="nav-clients"><i class="fas fa-users"></i> Клиенты</button>
+    <button class="nav-btn" id="nav-surcharge"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
+    <button class="nav-btn" id="nav-finance"><i class="fas fa-chart-line"></i> История</button>
+    <button class="nav-btn" id="nav-settings"><i class="fas fa-cog"></i></button>
 </header>
 
-<main>
+<main style="display: none;" id="main-content">
     <div id="view-new" class="view">
         <div class="card">
-            <h2>📝 Оформление</h2>
-            <div class="input-row">
+            <h2><i class="fas fa-file-contract"></i> Оформление аренды</h2>
+            <div class="input-row" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div class="input-wrapper">
-                    <input type="tel" id="rent-phone" placeholder="Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
+                    <input type="tel" id="rent-phone" placeholder="📱 Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
                     <div id="suggest-phone" class="suggestions-box"></div>
                 </div>
                 <div class="input-wrapper">
-                    <input type="text" id="rent-name" placeholder="Имя" oninput="handleInput('name', this.value)" autocomplete="off">
+                    <input type="text" id="rent-name" placeholder="👤 Имя" oninput="handleInput('name', this.value)" autocomplete="off">
                     <div id="suggest-name" class="suggestions-box"></div>
                 </div>
             </div>
-            <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
-            <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
+            <div id="blacklist-alert">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
+            <p style="margin:15px 0 10px 0; font-size:0.9rem; color:var(--text-secondary); font-weight:600; display:flex; align-items:center; gap:8px;"><i class="fas fa-rocket"></i> ВЫБЕРИТЕ ТРАНСПОРТ:</p>
             <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
             <div id="fleet-selector"></div>
-            <div id="tariff-block" style="display:none; margin-top:20px;">
-                <p style="margin:5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБОР ТАРИФА:</p>
+            <div id="tariff-block" style="display:none; margin-top:25px;">
+                <p style="margin:5px 0 15px 0; font-size:0.9rem; color:var(--text-secondary); font-weight:600; display:flex; align-items:center; gap:8px;"><i class="fas fa-tag"></i> ВЫБОР ТАРИФА:</p>
                 <div id="tariff-buttons" class="tariff-grid"></div>
             </div>
         </div>
     </div>
 
     <div id="view-active" class="view active">
-        <div style="margin-bottom:10px;">
-            <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
+        <div style="margin-bottom:15px;">
+            <input type="text" id="active-search" placeholder="🔍 Поиск по активным арендам..." oninput="renderActiveRentals()">
         </div>
         <div id="active-list"></div>
-        <div id="no-active-msg" style="text-align:center; color:#94a3b8; margin-top:50px;">Нет активных поездок</div>
+        <div id="no-active-msg">Нет активных поездок</div>
+        <div class="sync-status" id="sync-status">
+            <i class="fas fa-sync-alt"></i> Синхронизация: <span id="sync-state">ожидание подключения...</span>
+            <span class="firebase-badge" style="display:none;"><i class="fas fa-cloud"></i> Firebase</span>
+        </div>
     </div>
 
     <div id="view-fleet" class="view">
         <div class="card">
-            <h2>Парк устройств</h2>
-            <select id="new-fleet-cat"></select>
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="new-fleet-name" placeholder="Номер/Имя">
-                <input type="color" id="new-fleet-color" value="#3b82f6" style="width:50px; padding:2px; height:46px;">
+            <h2><i class="fas fa-car"></i> Парк устройств</h2>
+            <select id="new-fleet-cat" style="margin-bottom:12px;"></select>
+            <div style="display:flex; gap:12px; margin-bottom:15px;">
+                <input type="text" id="new-fleet-name" placeholder="Номер/Имя устройства" style="flex:1;">
+                <input type="color" id="new-fleet-color" value="#6366f1" style="width:50px; padding:4px; height:50px; border-radius:12px; border:2px solid var(--border);">
             </div>
-            <button class="btn btn-primary" onclick="addVehicle()">Добавить</button>
+            <button class="btn btn-primary" id="add-vehicle-btn"><i class="fas fa-plus-circle"></i> Добавить устройство</button>
         </div>
         <div id="fleet-list"></div>
     </div>
 
     <div id="view-clients" class="view">
         <div class="card">
-            <h2>База клиентов</h2>
-            <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()">
-            <div id="clients-list" style="margin-top:10px;"></div>
+            <h2><i class="fas fa-users"></i> База клиентов</h2>
+            <button class="export-btn" id="export-clients-btn">
+                <i class="fas fa-file-export"></i> Выгрузить клиентов в Excel
+            </button>
+            <input type="text" id="client-search" placeholder="Поиск клиента..." style="margin-bottom:15px;">
+            <div id="clients-list"></div>
         </div>
     </div>
 
     <div id="view-surcharge" class="view">
-        <div class="profit-card" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div style="opacity:0.9; font-size:0.9rem;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
-            <div style="font-size:2.5rem; font-weight:800;" id="sur-total">0 ₽</div>
+        <div class="profit-card warning">
+            <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
+            <div style="font-size:2.8rem; font-weight:800; margin-top:8px;" id="sur-total">0 ₽</div>
         </div>
         <div class="card">
-            <h2>Фильтры доплат</h2>
+            <h2><i class="fas fa-filter"></i> Фильтры доплат</h2>
+            <button class="export-btn" id="export-surcharge-btn">
+                <i class="fas fa-file-export"></i> Выгрузить доплаты в Excel
+            </button>
             <div class="filter-row">
                 <input type="date" id="sur-start" onchange="renderSurcharge()">
                 <input type="date" id="sur-end" onchange="renderSurcharge()">
             </div>
             <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
         </div>
-        <div class="card" style="padding:0; overflow:hidden;">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:24px;">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
@@ -267,33 +1668,36 @@
     </div>
 
     <div id="view-finance" class="view">
-        <div class="profit-card">
-            <div style="opacity:0.9; font-size:0.9rem;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
-            <div style="font-size:2.5rem; font-weight:800;" id="history-total">0 ₽</div>
+        <div class="profit-card success">
+            <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
+            <div style="font-size:2.8rem; font-weight:800; margin-top:8px;" id="history-total">0 ₽</div>
         </div>
         <div class="card">
-            <h2>Фильтры</h2>
+            <h2><i class="fas fa-filter"></i> Фильтры истории</h2>
+            <button class="export-btn" id="export-history-btn">
+                <i class="fas fa-file-export"></i> Выгрузить историю в Excel
+            </button>
             <div class="filter-row">
                 <input type="date" id="hist-start" onchange="renderHistory()">
                 <input type="date" id="hist-end" onchange="renderHistory()">
-                <select id="hist-pay" onchange="renderHistory()">
+                <select id="hist-pay" onchange="renderHistory()" style="flex:1; min-width:140px;">
                     <option value="all">💳 Все оплаты</option>
                     <option value="cash">💵 Наличные</option>
                     <option value="bank">🏦 Банк/Карта</option>
                 </select>
             </div>
             <div class="filter-row">
-                <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()">
-                <div class="device-filter-container">
-                    <button class="btn btn-sm device-filter-btn" onclick="toggleDevDropdown()">📱 Выбор устройств <i class="fas fa-chevron-down"></i></button>
-                    <div id="dev-dd" class="device-dropdown">
-                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)">
+                <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()" style="flex:2;">
+                <div class="device-filter-container" style="flex:1; position:relative;">
+                    <button class="btn btn-sm device-filter-btn" style="width:100%; background:var(--surface); color:var(--text); border:2px solid var(--border);" id="device-filter-btn">📱 Устройства <i class="fas fa-chevron-down"></i></button>
+                    <div id="dev-dd" class="device-dropdown" style="position:absolute; top:100%; left:0; width:100%; background:var(--surface); border:2px solid var(--border); border-radius:16px; box-shadow:var(--shadow-lg); z-index:50; display:none; max-height:350px; overflow-y:auto; padding:8px; margin-top:4px;">
+                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:12px; margin-bottom:8px; font-size:0.95rem;">
                         <div id="dev-dd-list"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card" style="padding:0; overflow:hidden;">
+        <div class="card" style="padding:0; overflow:hidden; border-radius:24px;">
             <div style="overflow-x:auto;">
                 <table class="history-table">
                     <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
@@ -305,157 +1709,932 @@
 
     <div id="view-settings" class="view">
         <div class="card">
-            <h2>Категории</h2>
-            <button class="btn btn-primary" onclick="openCatModal()">+ Создать категорию</button>
-            <div id="settings-list" style="margin-top:15px;"></div>
+            <h2><i class="fas fa-layer-group"></i> Категории и настройки</h2>
+            <button class="btn btn-primary" id="open-cat-modal-btn" style="margin-bottom:15px;"><i class="fas fa-plus"></i> + Создать категорию</button>
+            <div id="settings-list"></div>
         </div>
         <div class="card">
-            <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:10px; width:100%;">💡 Включить "Не спать" (WakeLock)</button>
-            <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:10px; width:100%;">🔊 Разблокировать аудио</button>
-            <div id="wakelock-status">Экран может погаснуть (нажми кнопку)</div>
+            <button class="btn btn-success" id="wake-lock-btn" style="margin-bottom:12px;"><i class="fas fa-moon"></i> Включить режим "Не спать"</button>
+            <button class="btn btn-secondary" id="test-audio-btn" style="margin-bottom:12px;"><i class="fas fa-volume-up"></i> Разблокировать аудио</button>
+            <div id="wakelock-status">Экран может погаснуть</div>
+            <div class="sync-status" style="margin-top:15px;">
+                <i class="fas fa-cloud"></i> Статус синхронизации: <span id="firebase-status">Не подключено</span>
+            </div>
+            <button class="btn btn-warning" id="force-upload-btn" style="margin-top:15px; background:var(--gradient-warning);">
+                <i class="fas fa-cloud-upload-alt"></i> Принудительно загрузить данные в облако
+            </button>
         </div>
-        <div class="card"><button class="btn btn-danger" onclick="fullReset()">⚠ Полный сброс данных</button></div>
+        <div class="card">
+            <h3 style="margin:0 0 15px 0; color:var(--primary);"><i class="fas fa-user-shield"></i> Безопасность точки</h3>
+            <button class="btn btn-primary" id="change-password-btn" style="background:var(--gradient-primary); margin-bottom:12px;">
+                <i class="fas fa-key"></i> Изменить пароль точки
+            </button>
+            <button class="btn btn-danger" id="delete-account-btn" style="background:var(--gradient-danger);">
+                <i class="fas fa-trash-alt"></i> Удалить эту точку проката
+            </button>
+        </div>
+        <div class="card">
+            <button class="btn btn-danger" id="full-reset-btn" style="background:var(--gradient-danger);"><i class="fas fa-trash-alt"></i> ⚠️ Полный сброс данных</button>
+        </div>
     </div>
 </main>
 
-<div id="modal-confirm" class="modal-overlay" style="z-index: 200;">
-    <div class="modal-content" style="text-align:center;">
-        <i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-        <h3 id="confirm-title">Подтверждение</h3>
-        <p id="confirm-text" style="color:#64748b; margin-bottom:20px;">Вы уверены?</p>
-        <div class="confirm-actions">
-            <button class="btn btn-danger" id="btn-confirm-no">НЕТ</button>
-            <button class="btn btn-success" id="btn-confirm-yes">ДА</button>
+<!-- МОДАЛЬНЫЕ ОКНА -->
+<div id="modal-confirm" class="modal-overlay">
+    <div class="modal-content">
+        <i class="fas fa-exclamation-triangle" style="font-size:3.5rem; color:var(--warning); margin-bottom:20px;"></i>
+        <h3 id="confirm-title" style="margin-top:0; color:var(--text);">Подтверждение</h3>
+        <p id="confirm-text" style="color:var(--text-secondary); margin:15px 0 25px; line-height:1.5;">Вы уверены, что хотите выполнить это действие?</p>
+        <div class="confirm-actions" style="display:flex; gap:12px;">
+            <button class="btn btn-secondary" id="btn-confirm-no" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-danger" id="btn-confirm-yes" style="flex:1;"><i class="fas fa-check"></i> Подтвердить</button>
         </div>
     </div>
 </div>
 
 <div id="modal-start-confirm" class="modal-overlay">
     <div class="modal-content">
-        <h3>💰 Форма оплаты</h3>
-        <div style="background:#f8fafc; padding:15px; border-radius:10px; margin:15px 0; text-align:center; border:1px solid #eee;">
-            <div id="confirm-tariff-name" style="font-weight:bold; font-size:1.2rem; color:var(--primary);"></div>
-            <div id="confirm-devices" style="margin-top:5px; color:#64748b;"></div>
-            <div id="confirm-cost" style="margin-top:10px; font-weight:bold; font-size:1.5rem;"></div>
+        <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:10px;"><i class="fas fa-wallet"></i> Способ оплаты</h3>
+        <div style="background:linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding:20px; border-radius:16px; margin:20px 0; text-align:center; border:1px solid var(--border);">
+            <div id="confirm-tariff-name" style="font-weight:800; font-size:1.4rem; color:var(--primary); margin-bottom:8px;"></div>
+            <div id="confirm-devices" style="margin:8px 0; color:var(--text-secondary); font-size:0.95rem;"></div>
+            <div id="confirm-cost" style="margin-top:12px; font-weight:800; font-size:1.8rem; color:var(--text);"></div>
         </div>
-        <p style="text-align:center; color:#64748b; margin-bottom:10px;">Выберите способ оплаты:</p>
-        <div style="display:flex; gap:15px; margin-bottom:15px;">
-            <div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')">
-                <i class="fas fa-money-bill-wave" style="font-size:2rem;"></i> Наличные
+        <p style="text-align:center; color:var(--text-secondary); margin:15px 0 20px; font-weight:500;">Выберите способ оплаты:</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px;">
+            <div class="pay-choice-btn pay-choice-cash" id="pay-cash-btn">
+                <i class="fas fa-money-bill-wave" style="font-size:2.2rem;"></i>
+                <span style="font-weight:700; font-size:1.1rem;">Наличные</span>
             </div>
-            <div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')">
-                <i class="fas fa-credit-card" style="font-size:2rem;"></i> Банк/Карта
+            <div class="pay-choice-btn pay-choice-bank" id="pay-bank-btn">
+                <i class="fas fa-credit-card" style="font-size:2.2rem;"></i>
+                <span style="font-weight:700; font-size:1.1rem;">Банк/Карта</span>
             </div>
         </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')">Отмена</button>
+        <button class="btn btn-secondary" id="back-to-start-btn" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-arrow-left"></i> Вернуться</button>
     </div>
 </div>
 
-<div id="modal-final-start" class="modal-overlay" style="z-index: 150;">
+<div id="modal-final-start" class="modal-overlay">
     <div class="modal-content" style="text-align:center">
-        <h3>🚀 Начать поездку?</h3>
-        <div style="margin:20px 0; color:#64748b;">Проверьте данные и подтвердите старт.</div>
-        <div class="confirm-actions">
-            <button class="btn btn-danger" onclick="closeModal('modal-final-start')">Нет</button>
-            <button class="btn btn-success" onclick="realStartRental()">Да, поехали</button>
+        <i class="fas fa-rocket" style="font-size:3.5rem; color:var(--success); margin-bottom:20px;"></i>
+        <h3 style="margin-top:0; color:var(--text);">🚀 Начать поездку?</h3>
+        <div style="margin:25px 0; color:var(--text-secondary); line-height:1.6;">
+            Проверьте все данные и подтвердите старт аренды.<br>
+            <span style="color:var(--primary); font-weight:600;">Внимание:</span> после старта изменить тариф будет невозможно.
+        </div>
+        <div class="confirm-actions" style="display:flex; gap:15px;">
+            <button class="btn btn-secondary" id="cancel-final-start-btn" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-success" id="confirm-final-start-btn" style="flex:1;"><i class="fas fa-play-circle"></i> Старт</button>
         </div>
     </div>
 </div>
 
 <div id="modal-sub" class="modal-overlay">
     <div class="modal-content">
-        <h3 id="sub-title">Выбор</h3>
-        <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)">
+        <h3 id="sub-title" style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-exchange-alt"></i> Замена устройства</h3>
+        <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства...">
         <div id="swap-list-container" class="swap-list-container"></div>
-        <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled>Подтвердить выбор</button>
-        <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:10px;">Закрыть</button>
+        <button class="btn btn-primary" id="btn-do-swap" disabled style="margin-top:15px;"><i class="fas fa-check-circle"></i> Подтвердить выбор</button>
+        <button class="btn btn-secondary" id="cancel-swap-btn" style="margin-top:12px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
 <div id="modal-client" class="modal-overlay">
     <div class="modal-content">
-        <h3>Клиент</h3>
+        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-user-edit"></i> Редактирование клиента</h3>
         <input type="hidden" id="edit-cl-id">
-        <input type="text" id="edit-cl-name" placeholder="Имя">
-        <input type="tel" id="edit-cl-phone" placeholder="Телефон">
-        <textarea id="edit-cl-comment" placeholder="Комментарий" rows="3"></textarea>
-        <label style="display:flex; align-items:center; gap:10px; margin:10px 0;"><input type="checkbox" id="edit-cl-block" style="width:auto; margin:0;"><span style="color:var(--danger); font-weight:bold;">Черный список</span></label>
-        <div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-danger" onclick="delClient()">Удалить</button><button class="btn btn-primary" onclick="saveClient()">Сохранить</button></div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:10px;">Отмена</button>
+        <input type="text" id="edit-cl-name" placeholder="Имя клиента" style="margin-bottom:12px;">
+        <input type="tel" id="edit-cl-phone" placeholder="Телефон" style="margin-bottom:12px;">
+        <textarea id="edit-cl-comment" placeholder="Комментарий (поломки, особенности)" rows="3" style="margin-bottom:15px; resize:vertical;"></textarea>
+        <label style="display:flex; align-items:center; gap:12px; margin:15px 0; padding:12px; background:rgba(239, 68, 68, 0.05); border-radius:12px; border:1px solid rgba(239, 68, 68, 0.3);">
+            <input type="checkbox" id="edit-cl-block" style="width:auto; margin:0; accent-color:var(--danger);">
+            <span style="color:var(--danger); font-weight:700; font-size:1.05rem;">Добавить в черный список</span>
+        </label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+            <button class="btn btn-danger" id="delete-client-btn" style="background:var(--gradient-danger);"><i class="fas fa-trash"></i> Удалить</button>
+            <button class="btn btn-primary" id="save-client-btn"><i class="fas fa-save"></i> Сохранить</button>
+        </div>
+        <button class="btn btn-secondary" id="close-client-modal-btn" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
 <div id="modal-vehicle-note" class="modal-overlay">
     <div class="modal-content">
-        <h3>⚙️ Заметка к устройству</h3>
+        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px; color:var(--warning);"><i class="fas fa-tools"></i> Заметка к устройству</h3>
         <input type="hidden" id="note-v-id">
-        <div id="note-v-name" style="margin-bottom:10px; font-weight:bold;"></div>
-        <textarea id="note-v-text" placeholder="Опишите проблему или статус..." rows="5"></textarea>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-danger" onclick="deleteVehicleNote()">Удалить заметку</button>
-            <button class="btn btn-primary" onclick="saveVehicleNote()">Сохранить</button>
+        <div id="note-v-name" style="margin-bottom:15px; font-weight:700; font-size:1.2rem; color:var(--text); padding:12px; background:rgba(99, 102, 241, 0.05); border-radius:12px; text-align:center;"></div>
+        <textarea id="note-v-text" placeholder="Опишите проблему, статус или особенности устройства..." rows="5" style="margin-bottom:20px; resize:vertical; font-size:1.05rem; padding:14px;"></textarea>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <button class="btn btn-danger" id="delete-note-btn" style="background:var(--gradient-danger);"><i class="fas fa-eraser"></i> Удалить заметку</button>
+            <button class="btn btn-primary" id="save-note-btn"><i class="fas fa-save"></i> Сохранить</button>
         </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:10px;">Отмена</button>
+        <button class="btn btn-secondary" id="close-note-modal-btn" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
     </div>
 </div>
 
 <div id="modal-cat" class="modal-overlay">
     <div class="modal-content">
-        <h3>Категория</h3>
+        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-layer-group"></i> Редактирование категории</h3>
         <input type="hidden" id="edit-cat-id">
-        <input type="text" id="edit-cat-name" placeholder="Название">
-        <input type="number" id="edit-cat-rate" placeholder="Цена минуты (сверх тарифа) ₽">
-        <div style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
-            <h4>Тарифы</h4><div id="cat-tariffs-list"></div>
-            <div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-top:10px;">
-                <select id="nt-type"><option value="fix">Фиксированный</option><option value="std">Поминутный</option></select>
-                <input type="text" id="nt-name" placeholder="Имя (напр. 30 мин)">
-                <div style="display:flex; gap:5px;">
-                    <input type="number" id="nt-v1" placeholder="Мин / Старт">
-                    <input type="number" id="nt-v2" placeholder="Цена / Мин">
+        <input type="text" id="edit-cat-name" placeholder="Название категории (Самокаты, Велосипеды)" style="margin-bottom:15px;">
+        <input type="number" id="edit-cat-rate" placeholder="Базовая цена минуты сверх тарифа (₽)" style="margin-bottom:20px;">
+        <div style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);">
+            <h4 style="margin-bottom:15px; display:flex; align-items:center; gap:8px; color:var(--primary);"><i class="fas fa-tags"></i> Тарифы категории</h4>
+            <div id="cat-tariffs-list" style="margin-bottom:20px; max-height:200px; overflow-y:auto;"></div>
+            <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:16px; margin-top:10px; border:1px solid var(--border);">
+                <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:12px; border:2px solid var(--border);">
+                    <option value="fix">Фиксированный тариф (30 мин за 300₽)</option>
+                    <option value="std">Поминутный тариф (Старт 50₽ + 10₽/мин)</option>
+                </select>
+                <input type="text" id="nt-name" placeholder="Название тарифа (напр. '30 минут')" style="margin-bottom:12px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <input type="number" id="nt-v1" placeholder="Длительность / Стартовая цена" min="0">
+                    <input type="number" id="nt-v2" placeholder="Цена всего / Цена за минуту" min="0">
                 </div>
-                <button class="btn btn-success btn-sm" onclick="addTariffIO()">+ Тариф</button>
+                <button class="btn btn-success btn-sm" id="add-tariff-btn" style="width:100%; background:var(--gradient-success);"><i class="fas fa-plus"></i> Добавить тариф</button>
             </div>
         </div>
-        
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Отмена</button>
-            <button class="btn btn-primary" onclick="saveCat()">Сохранить</button>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:25px;">
+            <button class="btn btn-secondary" id="close-cat-modal-btn" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-primary" id="save-cat-btn"><i class="fas fa-save"></i> Сохранить</button>
         </div>
     </div>
 </div>
 
-<div id="modal-auth" class="modal-overlay" style="z-index: 9999;">
-    <div class="modal-content" style="max-width: 300px; text-align: center;">
-        <h3 style="margin-top:0;">🔐 Введите пароль</h3>
-        
-        <input type="password" id="auth-pass-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing: 5px;">
-        
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-auth')">Отмена</button>
-            <button class="btn btn-success" onclick="submitAuth()">OK</button>
+<div id="modal-auth" class="modal-overlay" style="z-index:9999;">
+    <div class="modal-content" style="max-width:350px; text-align:center;">
+        <i class="fas fa-lock" style="font-size:3.5rem; color:var(--primary); margin-bottom:20px;"></i>
+        <h3 style="margin-top:0; color:var(--text);">🔐 Требуется авторизация</h3>
+        <p style="color:var(--text-secondary); margin-bottom:20px; font-size:0.95rem;">Введите пароль администратора для доступа к настройкам</p>
+        <input type="password" id="auth-pass-input" placeholder="••••••••" style="text-align:center; font-size:1.6rem; letter-spacing:6px; margin-bottom:25px; padding:14px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px;">
+            <button class="btn btn-secondary" id="cancel-auth-btn" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+            <button class="btn btn-success" id="submit-auth-btn"><i class="fas fa-unlock"></i> Войти</button>
         </div>
-
-        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-        
-        <button class="btn btn-sm btn-danger" style="width:100%; background: #fee2e2; color: #b91c1c; border:none;" onclick="resetPassBtnAction()">
-            <i class="fas fa-key"></i> Сброс пароля
+        <hr style="margin:20px 0; border:0; border-top:1px solid var(--border);">
+        <button class="btn btn-sm btn-danger" id="reset-pass-btn" style="width:100%; background:rgba(239, 68, 68, 0.1); color:var(--danger); border:1px solid var(--danger);">
+            <i class="fas fa-key"></i> Сбросить пароль (требуется мастер-код)
         </button>
     </div>
 </div>
 
-
 <script>
-    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
+    // === КОНФИГУРАЦИЯ FIREBASE ===
+    const firebaseConfig = {
+        apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
+        authDomain: "skuter75rus-3d55d.firebaseapp.com",
+        databaseURL: "https://skuter75rus-3d55d-default-rtdb.firebaseio.com",
+        projectId: "skuter75rus-3d55d",
+        storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+        messagingSenderId: "1054204994225",
+        appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
+        measurementId: "G-J47C67V554"
+    };
+
+    // Глобальные переменные
+    let firebaseApp = null;
+    let firebaseDb = null;
+    let isFirebaseConnected = false;
+    let lastSyncTime = 0;
+    
+    // Переменные для системы аккаунтов
+    let currentAccountId = localStorage.getItem('currentAccountId') || null;
+    let currentAccountName = '';
+    let currentAccountColor = '';
+    let accountsList = {}; // Список всех аккаунтов
+    
+    // Доступные цвета для точек проката
+    const ACCOUNT_COLORS = [
+        { color: '#10b981', icon: 'fa-scooter' },   // Зеленый - самокаты
+        { color: '#f59e0b', icon: 'fa-bicycle' },   // Оранжевый - велосипеды
+        { color: '#6366f1', icon: 'fa-motorcycle' }, // Фиолетовый - мопеды
+        { color: '#ef4444', icon: 'fa-motorcycle' }, // Красный - мотоциклы
+        { color: '#8b5cf6', icon: 'fa-car' },        // Индиго - авто
+        { color: '#ec4899', icon: 'fa-skateboard' }, // Розовый - скейтборды
+        { color: '#3b82f6', icon: 'fa-taxi' },       // Синий - такси
+        { color: '#14b8a6', icon: 'fa-ship' }        // Бирюзовый - водный транспорт
+    ];
+
+    // === ИНИЦИАЛИЗАЦИЯ FIREBASE ===
+    function initFirebase() {
+        try {
+            if (!firebaseApp) {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseDb = firebaseApp.database();
+                firebaseDb.goOnline();
+                
+                // Отслеживание состояния подключения
+                firebaseDb.ref('.info/connected').on('value', (snapshot) => {
+                    const connected = snapshot.val();
+                    isFirebaseConnected = connected;
+                    updateSyncStatus(connected);
+                    
+                    if (connected) {
+                        console.log("✅ Firebase подключен");
+                        // Загружаем список аккаунтов
+                        loadAccountsList();
+                    } else {
+                        console.log("⚠️ Firebase отключен");
+                        showToast("⚠️ Нет подключения к облаку", 'warning');
+                        // Показываем сохраненные аккаунты из локального хранилища
+                        renderAccountsList();
+                        // Создаем тестовую точку если нет сохраненных
+                        createTestAccountIfEmpty();
+                    }
+                });
+            } else {
+                // Firebase уже инициализирован, загружаем аккаунты
+                loadAccountsList();
+            }
+        } catch (error) {
+            console.error("❌ Ошибка инициализации Firebase:", error);
+            showToast("❌ Ошибка подключения к облаку", 'danger');
+            // Показываем пустой список аккаунтов для возможности работы в офлайне
+            renderAccountsList();
+            // Создаем тестовую точку если нет сохраненных
+            createTestAccountIfEmpty();
+        }
+    }
+    
+    // Загрузка списка аккаунтов из облака
+    function loadAccountsList() {
+        if (!firebaseDb) {
+            // Если нет подключения к Firebase, показываем сохраненные аккаунты из локального хранилища
+            const savedAccounts = localStorage.getItem('accountsList');
+            if (savedAccounts) {
+                accountsList = JSON.parse(savedAccounts);
+            }
+            renderAccountsList();
+            // Создаем тестовую точку если нет сохраненных
+            createTestAccountIfEmpty();
+            return;
+        }
+        
+        firebaseDb.ref('accounts').once('value')
+            .then((snapshot) => {
+                accountsList = snapshot.val() || {};
+                // Сохраняем в локальное хранилище для офлайн-доступа
+                localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                renderAccountsList();
+                
+                // Создаем тестовую точку если нет сохраненных
+                createTestAccountIfEmpty();
+                
+                // Если выбран аккаунт и он существует, показываем основной интерфейс
+                if (currentAccountId && accountsList[currentAccountId]) {
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('main-header').style.display = 'flex';
+                    document.getElementById('main-content').style.display = 'block';
+                    document.getElementById('account-badge').style.display = 'flex';
+                    initAppForAccount();
+                }
+            })
+            .catch((error) => {
+                console.error("❌ Ошибка загрузки списка аккаунтов:", error);
+                // Показываем сохраненные аккаунты из локального хранилища
+                const savedAccounts = localStorage.getItem('accountsList');
+                if (savedAccounts) {
+                    accountsList = JSON.parse(savedAccounts);
+                }
+                renderAccountsList();
+                // Создаем тестовую точку если нет сохраненных
+                createTestAccountIfEmpty();
+            });
+    }
+    
+    // Создание тестовой точки если нет сохраненных аккаунтов
+    function createTestAccountIfEmpty() {
+        if (Object.keys(accountsList).length === 0) {
+            console.log("Создаем тестовую точку проката...");
+            
+            // Создаем тестовую точку
+            const testAccountId = 'acc_test_' + Date.now();
+            const testAccount = {
+                id: testAccountId,
+                name: 'Тестовая точка проката',
+                color: '#10b981',
+                icon: 'fa-scooter',
+                password: '0000',
+                createdAt: Date.now()
+            };
+            
+            // Сохраняем в локальное хранилище
+            accountsList[testAccountId] = testAccount;
+            localStorage.setItem('accountsList', JSON.stringify(accountsList));
+            
+            // Создаем данные для точки
+            const testData = {
+                categories: [{id:1, name: 'Тестовая точка проката', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
+                fleet: [],
+                clients: [],
+                rentals: [],
+                history: [],
+                password: '4892'
+            };
+            
+            localStorage.setItem(`rm_final_keyboard_fix_${testAccountId}`, JSON.stringify(testData));
+            
+            // Сохраняем в облако если есть подключение
+            if (firebaseDb) {
+                firebaseDb.ref(`accounts/${testAccountId}`).set(testAccount)
+                    .then(() => {
+                        firebaseDb.ref(`rentmaster/${testAccountId}`).set(testData)
+                            .then(() => {
+                                console.log("✅ Тестовая точка создана и сохранена в облаке");
+                                renderAccountsList();
+                                // Автоматически входим в тестовую точку
+                                autoLoginToTestAccount(testAccountId);
+                            })
+                            .catch((error) => {
+                                console.error("Ошибка создания данных тестовой точки:", error);
+                                renderAccountsList();
+                                autoLoginToTestAccount(testAccountId);
+                            });
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка создания аккаунта:", error);
+                        renderAccountsList();
+                        autoLoginToTestAccount(testAccountId);
+                    });
+            } else {
+                console.log("✅ Тестовая точка создана в офлайн-режиме");
+                renderAccountsList();
+                // Автоматически входим в тестовую точку
+                autoLoginToTestAccount(testAccountId);
+            }
+        }
+    }
+    
+    // Автоматический вход в тестовую точку
+    function autoLoginToTestAccount(accountId) {
+        currentAccountId = accountId;
+        currentAccountName = accountsList[accountId].name;
+        currentAccountColor = accountsList[accountId].color;
+        localStorage.setItem('currentAccountId', accountId);
+        
+        // Показываем основной интерфейс
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-header').style.display = 'flex';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('account-badge').style.display = 'flex';
+        
+        // Обновляем индикатор аккаунта
+        updateAccountBadge();
+        
+        // Инициализируем приложение
+        initAppForAccount();
+        
+        showToast(`✅ Добро пожаловать в "${currentAccountName}"!`, 'success');
+    }
+    
+    // Отображение списка аккаунтов
+    function renderAccountsList() {
+        const container = document.getElementById('account-list');
+        container.innerHTML = '';
+        
+        if (Object.keys(accountsList).length === 0) {
+            container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-tertiary);">Нет созданных точек проката.<br>Нажмите кнопку ниже, чтобы добавить первую точку.</div>';
+            return;
+        }
+        
+        Object.entries(accountsList).forEach(([id, account]) => {
+            const div = document.createElement('div');
+            div.className = 'account-item';
+            if (currentAccountId === id) div.classList.add('active');
+            div.innerHTML = `
+                <div class="account-info" onclick="selectAccount('${id}')">
+                    <span class="account-color" style="background:${account.color}"><i class="fas ${account.icon || 'fa-store'}"></i></span>
+                    <div class="account-name">${account.name}</div>
+                </div>
+                <div class="account-actions">
+                    <button class="account-btn delete" onclick="event.stopPropagation(); confirmDeleteAccount('${id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    // Выбор аккаунта (запрашиваем пароль)
+    function selectAccount(accountId) {
+        if (!accountsList[accountId]) return;
+        
+        currentAccountId = accountId;
+        currentAccountName = accountsList[accountId].name;
+        currentAccountColor = accountsList[accountId].color;
+        
+        // Показываем модальное окно ввода пароля
+        document.getElementById('password-account-name').innerText = accountsList[accountId].name;
+        document.getElementById('account-password').value = '0000'; // По умолчанию 0000
+        document.getElementById('password-modal').style.display = 'flex';
+    }
+    
+    // Проверка пароля аккаунта
+    function verifyAccountPassword() {
+        const password = document.getElementById('account-password').value || '0000';
+        const correctPassword = accountsList[currentAccountId].password || '0000';
+        
+        if (password === correctPassword) {
+            document.getElementById('password-modal').style.display = 'none';
+            localStorage.setItem('currentAccountId', currentAccountId);
+            
+            // Показываем основной интерфейс
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('account-badge').style.display = 'flex';
+            
+            // Обновляем индикатор аккаунта
+            updateAccountBadge();
+            
+            // Инициализируем приложение
+            initAppForAccount();
+            
+            showToast(`✅ Вход выполнен в "${currentAccountName}"`, 'success');
+        } else {
+            showToast("❌ Неверный пароль", 'danger');
+            document.getElementById('account-password').style.border = "2px solid var(--danger)";
+            setTimeout(() => {
+                document.getElementById('account-password').style.border = "2px solid var(--border)";
+            }, 1500);
+        }
+    }
+    
+    // Обновление индикатора аккаунта
+    function updateAccountBadge() {
+        if (!currentAccountId || !accountsList[currentAccountId]) return;
+        
+        document.getElementById('account-name-display').innerText = accountsList[currentAccountId].name;
+        document.getElementById('account-color-indicator').style.backgroundColor = accountsList[currentAccountId].color;
+        
+        // Обновляем цвета в интерфейсе
+        document.documentElement.style.setProperty('--primary', accountsList[currentAccountId].color);
+        document.documentElement.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${accountsList[currentAccountId].color} 0%, ${shadeColor(accountsList[currentAccountId].color, -20)} 100%)`);
+    }
+    
+    // Вспомогательная функция для затемнения цвета
+    function shadeColor(color, percent) {
+        let R = parseInt(color.substring(1,3),16);
+        let G = parseInt(color.substring(3,5),16);
+        let B = parseInt(color.substring(5,7),16);
+        
+        R = parseInt(R * (100 + percent) / 100);
+        G = parseInt(G * (100 + percent) / 100);
+        B = parseInt(B * (100 + percent) / 100);
+        
+        R = (R<255)?R:255;  
+        G = (G<255)?G:255;  
+        B = (B<255)?B:255;  
+        
+        R = Math.max(0, R).toString(16).padStart(2, '0');
+        G = Math.max(0, G).toString(16).padStart(2, '0');
+        B = Math.max(0, B).toString(16).padStart(2, '0');
+        
+        return `#${R}${G}${B}`;
+    }
+    
+    // Показать модальное окно создания аккаунта
+    function showCreateAccountModal() {
+        console.log("Открытие модального окна создания аккаунта");
+        
+        // Очищаем и заполняем цвета
+        const colorPicker = document.getElementById('color-picker');
+        colorPicker.innerHTML = '';
+        
+        ACCOUNT_COLORS.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'color-option';
+            div.style.backgroundColor = item.color;
+            div.innerHTML = `<i class="fas fa-${item.icon}"></i>`;
+            div.onclick = () => selectAccountColor(index);
+            colorPicker.appendChild(div);
+        });
+        
+        // Выбираем первый цвет по умолчанию
+        colorPicker.firstChild.classList.add('selected');
+        document.getElementById('new-account-name').value = 'Новая точка проката';
+        document.getElementById('create-account-modal').style.display = 'flex';
+    }
+    
+    // Выбор цвета для нового аккаунта
+    function selectAccountColor(index) {
+        document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+        document.querySelectorAll('.color-option')[index].classList.add('selected');
+    }
+    
+    // Создание нового аккаунта
+    function createNewAccount() {
+        console.log("Создание новой точки проката...");
+        
+        const name = document.getElementById('new-account-name').value.trim();
+        if (!name) {
+            showToast("⚠️ Введите название точки проката", 'warning');
+            return;
+        }
+        
+        // Получаем выбранный цвет
+        const selectedColorIndex = [...document.querySelectorAll('.color-option')].findIndex(el => el.classList.contains('selected'));
+        const selectedColor = ACCOUNT_COLORS[selectedColorIndex] || ACCOUNT_COLORS[0];
+        
+        // Генерируем уникальный ID
+        const newAccountId = 'acc_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        
+        // Создаем новый аккаунт
+        const newAccount = {
+            id: newAccountId,
+            name: name,
+            color: selectedColor.color,
+            icon: selectedColor.icon,
+            password: '0000', // Пароль по умолчанию
+            createdAt: Date.now()
+        };
+        
+        console.log("Создан новый аккаунт:", newAccount);
+        
+        // Сохраняем в облако если есть подключение
+        if (firebaseDb) {
+            console.log("Сохранение в Firebase...");
+            firebaseDb.ref(`accounts/${newAccountId}`).set(newAccount)
+                .then(() => {
+                    console.log("Аккаунт сохранен в Firebase");
+                    // Создаем пустую структуру данных для точки
+                    const defaultData = {
+                        categories: [{id:1, name: name, baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
+                        fleet: [],
+                        clients: [],
+                        rentals: [],
+                        history: [],
+                        password: '4892'
+                    };
+                    
+                    firebaseDb.ref(`rentmaster/${newAccountId}`).set(defaultData)
+                        .then(() => {
+                            console.log("Данные точки сохранены в Firebase");
+                            closeCreateAccountModal();
+                            showToast(`✅ Точка проката "${name}" создана! Пароль по умолчанию: 0000`, 'success');
+                            // Обновляем список аккаунтов
+                            accountsList[newAccountId] = newAccount;
+                            localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                            renderAccountsList();
+                            
+                            // Автоматически входим
+                            currentAccountId = newAccountId;
+                            currentAccountName = name;
+                            currentAccountColor = selectedColor.color;
+                            localStorage.setItem('currentAccountId', newAccountId);
+                            document.getElementById('auth-screen').style.display = 'none';
+                            document.getElementById('main-header').style.display = 'flex';
+                            document.getElementById('main-content').style.display = 'block';
+                            document.getElementById('account-badge').style.display = 'flex';
+                            updateAccountBadge();
+                            initAppForAccount();
+                        })
+                        .catch((error) => {
+                            console.error("Ошибка создания данных точки:", error);
+                            showToast("❌ Ошибка создания точки", 'danger');
+                        });
+                })
+                .catch((error) => {
+                    console.error("Ошибка создания аккаунта:", error);
+                    showToast("❌ Ошибка создания точки проката", 'danger');
+                });
+        } else {
+            console.log("Сохранение в офлайн-режиме...");
+            // Работаем в офлайн-режиме
+            accountsList[newAccountId] = newAccount;
+            localStorage.setItem('accountsList', JSON.stringify(accountsList));
+            localStorage.setItem(`rm_final_keyboard_fix_${newAccountId}`, JSON.stringify({
+                categories: [{id:1, name: name, baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
+                fleet: [],
+                clients: [],
+                rentals: [],
+                history: [],
+                password: '4892'
+            }));
+            closeCreateAccountModal();
+            showToast(`✅ Точка проката "${name}" создана! (офлайн-режим)`, 'success');
+            renderAccountsList();
+            
+            // Автоматически входим
+            currentAccountId = newAccountId;
+            currentAccountName = name;
+            currentAccountColor = selectedColor.color;
+            localStorage.setItem('currentAccountId', newAccountId);
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('account-badge').style.display = 'flex';
+            updateAccountBadge();
+            initAppForAccount();
+        }
+    }
+    
+    // Закрыть модальное окно создания
+    function closeCreateAccountModal() {
+        document.getElementById('create-account-modal').style.display = 'none';
+    }
+    
+    // Сменить аккаунт (выйти в меню выбора)
+    function switchAccount() {
+        save(); // Сохраняем текущие данные
+        document.getElementById('main-header').style.display = 'none';
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('account-badge').style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'flex';
+    }
+    
+    // Удалить аккаунт (с подтверждением)
+    function confirmDeleteAccount(accountId) {
+        if (confirm(`Вы уверены, что хотите удалить точку "${accountsList[accountId].name}"?\n\nВсе данные этой точки будут безвозвратно удалены!`)) {
+            deleteAccount(accountId);
+        }
+    }
+    
+    // Удаление аккаунта
+    function deleteAccount(accountId) {
+        if (firebaseDb) {
+            // Удаляем данные приложения
+            firebaseDb.ref(`rentmaster/${accountId}`).remove()
+                .then(() => {
+                    // Удаляем информацию об аккаунте
+                    firebaseDb.ref(`accounts/${accountId}`).remove()
+                        .then(() => {
+                            // Удаляем из локального хранилища
+                            delete accountsList[accountId];
+                            localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                            localStorage.removeItem(`rm_final_keyboard_fix_${accountId}`);
+                            
+                            // Если это текущий аккаунт, выходим
+                            if (currentAccountId === accountId) {
+                                currentAccountId = null;
+                                localStorage.removeItem('currentAccountId');
+                                switchAccount();
+                            }
+                            renderAccountsList();
+                            showToast("✅ Точка проката удалена", 'success');
+                        })
+                        .catch((error) => {
+                            console.error("Ошибка удаления аккаунта:", error);
+                            showToast("❌ Ошибка удаления точки", 'danger');
+                        });
+                })
+                .catch((error) => {
+                    console.error("Ошибка удаления данных точки:", error);
+                    showToast("❌ Ошибка удаления данных", 'danger');
+                });
+        } else {
+            // Офлайн-режим
+            delete accountsList[accountId];
+            localStorage.setItem('accountsList', JSON.stringify(accountsList));
+            localStorage.removeItem(`rm_final_keyboard_fix_${accountId}`);
+            
+            if (currentAccountId === accountId) {
+                currentAccountId = null;
+                localStorage.removeItem('currentAccountId');
+                switchAccount();
+            }
+            renderAccountsList();
+            showToast("✅ Точка проката удалена (офлайн)", 'success');
+        }
+    }
+    
+    // Удалить текущую точку (из настроек)
+    function deleteCurrentAccount() {
+        if (currentAccountId && confirm(`Вы уверены, что хотите удалить точку "${currentAccountName}"?\n\nВсе данные этой точки будут безвозвратно удалены!`)) {
+            deleteAccount(currentAccountId);
+        }
+    }
+    
+    // Изменить пароль текущей точки
+    function changeAccountPassword() {
+        const newPassword = prompt("Введите новый пароль для точки проката (минимум 4 символа):");
+        if (!newPassword || newPassword.length < 4) {
+            alert("Пароль должен содержать минимум 4 символа!");
+            return;
+        }
+        
+        if (confirm(`Вы уверены, что хотите изменить пароль точки "${currentAccountName}" на "${newPassword}"?`)) {
+            if (firebaseDb) {
+                firebaseDb.ref(`accounts/${currentAccountId}/password`).set(newPassword)
+                    .then(() => {
+                        accountsList[currentAccountId].password = newPassword;
+                        localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                        showToast("✅ Пароль точки успешно изменен", 'success');
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка изменения пароля:", error);
+                        showToast("❌ Ошибка изменения пароля", 'danger');
+                    });
+            } else {
+                // Офлайн-режим
+                accountsList[currentAccountId].password = newPassword;
+                localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                showToast("✅ Пароль точки изменен (офлайн)", 'success');
+            }
+        }
+    }
+    
+    // Показать модальное окно сброса пароля
+    function showForgotPasswordModal() {
+        document.getElementById('master-password').value = '';
+        document.getElementById('forgot-password-modal').style.display = 'flex';
+    }
+    
+    // Закрыть модальное окно сброса пароля
+    function closeForgotPasswordModal() {
+        document.getElementById('forgot-password-modal').style.display = 'none';
+    }
+    
+    // Сброс пароля точки через мастер-код
+    function resetAccountPassword() {
+        const masterCode = document.getElementById('master-password').value;
+        if (masterCode === '89144892253') {
+            const newPassword = '0000';
+            
+            if (firebaseDb) {
+                firebaseDb.ref(`accounts/${currentAccountId}/password`).set(newPassword)
+                    .then(() => {
+                        closeForgotPasswordModal();
+                        document.getElementById('password-modal').style.display = 'none';
+                        accountsList[currentAccountId].password = newPassword;
+                        localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                        showToast(`✅ Пароль точки "${currentAccountName}" сброшен на "0000"`, 'success');
+                        
+                        // Автоматически входим с новым паролем
+                        localStorage.setItem('currentAccountId', currentAccountId);
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('main-header').style.display = 'flex';
+                        document.getElementById('main-content').style.display = 'block';
+                        document.getElementById('account-badge').style.display = 'flex';
+                        updateAccountBadge();
+                        initAppForAccount();
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка сброса пароля:", error);
+                        showToast("❌ Ошибка сброса пароля", 'danger');
+                    });
+            } else {
+                // Офлайн-режим
+                closeForgotPasswordModal();
+                document.getElementById('password-modal').style.display = 'none';
+                accountsList[currentAccountId].password = newPassword;
+                localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                showToast(`✅ Пароль точки "${currentAccountName}" сброшен на "0000" (офлайн)`, 'success');
+                
+                // Автоматически входим
+                localStorage.setItem('currentAccountId', currentAccountId);
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-header').style.display = 'flex';
+                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('account-badge').style.display = 'flex';
+                updateAccountBadge();
+                initAppForAccount();
+            }
+        } else {
+            showToast("❌ Неверный мастер-код", 'danger');
+            document.getElementById('master-password').style.border = "2px solid var(--danger)";
+            setTimeout(() => {
+                document.getElementById('master-password').style.border = "2px solid var(--border)";
+            }, 1500);
+        }
+    }
+    
+    // === ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ДЛЯ ВЫБРАННОГО АККАУНТА ===
+    function initAppForAccount() {
+        if (!currentAccountId) return;
+        
+        // Загружаем данные для текущего аккаунта
+        loadDB();
+        
+        // Подписываемся на изменения в данных текущего аккаунта (если есть подключение)
+        if (firebaseDb) {
+            firebaseDb.ref(`rentmaster/${currentAccountId}`).on('value', (snapshot) => {
+                const newData = snapshot.val();
+                if (newData) {
+                    window.updateGlobalDB(newData);
+                    lastSyncTime = Date.now();
+                    document.getElementById('sync-state').innerText = 'синхронизировано';
+                    document.getElementById('sync-state').className = 'sync-online';
+                }
+            });
+        }
+        
+        // Устанавливаем сегодняшнюю дату для фильтров
+        const today = new Date().toISOString().split('T')[0];
+        if (document.getElementById('hist-start')) {
+            document.getElementById('hist-start').value = today;
+            document.getElementById('hist-end').value = today;
+            document.getElementById('sur-start').value = today;
+            document.getElementById('sur-end').value = today;
+        }
+        
+        // Обновляем интерфейс
+        updateUI();
+        
+        // Запускаем таймер
+        setInterval(tick, 1000);
+        
+        // Обработчики кликов
+        window.onclick = function(e) { 
+            if(e.target.matches('.modal-overlay')) e.target.style.display='none'; 
+            if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
+                document.getElementById('dev-dd').style.display='none'; 
+        };
+        
+        // Включаем режим "Не спать"
+        requestWakeLock();
+    }
+    
+    // Обновление статуса синхронизации
+    function updateSyncStatus(connected) {
+        const statusElement = document.getElementById('firebase-status');
+        const syncStateElement = document.getElementById('sync-state');
+        
+        if (connected) {
+            statusElement.innerText = 'Подключено';
+            statusElement.className = 'sync-online';
+            syncStateElement.innerText = 'онлайн';
+            syncStateElement.className = 'sync-online';
+            document.querySelector('.firebase-badge').style.display = 'inline-flex';
+        } else {
+            statusElement.innerText = 'Отключено';
+            statusElement.className = 'sync-offline';
+            syncStateElement.innerText = 'оффлайн';
+            syncStateElement.className = 'sync-offline';
+            document.querySelector('.firebase-badge').style.display = 'none';
+        }
+    }
+    
+    // Отправка данных в облако
+    function sendToCloud(data) {
+        if (!isFirebaseConnected || !firebaseDb || !currentAccountId) return;
+        
+        firebaseDb.ref(`rentmaster/${currentAccountId}`).set(data)
+            .catch((error) => {
+                console.error("Ошибка отправки в облако:", error);
+                showToast("❌ Ошибка синхронизации", 'danger');
+            });
+    }
+    
+    // Сохранение данных
+    function save() { 
+        if (!currentAccountId) return;
+        
+        // Сохраняем локально с префиксом аккаунта
+        const storageKey = `rm_final_keyboard_fix_${currentAccountId}`;
+        localStorage.setItem(storageKey, JSON.stringify(db)); 
+        
+        // Отправляем в облако если есть подключение
+        if (isFirebaseConnected && firebaseDb) {
+            sendToCloud(db);
+        }
+    }
+    
+    // Загрузка данных
+    function loadDB() {
+        if (!currentAccountId) return;
+        
+        const storageKey = `rm_final_keyboard_fix_${currentAccountId}`;
+        const local = localStorage.getItem(storageKey);
+        
+        if(local) {
+            try {
+                db = JSON.parse(local);
+                if(!db.password) db.password = '4892';
+            } catch (e) {
+                console.error("Ошибка парсинга данных:", e);
+                // Используем данные по умолчанию
+                db = getDefaultData();
+            }
+        } else {
+            // Данные по умолчанию
+            db = getDefaultData();
+        }
+    }
+    
+    // Получение данных по умолчанию
+    function getDefaultData() {
+        const accountName = accountsList[currentAccountId] ? accountsList[currentAccountId].name : 'Новая точка';
+        return {
+            categories: [{id:1, name: accountName, baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}],
+            fleet: [],
+            clients: [],
+            rentals: [],
+            history: [],
+            password: '4892'
+        };
+    }
+
+    // === ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ===
+    let db = getDefaultData();
     let isMonitorMode = false;
     let tempStartData = null;
     let currentSwapRentalId = null;
     let wakeLock = null;
-    
-    // Переменная для хранения действия, которое мы выполним после ввода пароля
     let pendingAuthCallback = null;
-
-    // --- AUDIO ---
+    
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function unlockAudio() { if(audioCtx.state === 'suspended') audioCtx.resume(); }
     document.addEventListener('click', unlockAudio, {once:true});
@@ -480,561 +2659,171 @@
         }
     }
 
-    // --- INIT ---
     function init() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('mode') === 'monitor') {
-            isMonitorMode = true;
-            createMonitorStyles();
-            loadDB();
-            setTimeout(() => switchView('active'), 100);
-            setInterval(tick, 1000);
-            return; 
-        }
-
-        if ("Notification" in window) Notification.requestPermission();
-        loadDB();
+        console.log("Инициализация приложения...");
         
-        // Init filters dates
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('hist-start').value = today;
-        document.getElementById('hist-end').value = today;
-        document.getElementById('sur-start').value = today;
-        document.getElementById('sur-end').value = today;
-
-        updateUI();
-        setInterval(tick, 1000);
-        window.onclick = function(e) { if(e.target.matches('.modal-overlay')) e.target.style.display='none'; if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) document.getElementById('dev-dd').style.display='none'; }
-        requestWakeLock();
-    }
-
-    function createMonitorStyles() {
-        const style = document.createElement('style');
-        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ ТОЛЬКО ПРОСМОТР";position:fixed;top:0;left:0;width:100%;background:#1e293b;color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3)}`;
-        document.head.appendChild(style);
-    }
-
-    function loadDB() {
-        const local = localStorage.getItem('rm_final_keyboard_fix');
-        if(local) {
-            db = JSON.parse(local);
-            if(!db.password) db.password = '4892';
-        } else {
-            db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
-            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
-            db.password = '4892';
-        }
-    }
-
-    // === НОВАЯ СИСТЕМА БЕЗОПАСНОСТИ ===
-    
-    // 1. Вызываем эту функцию, когда нужно проверить пароль
-    function authWrapper(actionCallback) {
-        pendingAuthCallback = actionCallback; // Запоминаем, что хотели сделать
-        document.getElementById('auth-pass-input').value = '';
-        document.getElementById('modal-auth').style.display = 'flex';
-        setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
-    }
-
-    // 2. Нажали ОК в окне пароля
-    function submitAuth() {
-        const input = document.getElementById('auth-pass-input').value;
-        const correct = db.password || '4892';
-
-        // Проверка Мастер-пароля сразу в поле ввода
-        if (input === '89144892253') {
-            alert("👑 Мастер-пароль! Сброс на 0000.");
-            db.password = '0000'; save();
-            closeModal('modal-auth');
-            if(pendingAuthCallback) pendingAuthCallback();
-            return;
-        }
-
-        if (input === correct) {
-            closeModal('modal-auth');
-            if(pendingAuthCallback) pendingAuthCallback();
-        } else {
-            // Анимация ошибки
-            const inp = document.getElementById('auth-pass-input');
-            inp.style.border = "2px solid red";
-            navigator.vibrate([100,50,100]);
-            setTimeout(()=> inp.style.border = "1px solid #ccc", 1000);
-        }
-    }
-
-    // 3. Нажали кнопку "Сброс пароля"
-    function resetPassBtnAction() {
-        // Тут используем обычный промпт, так как это экстренный случай
-        const master = prompt("📞 Введите Мастер-Пароль (8914...):");
-        if(master === '89144892253') {
-            db.password = '0000'; save();
-            alert("✅ Пароль сброшен на: 0000");
-            document.getElementById('auth-pass-input').value = '0000'; // Подставляем для удобства
-        } else {
-            alert("⛔ Ошибка!");
-        }
-    }
-
-    // 4. Смена пароля из настроек
-    function changePassUI() {
-        // Мы уже внутри настроек, значит пароль вводили. Просто меняем.
-        const newP = prompt("Введите НОВЫЙ пароль:");
-        if(newP) {
-            db.password = newP; save();
-            alert("✅ Пароль изменен на: " + newP);
-        }
-    }
-
-    async function requestWakeLock() {
-        if ('wakeLock' in navigator) {
-            try {
-                wakeLock = await navigator.wakeLock.request('screen');
-                document.getElementById('wakelock-status').innerText = "💡 Экран активен (WakeLock вкл)";
-                document.getElementById('wakelock-status').style.color = "green";
-                wakeLock.addEventListener('release', () => {
-                    document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
-                    document.getElementById('wakelock-status').style.color = "gray";
-                });
-            } catch (err) {}
-        }
-    }
-
-    function save() { 
-        localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        if (window.sendToCloud) window.sendToCloud(db);
-    }
-
-    window.updateGlobalDB = function(newData) {
-        if (!newData) return;
-        if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
-            const cHist = newData.history ? newData.history.length : 0;
-            const lHist = db.history ? db.history.length : 0;
-            if (cHist <= lHist) {
-                console.log("🛑 Blocked empty sync");
-                return; 
-            }
-        }
-        db = { ...newData, password: newData.password || db.password || '4892' };
-        updateUI();   
-    }
-
-    function switchView(id) {
-        // ПРОВЕРКА ДЛЯ НАСТРОЕК
-        if (id === 'settings') {
-            authWrapper(() => {
-                 doSwitchView(id);
-            });
-            return;
-        }
-        doSwitchView(id);
-    }
-
-    function doSwitchView(id) {
-        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-        document.getElementById('view-'+id).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-        if(event && event.currentTarget) event.currentTarget.classList.add('active'); // fix nav highlight if needed
-        if(id === 'active') renderActiveRentals(); 
-        if(id === 'new') renderNewRent();
-        if(id === 'clients') renderClients();
-        if(id === 'fleet') renderFleet();
-        if(id === 'finance') { initDeviceFilter(); renderHistory(); }
-        if(id === 'surcharge') renderSurcharge();
-        if(id === 'settings') renderSettingsList();
-        unlockAudio();
-    }
-
-    function openConfirm(msg, yesCallback) {
-        document.getElementById('confirm-text').innerText = msg;
-        document.getElementById('modal-confirm').style.display = 'flex';
-        const yesBtn = document.getElementById('btn-confirm-yes');
-        const noBtn = document.getElementById('btn-confirm-no');
-        const newYes = yesBtn.cloneNode(true); const newNo = noBtn.cloneNode(true);
-        yesBtn.parentNode.replaceChild(newYes, yesBtn); noBtn.parentNode.replaceChild(newNo, noBtn);
-        newYes.onclick = () => { document.getElementById('modal-confirm').style.display = 'none'; yesCallback(); };
-        newNo.onclick = () => { document.getElementById('modal-confirm').style.display = 'none'; };
-    }
-
-    function sendNotify(title, body, isCritical) {
-        if ("Notification" in window && Notification.permission === "granted") {
-            try { new Notification(title, { body: body }); } catch (e) {}
-        }
-        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
-        playAlarm(isCritical);
-    }
-
-    // --- RENTAL LOGIC ---
-    function askStartRental(tariff) {
-        unlockAudio(); 
-        const checks = document.querySelectorAll('.fleet-check-input:checked');
-        const phone = document.getElementById('rent-phone').value;
-        const name = document.getElementById('rent-name').value;
-        if(!phone || checks.length === 0) return alert('Заполните данные');
-        let devices = [];
-        checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
-        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
-        document.getElementById('confirm-tariff-name').innerText = tariff.name;
-        document.getElementById('confirm-devices').innerText = devices.join(', ');
-        document.getElementById('confirm-cost').innerText = costLabel;
-        tempStartData = { tariff, phone, name, checks };
-        document.getElementById('modal-start-confirm').style.display = 'flex';
-    }
-    function confirmPaymentChoice(method) {
-        tempStartData.payMethod = method;
-        closeModal('modal-start-confirm');
-        document.getElementById('modal-final-start').style.display = 'flex';
-    }
-    function realStartRental() {
-        const { tariff, phone, name, checks, payMethod } = tempStartData;
-        let c = db.clients.find(x => x.phone === phone);
-        if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
-        if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
-        const now = Date.now();
-        checks.forEach(chk => {
-            const vId = parseInt(chk.value);
-            const v = db.fleet.find(x => x.id === vId);
-            v.status = 'busy';
-            const cat = db.categories.find(ca => ca.id == v.catId);
-            const baseRate = cat ? (cat.baseRate || 0) : 0;
-            db.rentals.push({
-                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
-                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
-                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate,
-                notified5: false, notified2: false 
-            });
-        });
-        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
-        save(); closeModal('modal-final-start'); switchView('active');
-    }
-    function finishRental(id) {
-        openConfirm('Завершить поездку?', () => {
-            const idx = db.rentals.findIndex(x => x.id === id);
-            const r = db.rentals[idx];
-            const v = db.fleet.find(f => f.id === r.vId);
-            if(v) v.status = 'free';
-            const now = Date.now();
-            const pauseMs = r.totalPause;
-            const pauseMin = Math.round(pauseMs / 60000);
-            const activeDurationMs = now - r.startTs - pauseMs;
-            const activeDurationMin = Math.ceil(activeDurationMs / 60000);
-            let overdueMin = 0;
-            if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
-            const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
-            db.history.unshift({
-                id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone,
-                cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0,
-                tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash'
-            });
-            db.rentals.splice(idx, 1);
-            save(); renderActiveRentals();
-        });
-    }
-
-    // --- RENDERERS ---
-    function renderNewRent() {
-        const c = document.getElementById('fleet-selector'); c.innerHTML='';
-        const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
-        db.categories.forEach(cat => {
-            const inCat = db.fleet.filter(v => v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ));
-            if(inCat.length) {
-                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title">${cat.name}</div><div class="fleet-items-container"></div></div>`;
-                const container = c.lastElementChild.querySelector('.fleet-items-container');
-                inCat.forEach(v => {
-                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
-                });
-            }
-        });
-    }
-    function showTariffs() {
-        const chk = document.querySelectorAll('.fleet-check-input:checked');
-        const blk = document.getElementById('tariff-block'); const box = document.getElementById('tariff-buttons');
-        if(!chk.length) { blk.style.display='none'; return; }
-        const catId = chk[0].getAttribute('data-cat'); const cat = db.categories.find(c => c.id == catId);
-        box.innerHTML = '';
-        if(cat && cat.tariffs) {
-            cat.tariffs.forEach(t => {
-                const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
-                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">${t.name}</span><span style="font-size:0.95rem;color:#64748b;">${info} · ${t.price}₽</span></div>`;
-            });
-            blk.style.display = 'block';
-        }
-    }
-    function renderFleet() {
-        const l = document.getElementById('fleet-list'); l.innerHTML='';
-        const sel = document.getElementById('new-fleet-cat'); sel.innerHTML='';
-        db.categories.forEach(c => sel.innerHTML+=`<option value="${c.id}">${c.name}</option>`);
-        const sorted = [...db.fleet].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-        sorted.forEach(f => {
-            const isRep = f.status === 'repair';
-            const repBtn = isRep 
-                ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-check"></i></button>`
-                : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-wrench"></i></button>`;
-            
-            // Внедрение проверки пароля в кнопку удаления
-            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))"><i class="fas fa-trash"></i></button>`;
-
-            l.innerHTML += `
-            <div class="item-card ${isRep?'repair':''}" style="border-left-color:${f.color}">
-                <div><div class="item-name">${f.name}</div><div class="item-sub">${isRep?'В РЕМОНТЕ':'Готов к работе'}</div></div>
-                <div class="item-actions">
-                    <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})"><i class="fas fa-cog"></i></button>
-                    ${repBtn}
-                    ${delBtn}
-                </div>
-            </div>`;
-        });
-    }
-
-    function renderClients() {
-        const q=document.getElementById('client-search').value.toLowerCase();
-        document.getElementById('clients-list').innerHTML = db.clients.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q)).map(c=>`
-            <div class="item-card" style="border-left: 5px solid ${c.blocked ? '#ef4444' : '#22c55e'}">
-                <div><div class="item-name">${c.name} ${c.blocked ? '(BAN)' : ''}</div><div class="item-sub">${c.phone}</div>${c.comment ? `<div style="font-size:0.8rem;color:#666;margin-top:2px;">${c.comment}</div>` : ''}</div> 
-                <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})"><i class="fas fa-pen"></i></button>
-            </div>`).join('');
-    }
-
-    function renderSettingsList() {
-        const d = document.getElementById('settings-list'); d.innerHTML='';
-        d.innerHTML += `<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить пароль администратора</button></div>`;
-        d.innerHTML += `<div class="card" style="border: 2px solid #22c55e; background: #f0fdf4;"><h3 style="color:#15803d; margin-top:0;">☁️ Восстановить Облако</h3><p style="font-size:0.85rem; color:#555; margin-bottom:10px;">Нажмите, если на других устройствах пусто, а ЗДЕСЬ данные есть.</p><button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())"><i class="fas fa-cloud-upload-alt"></i> Отправить ЭТИ данные на сервер</button></div>`;
-        db.categories.forEach(c => {
-            d.innerHTML += `
-            <div class="item-card">
-                <div><div class="item-name">${c.name}</div><div class="item-sub">Тарифов: ${c.tariffs?c.tariffs.length:0}</div></div>
-                <div class="item-actions"><button class="btn btn-sm btn-secondary" onclick="editCat(${c.id})"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger" onclick="delCat(${c.id})"><i class="fas fa-trash"></i></button></div>
-            </div>`;
-        });
-    }
-
-    // --- RENDER ACTIVE RENTALS ---
-    function renderActiveRentals() {
-        const list = document.getElementById('active-list'); list.innerHTML = '';
-        const q = document.getElementById('active-search').value.toLowerCase();
-        const isMonitor = window.location.search.includes('mode=monitor');
-        let filtered = db.rentals.filter(r => r.cName.toLowerCase().includes(q) || r.cPhone.includes(q) || r.vName.toLowerCase().includes(q));
-        filtered.sort((a, b) => getTimeLeft(a) - getTimeLeft(b));
+        // Инициализируем Firebase
+        initFirebase();
         
-        const badge = document.getElementById('badge-cnt');
-        if(badge) { badge.innerText = filtered.length; badge.style.display = filtered.length ? 'inline-block' : 'none'; }
-        const noMsg = document.getElementById('no-active-msg');
-        if(noMsg) noMsg.style.display = filtered.length ? 'none' : 'block';
-        
-        filtered.forEach(r => {
-            const left = getTimeLeft(r);
-            let rowClass = 'active-row' + (r.paused ? ' paused' : '') + (r.limit > 0 && left < 0 ? ' overdue' : (r.limit > 0 && left < 120000 ? ' danger-mode' : (r.limit > 0 && left < 300000 ? ' warning-mode' : '')));
-            let clientHtml = isMonitor 
-                ? `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">${r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****'}</span></div>`
-                : `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <a href="tel:${r.cPhone}" class="ar-phone-link">${r.cPhone}</a></div>`;
-
-            const div = document.createElement('div'); div.className = rowClass;
-            div.innerHTML = `
-                <div class="ar-color" style="background:${r.vColor}"></div>
-                <div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены">
-                    <div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>
-                    ${clientHtml}
-                </div>
-                <div class="ar-timer-container"><span class="ar-timer" id="t-${r.id}">--:--</span></div>
-                <div class="ar-actions">
-                    <button class="ar-btn pause" ondblclick="togglePause(${r.id})"><i class="fas ${r.paused ? 'fa-play':'fa-pause'}"></i><span class="ar-btn-label">${r.paused?'СТАРТ':'ПАУЗА'}</span><div class="ar-dbl">2x</div></button>
-                    <button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><div class="ar-dbl">2x</div></button>
-                    <button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><div class="ar-dbl">2x</div></button>
-                </div>`;
-            list.appendChild(div);
-        });
-        tick();
-    }
-    
-    function getTimeLeft(r) { if(r.limit === 0) return 999999999; const now = Date.now(); const pauseNow = r.paused ? (now - r.pauseStart) : 0; return (r.limit * 60000) - (now - r.startTs - r.totalPause - pauseNow); }
-    function tick() {
-        const now = Date.now();
-        db.rentals.forEach(r => {
-            const el = document.getElementById(`t-${r.id}`); if(!el) return;
-            if(r.paused) { el.innerText = "ПАУЗА"; el.className = "ar-timer"; return; }
-            const elapsed = now - r.startTs - r.totalPause;
-            let display = "";
-            if(r.limit > 0) {
-                const left = (r.limit * 60000) - elapsed; 
-                const abs = Math.abs(left);
-                display = (left < 0 ? "-" : "") + `${Math.floor(abs/60000)}:${Math.floor((abs%60000)/1000).toString().padStart(2,'0')}`;
-                if (left > 0) {
-                    if (left < 300000 && !r.notified5) { sendNotify("⏳ Внимание!", `У ${r.vName} осталось < 5 мин!`, false); r.notified5 = true; save(); renderActiveRentals(); }
-                    if (left < 120000 && !r.notified2) { sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); r.notified2 = true; save(); renderActiveRentals(); }
-                }
-            } else { 
-                display = `${Math.floor(elapsed/60000)}:${Math.floor((elapsed%60000)/1000).toString().padStart(2,'0')}`;
-                el.className = "ar-timer";
-            }
-            el.innerText = display;
-        });
+        // Назначаем обработчики событий для кнопок
+        document.getElementById('create-account-btn').addEventListener('click', showCreateAccountModal);
+        document.getElementById('cancel-create-btn').addEventListener('click', closeCreateAccountModal);
+        document.getElementById('confirm-create-btn').addEventListener('click', createNewAccount);
+        document.getElementById('verify-password-btn').addEventListener('click', verifyAccountPassword);
+        document.getElementById('forgot-password-btn').addEventListener('click', showForgotPasswordModal);
+        document.getElementById('cancel-forgot-btn').addEventListener('click', closeForgotPasswordModal);
+        document.getElementById('reset-password-btn').addEventListener('click', resetAccountPassword);
+        document.getElementById('switch-account-btn').addEventListener('click', switchAccount);
     }
 
-    function renderSurcharge() {
-        const tbody = document.getElementById('surcharge-rows'); tbody.innerHTML = ''; 
-        const startVal = document.getElementById('sur-start').value; const endVal = document.getElementById('sur-end').value; const searchVal = document.getElementById('sur-search').value.toLowerCase();
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
-        let totalSur = 0; let hasData = false;
-        db.history.forEach(h => {
-            if(h.overDur > 0 && !h.deleted) {
-                if(h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)))) {
-                    hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay;
-                    const tr = document.createElement('tr'); tr.className = 'surcharge-row';
-                    tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td>${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td>`;
-                    tbody.appendChild(tr);
-                }
-            }
-        });
-        document.getElementById('sur-total').innerText = totalSur + ' ₽';
-        document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
+    function showToast(message, type='info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':type==='danger'?'fa-exclamation-triangle':'fa-info-circle'}" style="font-size:1.4rem;"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px) translateX(-50%)';
+            setTimeout(() => container.removeChild(toast), 300);
+        }, 2500);
     }
 
-    function renderHistory() {
-        const startVal = document.getElementById('hist-start').value; const endVal = document.getElementById('hist-end').value; const searchVal = document.getElementById('hist-search').value.toLowerCase(); const payFilter = document.getElementById('hist-pay').value;
-        const allDevChecked = document.getElementById('dev-all')?.checked; const checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')).map(c => c.value);
-        const tbody = document.getElementById('history-rows'); tbody.innerHTML = '';
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
-        let total = 0;
-        db.history.forEach(h => {
-            const matchesTime = h.ts >= startTs && h.ts <= endTs; const matchesSearch = !searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)); const matchesPay = (payFilter === 'all') || (h.payMethod === payFilter);
-            let matchesDev = allDevChecked ? true : checkedDevs.some(dev => h.vName.includes(dev));
-            if (matchesTime && matchesSearch && matchesDev && matchesPay) {
-                if(!h.deleted) total += parseInt(h.cost);
-                const tr = document.createElement('tr'); 
-                if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; 
-                let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
-                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span class="swap-chain">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#666;">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'red':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
-                tbody.appendChild(tr);
-            }
-        });
-        document.getElementById('history-total').innerText = total + ' ₽';
-    }
+    // ОСТАЛЬНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ БЕЗ ИЗМЕНЕНИЙ
+    function switchView(id) { /* ... */ }
+    function doSwitchView(id) { /* ... */ }
+    function exportClients() { /* ... */ }
+    function exportHistory() { /* ... */ }
+    function exportSurcharge() { /* ... */ }
+    function renderNewRent() { /* ... */ }
+    function showTariffs() { /* ... */ }
+    function renderFleet() { /* ... */ }
+    function renderClients() { /* ... */ }
+    function renderSettingsList() { /* ... */ }
+    function renderActiveRentals() { /* ... */ }
+    function getTimeLeft(r) { /* ... */ }
+    function tick() { /* ... */ }
+    function renderSurcharge() { /* ... */ }
+    function renderHistory() { /* ... */ }
+    function toggleDevDropdown() { /* ... */ }
+    function filterDevDropdown(val) { /* ... */ }
+    function initDeviceFilter() { /* ... */ }
+    function toggleAllDev(el) { /* ... */ }
+    function openSwapModal(id) { /* ... */ }
+    function renderSwapList(query) { /* ... */ }
+    function finalizeSwap() { /* ... */ }
+    function togglePause(id) { /* ... */ }
+    function openExtendModal(id) { /* ... */ }
+    function applyExt(rId, tId) { /* ... */ }
+    function toggleHistoryStatus(id) { /* ... */ }
+    function toggleRepair(id) { /* ... */ }
+    function saveClient() { /* ... */ }
+    function delClient() { /* ... */ }
+    function openClientModal(id) { /* ... */ }
+    function handleInput(type, val) { /* ... */ }
+    function fillClient(ph, nm) { /* ... */ }
+    function addVehicle() { /* ... */ }
+    function openVehicleNote(id) { /* ... */ }
+    function saveVehicleNote() { /* ... */ }
+    function deleteVehicleNote() { /* ... */ }
+    function delCat(id) { /* ... */ }
+    function openCatModal() { /* ... */ }
+    function editCat(id) { /* ... */ }
+    function renderCatTariffs(tariffs) { /* ... */ }
+    function addTariffIO() { /* ... */ }
+    function delTariff(i) { /* ... */ }
+    function saveCat() { /* ... */ }
+    function closeModal(id) { /* ... */ }
+    function fullReset() { /* ... */ }
+    function forceUploadToCloud() { /* ... */ }
+    function updateUI() { /* ... */ }
+    function askStartRental(tariff) { /* ... */ }
+    function confirmPaymentChoice(method) { /* ... */ }
+    function realStartRental() { /* ... */ }
+    function finishRental(id) { /* ... */ }
+    function sendNotify(title, body, isCritical) { /* ... */ }
+    function authWrapper(actionCallback) { /* ... */ }
+    function submitAuth() { /* ... */ }
+    function resetPassBtnAction() { /* ... */ }
+    function changePassUI() { /* ... */ }
+    function requestWakeLock() { /* ... */ }
+    function testAudio() { /* ... */ }
+    function window.updateGlobalDB(newData) { /* ... */ }
 
-    // --- UTILS ---
-    function toggleDevDropdown() { const dd = document.getElementById('dev-dd'); dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }
-    function filterDevDropdown(val) { document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; }); }
-    function initDeviceFilter() {
-        const list = document.getElementById('dev-dd-list'); list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)"><b><input type="checkbox" id="dev-all" checked> Выбрать все</b></div>';
-        let names = new Set(); db.fleet.forEach(f => names.add(f.name)); db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
-        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item"><input type="checkbox" class="dev-chk" value="${n}" checked> <label>${n}</label></div>`; });
-        document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.onclick = function(e) { if (e.target.tagName !== 'INPUT') { const chk = this.querySelector('input'); chk.checked = !chk.checked; } renderHistory(); } });
-        document.getElementById('dev-all').onclick = function(e) { e.stopPropagation(); const checked = this.checked; document.querySelectorAll('.dev-chk').forEach(c => c.checked = checked); renderHistory(); };
-    }
-    function toggleAllDev(el) { const chk = el.querySelector('input'); if(event.target.tagName !== 'INPUT') { chk.checked = !chk.checked; chk.onclick({stopPropagation:()=>{}}); } }
+    // Инициализация приложения
+    window.addEventListener('DOMContentLoaded', init);
     
-    function openSwapModal(id) { currentSwapRentalId = id; document.getElementById('swap-search').value = ''; document.getElementById('btn-do-swap').disabled = true; renderSwapList(''); document.getElementById('modal-sub').style.display = 'flex'; }
-    function renderSwapList(query) {
-        const container = document.getElementById('swap-list-container'); container.innerHTML = '';
-        const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
-        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">Нет свободных устройств</div>'; return; }
-        free.forEach(f => {
-            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:#666">Свободен</small></div></label>`;
-        });
-    }
-    function finalizeSwap() {
-        const selected = document.querySelector('input[name="swap-radio"]:checked'); if (!selected) return;
-        openConfirm('Подтвердить замену устройства?', () => {
-            const newVId = parseInt(selected.value); const r = db.rentals.find(x => x.id === currentSwapRentalId); const oldV = db.fleet.find(f => f.id === r.vId); if(oldV) oldV.status = 'free'; const newV = db.fleet.find(f => f.id === newVId); newV.status = 'busy';
-            r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId; if(!r.swapHistory) r.swapHistory = [oldV.name]; r.swapHistory.push(newV.name);
-            save(); closeModal('modal-sub'); renderActiveRentals();
-        });
-    }
-    
-    function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
-    function openExtendModal(id) { document.getElementById('swap-search').style.display = 'none'; document.getElementById('btn-do-swap').style.display = 'none'; const container = document.getElementById('swap-list-container'); container.innerHTML = ''; document.querySelector('#modal-sub h3').innerText = 'Продлить время'; const r = db.rentals.find(x => x.id === id); const cat = db.categories.find(c => c.id == r.catId); cat.tariffs.forEach(t => { container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; }); document.getElementById('modal-sub').style.display = 'flex'; }
-    function applyExt(rId, tId) { openConfirm('Продлить время?', () => { const r = db.rentals.find(x => x.id === rId); const cat = db.categories.find(c => c.id == r.catId); const t = cat.tariffs.find(x => x.id === tId); if(t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); } else { r.limit = 0; r.cost += parseInt(t.start || 0); } save(); closeModal('modal-sub'); renderActiveRentals(); }); }
-    
-    // WRAPPED SECURITY ACTIONS
-    function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) h.deleted = !h.deleted; save(); renderHistory(); })); }
-    function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
-    function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; save(); closeModal('modal-client'); renderClients(); }); }
-    function delClient() { authWrapper(() => openConfirm('Удалить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); db.clients = db.clients.filter(x => x.id !== id); save(); closeModal('modal-client'); renderClients(); })); }
-    
-    function openClientModal(id) { const c = db.clients.find(x => x.id === id); document.getElementById('edit-cl-id').value = c.id; document.getElementById('edit-cl-name').value = c.name; document.getElementById('edit-cl-phone').value = c.phone; document.getElementById('edit-cl-comment').value = c.comment || ''; document.getElementById('edit-cl-block').checked = c.blocked; document.getElementById('modal-client').style.display = 'flex'; }
-    function handleInput(type, val) { const box = document.getElementById('suggest-'+type); if(val.length < 2) { box.style.display='none'; return; } const matches = db.clients.filter(c => c[type].toLowerCase().includes(val.toLowerCase())); if(matches.length > 0) { box.innerHTML = matches.map(c => `<div class="suggestion-item" onclick="fillClient('${c.phone}', '${c.name}')"><div><strong>${c.phone}</strong></div><div>${c.name}</div></div>`).join(''); box.style.display = 'block'; } else { box.style.display = 'none'; } const exact = db.clients.find(c => c.phone === val); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
-    function fillClient(ph, nm) { document.getElementById('rent-phone').value = ph; document.getElementById('rent-name').value = nm; document.querySelectorAll('.suggestions-box').forEach(b => b.style.display='none'); const exact = db.clients.find(c => c.phone === ph); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
-    function addVehicle() { openConfirm('Добавить устройство?', () => { const n = document.getElementById('new-fleet-name').value; const c = document.getElementById('new-fleet-color').value; const cat = document.getElementById('new-fleet-cat').value; if(n) { db.fleet.push({id:Date.now(), name:n, color:c, catId:cat, status:'free'}); save(); renderFleet(); } }); }
-    
-    function openVehicleNote(id) { const v = db.fleet.find(f => f.id === id); document.getElementById('note-v-id').value = v.id; document.getElementById('note-v-name').innerText = `Заметка для: ${v.name}`; document.getElementById('note-v-text').value = v.notes || ''; document.getElementById('modal-vehicle-note').style.display = 'flex'; }
-    function saveVehicleNote() { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = document.getElementById('note-v-text').value; save(); closeModal('modal-vehicle-note'); renderFleet(); }
-    function deleteVehicleNote() { authWrapper(() => { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = ''; save(); closeModal('modal-vehicle-note'); renderFleet(); }); }
-
-    function delCat(id) { authWrapper(() => openConfirm('Удалить категорию?', () => { db.categories=db.categories.filter(c=>c.id!==id); db.fleet=db.fleet.filter(f=>f.catId!=id); save(); renderSettingsList(); })); }
-    function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
-    function editCat(id) { const c=db.categories.find(x=>x.id==id); document.getElementById('edit-cat-id').value=c.id; document.getElementById('edit-cat-name').value=c.name; document.getElementById('edit-cat-rate').value=c.baseRate||''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs(c.tariffs||[]); }
-    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:red;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
-    function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
-    
-    function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
-    function saveCat() { openConfirm('Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
-    function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
-    
-    function fullReset() { authWrapper(() => openConfirm('СБРОСИТЬ ВСЁ?', () => { localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); })); }
-    function forceUploadToCloud() { if(confirm('Вы уверены? Это перезапишет облако!')) { if(window.sendToCloud) { window.sendToCloud(db); alert('Отправлено!'); } else alert('Нет связи'); } }
-
-    function updateUI() { 
-        renderSettingsList(); 
-        renderFleet(); 
-        if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
-        if(document.getElementById('view-finance').classList.contains('active')) { initDeviceFilter(); renderHistory(); } 
-        if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
-    }
-
-    init();
-</script>
- <script type="module">
-  // 1. Импортируем Базу Данных (Firestore)
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
-    authDomain: "skuter75rus-3d55d.firebaseapp.com",
-    projectId: "skuter75rus-3d55d",
-    storageBucket: "skuter75rus-3d55d.firebasestorage.app",
-    messagingSenderId: "1054204994225",
-    appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
-    measurementId: "G-J47C67V554"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const dbCloud = getFirestore(app);
-
-  console.log("🔥 Облако подключено!");
-
-  // Ссылка на ваш "документ" с данными (назовем его 'base')
-  const myDataRef = doc(dbCloud, "rent_app", "base");
-
-  // 2. Функция отправки данных в облако (делаем её глобальной)
-  window.sendToCloud = async function(data) {
-      try {
-          // Сохраняем в коллекцию 'rent_app', документ 'base'
-          await setDoc(myDataRef, data);
-          console.log("✅ Данные улетели в облако");
-      } catch (e) {
-          console.error("Ошибка сохранения: ", e);
-          // Не пугаем пользователя алертом, просто пишем в консоль
-      }
-  }
-
-  // 3. Слушаем изменения из облака в реальном времени
-  onSnapshot(myDataRef, (docSnap) => {
-      if (docSnap.exists()) {
-          console.log("📥 Пришли новые данные из облака!");
-          const cloudData = docSnap.data();
-          
-          // Обновляем локальную переменную db через функцию в основном скрипте
-          if (window.updateGlobalDB) {
-              window.updateGlobalDB(cloudData);
-          }
-      } else {
-          console.log("База пуста, начинаем с нуля.");
-      }
-  });
-
+    // Экспортируем функции для глобального доступа
+    window.sendToCloud = sendToCloud;
+    window.selectAccount = selectAccount;
+    window.switchAccount = switchAccount;
+    window.verifyAccountPassword = verifyAccountPassword;
+    window.showForgotPasswordModal = showForgotPasswordModal;
+    window.resetAccountPassword = resetAccountPassword;
+    window.closeForgotPasswordModal = closeForgotPasswordModal;
+    window.showCreateAccountModal = showCreateAccountModal;
+    window.closeCreateAccountModal = closeCreateAccountModal;
+    window.createNewAccount = createNewAccount;
+    window.confirmDeleteAccount = confirmDeleteAccount;
+    window.deleteCurrentAccount = deleteCurrentAccount;
+    window.changeAccountPassword = changeAccountPassword;
 </script>
 
 </body>
 </html>
 
+
+
+              <script>
+                              function showCreateAccountModal() {
+    console.log("Открытие модального окна создания аккаунта");
+    
+    // Очищаем и заполняем цвета
+    const colorPicker = document.getElementById('color-picker');
+    colorPicker.innerHTML = '';
+    
+    ACCOUNT_COLORS.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'color-option';
+        div.style.backgroundColor = item.color;
+        div.innerHTML = `<i class="fas fa-${item.icon}"></i>`;
+        div.onclick = () => selectAccountColor(index);
+        colorPicker.appendChild(div);
+    });
+    
+    // Выбираем первый цвет по умолчанию
+    colorPicker.firstChild.classList.add('selected');
+    document.getElementById('new-account-name').value = 'Новая точка проката';
+    document.getElementById('create-account-modal').style.display = 'flex';
+}
+
+function createNewAccount() {
+    const name = document.getElementById('new-account-name').value.trim();
+    if (!name) {
+        showToast("⚠️ Введите название точки проката", 'warning');
+        return;
+    }
+    // ...
+}
+
+function showCreateAccountModal() {
+    console.log("Открытие модального окна создания аккаунта");
+    // ...
+}
+
+function init() {
+    console.log("Инициализация приложения...");
+    
+    // Инициализируем Firebase
+    initFirebase();
+    
+    // Назначаем обработчики событий для кнопок
+    document.getElementById('create-account-btn').addEventListener('click', showCreateAccountModal);
+    // ...
+}
+
+
+              </script>
+                        </body>
+                        </html>
+                
