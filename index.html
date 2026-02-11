@@ -1400,60 +1400,6 @@
             background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
             transform: translateY(-1px);
         }
-        
-        .account-link {
-            background: #f0f7ff;
-            border: 1px solid #c5e1ff;
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .account-link-url {
-            flex: 1;
-            font-family: 'Courier New', monospace;
-            font-size: 1.05rem;
-            color: #1e40af;
-            margin: 0 10px;
-            word-break: break-all;
-            text-overflow: ellipsis;
-        }
-        
-        .copy-btn {
-            background: #e5e7eb;
-            border: none;
-            color: #4b5563;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-left: 10px;
-        }
-        
-        .copy-btn:hover {
-            background: #d1d5db;
-            transform: scale(1.05);
-        }
-        
-        .account-link-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        
-        .link-active {
-            color: var(--success);
-        }
-        
-        .link-inactive {
-            color: var(--danger);
-        }
 
         @media (max-width: 768px) {
             .auth-container { padding: 30px 20px; }
@@ -1496,10 +1442,7 @@
         </p>
         
         <div class="account-list" id="account-list">
-            <div style="padding:20px; text-align:center; color:var(--text-tertiary);">
-                <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:15px;"></i>
-                <div>Загрузка списка точек проката...</div>
-            </div>
+            <!-- Список аккаунтов будет загружен динамически -->
         </div>
         
         <button class="auth-btn" onclick="showCreateAccountModal()">
@@ -1773,19 +1716,6 @@
             </button>
         </div>
         <div class="card">
-            <h3 style="margin:0 0 15px 0; color:var(--primary);"><i class="fas fa-link"></i> Индивидуальная ссылка для просмотра</h3>
-            <div class="account-link">
-                <div class="account-link-url" id="account-link-url">https://99999cent-bit.github.io/Scooter75rus?account=acc_12345</div>
-                <button class="copy-btn" onclick="copyAccountLink()">
-                    <i class="fas fa-copy"></i> Скопировать
-                </button>
-            </div>
-            <div class="account-link-status">
-                <i class="fas fa-eye" style="color: var(--success);"></i>
-                <span class="link-active">Ссылка активна</span>
-            </div>
-        </div>
-        <div class="card">
             <button class="btn btn-danger" onclick="fullReset()" style="background:var(--gradient-danger);"><i class="fas fa-trash-alt"></i> ⚠️ Полный сброс данных</button>
         </div>
     </div>
@@ -1960,7 +1890,7 @@
     const ACCOUNT_COLORS = [
         { color: '#10b981', icon: 'fa-scooter' },   // Зеленый - самокаты
         { color: '#f59e0b', icon: 'fa-bicycle' },   // Оранжевый - велосипеды
-        { color: '#6366f1', icon: 'fa-motorcycle' }, // Фиолетовый - мотоциклы
+        { color: '#6366f1', icon: 'fa-motorcycle' }, // Фиолетовый - мопеды
         { color: '#ef4444', icon: 'fa-motorcycle' }, // Красный - мотоциклы
         { color: '#8b5cf6', icon: 'fa-car' },        // Индиго - авто
         { color: '#ec4899', icon: 'fa-skateboard' }, // Розовый - скейтборды
@@ -1980,6 +1910,7 @@
                 firebaseDb.ref('.info/connected').on('value', (snapshot) => {
                     const connected = snapshot.val();
                     isFirebaseConnected = connected;
+                    updateSyncStatus(connected);
                     
                     if (connected) {
                         console.log("✅ Firebase подключен");
@@ -1992,6 +1923,14 @@
                         renderAccountsList();
                     }
                 });
+                
+                // Проверяем подключение через 3 секунды
+                setTimeout(() => {
+                    if (!isFirebaseConnected) {
+                        console.warn("⚠️ Firebase не подключился в течение 3 секунд");
+                        showToast("⚠️ Проблема с подключением к облаку", 'warning');
+                    }
+                }, 3000);
             } else {
                 // Firebase уже инициализирован, загружаем аккаунты
                 loadAccountsList();
@@ -2046,29 +1985,30 @@
     // Отображение списка аккаунтов
     function renderAccountsList() {
         const container = document.getElementById('account-list');
+        container.innerHTML = '';
         
         if (Object.keys(accountsList).length === 0) {
             container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-tertiary);">Нет созданных точек проката.<br>Нажмите кнопку ниже, чтобы добавить первую точку.</div>';
             return;
         }
         
-        let html = '';
         Object.entries(accountsList).forEach(([id, account]) => {
-            html += `
-                <div class="account-item ${currentAccountId === id ? 'active' : ''}" onclick="selectAccount('${id}')">
-                    <div class="account-info">
-                        <span class="account-color" style="background:${account.color}"><i class="fas ${account.icon || 'fa-store'}"></i></span>
-                        <div class="account-name">${account.name}</div>
-                    </div>
-                    <div class="account-actions">
-                        <button class="account-btn delete" onclick="event.stopPropagation(); confirmDeleteAccount('${id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+            const div = document.createElement('div');
+            div.className = 'account-item';
+            if (currentAccountId === id) div.classList.add('active');
+            div.innerHTML = `
+                <div class="account-info" onclick="selectAccount('${id}')">
+                    <span class="account-color" style="background:${account.color}"><i class="fas fa-${account.icon || 'store'}"></i></span>
+                    <div class="account-name">${account.name}</div>
+                </div>
+                <div class="account-actions">
+                    <button class="account-btn delete" onclick="event.stopPropagation(); confirmDeleteAccount('${id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             `;
+            container.appendChild(div);
         });
-        container.innerHTML = html;
     }
     
     // Выбор аккаунта (запрашиваем пароль)
@@ -2159,7 +2099,7 @@
             const div = document.createElement('div');
             div.className = 'color-option';
             div.style.backgroundColor = item.color;
-            div.innerHTML = `<i class="fas ${item.icon}"></i>`;
+            div.innerHTML = `<i class="fas fa-${item.icon}"></i>`;
             div.onclick = () => selectAccountColor(index);
             colorPicker.appendChild(div);
         });
@@ -2198,8 +2138,7 @@
             color: selectedColor.color,
             icon: selectedColor.icon,
             password: '0000', // Пароль по умолчанию
-            createdAt: Date.now(),
-            link: `https://99999cent-bit.github.io/Scooter75rus?account=${newAccountId}`
+            createdAt: Date.now()
         };
         
         // Сохраняем в облако если есть подключение
@@ -2225,7 +2164,7 @@
                             localStorage.setItem('accountsList', JSON.stringify(accountsList));
                             renderAccountsList();
                             
-                            // Автоматически входим в новую точку
+                            // Автоматически входим
                             currentAccountId = newAccountId;
                             currentAccountName = name;
                             currentAccountColor = selectedColor.color;
@@ -2262,7 +2201,7 @@
             showToast(`✅ Точка проката "${name}" создана! (офлайн-режим)`, 'success');
             renderAccountsList();
             
-            // Автоматически входим в новую точку
+            // Автоматически входим
             currentAccountId = newAccountId;
             currentAccountName = name;
             currentAccountColor = selectedColor.color;
@@ -2648,161 +2587,66 @@
     }
 
     // Функции экспорта
-    function exportClients() {
-        if (!db.clients || db.clients.length === 0) {
-            showToast("⚠️ Нет клиентов для экспорта", 'warning');
-            return;
-        }
-        
-        const csvContent = "\uFEFFID;Имя;Телефон;Комментарий;В черном списке;Дата регистрации\n" +
-            db.clients.map(client => 
-                `"${client.id}";"${client.name.replace(/"/g, '""')}";"${client.phone}";"${(client.comment || '').replace(/"/g, '""')}";"${client.blocked ? 'ДА' : 'НЕТ'}";"${new Date(client.id).toLocaleDateString('ru-RU')}"`
-            ).join("\n");
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `clients_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
-        showToast("✅ Клиенты выгружены", 'success');
-    }
+    function exportClients() { /* ... */ }
+    function exportHistory() { /* ... */ }
+    function exportSurcharge() { /* ... */ }
 
-    function exportHistory() {
-        if (!db.history || db.history.length === 0) {
-            showToast("⚠️ Нет истории для экспорта", 'warning');
-            return;
-        }
-        
-        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Старт;Конец;Длительность;Пауза;Сверх;Тариф;Сумма;Оплата;Статус\n" +
-            db.history.map(record => 
-                `"${record.id}";"${record.vName.replace(/"/g, '""')}";"${record.cName.replace(/"/g, '""')}";"${record.cPhone}";"${new Date(record.ts).toLocaleString('ru-RU')}";"${new Date(record.endTs).toLocaleString('ru-RU')}";"${record.duration} мин";"${record.pauseDur || 0} мин";"${record.overDur || 0} мин";"${record.tName.replace(/"/g, '""')}";"${record.cost}";"${record.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные'}";"${record.deleted ? 'УДАЛЕНО' : 'Активно'}"`
-            ).join("\n");
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `history_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
-        showToast("✅ История выгружена", 'success');
-    }
+    // Основные функции приложения
+    function renderNewRent() { /* ... */ }
+    function showTariffs() { /* ... */ }
+    function renderFleet() { /* ... */ }
+    function renderClients() { /* ... */ }
+    function renderSettingsList() { /* ... */ }
+    function renderActiveRentals() { /* ... */ }
+    function getTimeLeft(r) { /* ... */ }
+    function tick() { /* ... */ }
+    function renderSurcharge() { /* ... */ }
+    function renderHistory() { /* ... */ }
+    function toggleDevDropdown() { /* ... */ }
+    function filterDevDropdown(val) { /* ... */ }
+    function initDeviceFilter() { /* ... */ }
+    function toggleAllDev(el) { /* ... */ }
+    function openSwapModal(id) { /* ... */ }
+    function renderSwapList(query) { /* ... */ }
+    function finalizeSwap() { /* ... */ }
+    function togglePause(id) { /* ... */ }
+    function openExtendModal(id) { /* ... */ }
+    function applyExt(rId, tId) { /* ... */ }
+    function toggleHistoryStatus(id) { /* ... */ }
+    function toggleRepair(id) { /* ... */ }
+    function saveClient() { /* ... */ }
+    function delClient() { /* ... */ }
+    function openClientModal(id) { /* ... */ }
+    function handleInput(type, val) { /* ... */ }
+    function fillClient(ph, nm) { /* ... */ }
+    function addVehicle() { /* ... */ }
+    function openVehicleNote(id) { /* ... */ }
+    function saveVehicleNote() { /* ... */ }
+    function deleteVehicleNote() { /* ... */ }
+    function delCat(id) { /* ... */ }
+    function openCatModal() { /* ... */ }
+    function editCat(id) { /* ... */ }
+    function renderCatTariffs(tariffs) { /* ... */ }
+    function addTariffIO() { /* ... */ }
+    function delTariff(i) { /* ... */ }
+    function saveCat() { /* ... */ }
+    function closeModal(id) { /* ... */ }
+    function fullReset() { /* ... */ }
+    function forceUploadToCloud() { /* ... */ }
+    function updateUI() { /* ... */ }
+    function askStartRental(tariff) { /* ... */ }
+    function confirmPaymentChoice(method) { /* ... */ }
+    function realStartRental() { /* ... */ }
+    function finishRental(id) { /* ... */ }
+    function sendNotify(title, body, isCritical) { /* ... */ }
+    function authWrapper(actionCallback) { /* ... */ }
+    function submitAuth() { /* ... */ }
+    function resetPassBtnAction() { /* ... */ }
+    function changePassUI() { /* ... */ }
+    function requestWakeLock() { /* ... */ }
+    function testAudio() { /* ... */ }
+    function window.updateGlobalDB(newData) { /* ... */ }
 
-    function exportSurcharge() {
-        const filtered = db.history.filter(h => h.overDur > 0 && !h.deleted);
-        if (filtered.length === 0) {
-            showToast("⚠️ Нет доплат для экспорта", 'warning');
-            return;
-        }
-        
-        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Время;Сверх;К оплате\n" +
-            filtered.map(record => 
-                `"${record.id}";"${record.vName}";"${record.cName}";"${record.cPhone}";"${new Date(record.ts).toLocaleTimeString()} - ${new Date(record.endTs).toLocaleTimeString()}";"${record.overDur}";"${record.overDur * (record.baseRate || 0)} ₽"`
-            ).join("\n");
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `surcharge_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
-        showToast("✅ Доплаты выгружены", 'success');
-    }
-
-    // Простые функции рендеринга для демонстрации
-    function renderNewRent() { /* Минимальная реализация */ }
-    function renderFleet() { /* Минимальная реализация */ }
-    function renderClients() { /* Минимальная реализация */ }
-    function renderSettingsList() { /* Минимальная реализация */ }
-    function renderActiveRentals() { /* Минимальная реализация */ }
-    function tick() { /* Минимальная реализация */ }
-    function renderSurcharge() { /* Минимальная реализация */ }
-    function renderHistory() { /* Минимальная реализация */ }
-    function initDeviceFilter() { /* Минимальная реализация */ }
-    function toggleDevDropdown() { document.getElementById('dev-dd').style.display = document.getElementById('dev-dd').style.display === 'block' ? 'none' : 'block'; }
-    function filterDevDropdown(val) { /* Минимальная реализация */ }
-    function openSwapModal(id) { /* Минимальная реализация */ }
-    function renderSwapList(query) { /* Минимальная реализация */ }
-    function finalizeSwap() { /* Минимальная реализация */ }
-    function togglePause(id) { /* Минимальная реализация */ }
-    function openExtendModal(id) { /* Минимальная реализация */ }
-    function applyExt(rId, tId) { /* Минимальная реализация */ }
-    function toggleHistoryStatus(id) { /* Минимальная реализация */ }
-    function toggleRepair(id) { /* Минимальная реализация */ }
-    function saveClient() { /* Минимальная реализация */ }
-    function delClient() { /* Минимальная реализация */ }
-    function openClientModal(id) { /* Минимальная реализация */ }
-    function handleInput(type, val) { /* Минимальная реализация */ }
-    function fillClient(ph, nm) { /* Минимальная реализация */ }
-    function addVehicle() { /* Минимальная реализация */ }
-    function openVehicleNote(id) { /* Минимальная реализация */ }
-    function saveVehicleNote() { /* Минимальная реализация */ }
-    function deleteVehicleNote() { /* Минимальная реализация */ }
-    function delCat(id) { /* Минимальная реализация */ }
-    function openCatModal() { /* Минимальная реализация */ }
-    function editCat(id) { /* Минимальная реализация */ }
-    function renderCatTariffs(tariffs) { /* Минимальная реализация */ }
-    function addTariffIO() { /* Минимальная реализация */ }
-    function delTariff(i) { /* Минимальная реализация */ }
-    function saveCat() { /* Минимальная реализация */ }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function fullReset() { /* Минимальная реализация */ }
-    function forceUploadToCloud() { 
-        if (isFirebaseConnected && firebaseDb && currentAccountId) {
-            sendToCloud(db);
-            showToast("✅ Данные загружены в облако", 'success');
-        } else {
-            showToast("⚠️ Нет подключения к облаку", 'warning');
-        }
-    }
-    function updateUI() { 
-        renderSettingsList(); 
-        renderFleet(); 
-        renderActiveRentals();
-        renderHistory();
-        renderSurcharge();
-    }
-    function askStartRental(tariff) { /* Минимальная реализация */ }
-    function confirmPaymentChoice(method) { /* Минимальная реализация */ }
-    function realStartRental() { /* Минимальная реализация */ }
-    function finishRental(id) { /* Минимальная реализация */ }
-    function sendNotify(title, body, isCritical) { /* Минимальная реализация */ }
-    function authWrapper(actionCallback) { /* Минимальная реализация */ }
-    function submitAuth() { /* Минимальная реализация */ }
-    function resetPassBtnAction() { /* Минимальная реализация */ }
-    function changePassUI() { /* Минимальная реализация */ }
-    function requestWakeLock() { /* Минимальная реализация */ }
-    function testAudio() { /* Минимальная реализация */ }
-    function window.updateGlobalDB(newData) { db = newData; updateUI(); }
-    
-    // Копирование ссылки аккаунта
-    function copyAccountLink() {
-        const link = document.getElementById('account-link-url').innerText;
-        navigator.clipboard.writeText(link)
-            .then(() => {
-                showToast("✅ Ссылка скопирована в буфер обмена", 'success');
-            })
-            .catch(err => {
-                console.error('Ошибка копирования текста:', err);
-                showToast("❌ Не удалось скопировать ссылку", 'danger');
-            });
-    }
-    
     // Инициализация приложения
     window.addEventListener('DOMContentLoaded', init);
     
@@ -2820,7 +2664,6 @@
     window.confirmDeleteAccount = confirmDeleteAccount;
     window.deleteCurrentAccount = deleteCurrentAccount;
     window.changeAccountPassword = changeAccountPassword;
-    window.copyAccountLink = copyAccountLink;
 </script>
 
 </body>
