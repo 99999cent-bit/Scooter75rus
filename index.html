@@ -1,4 +1,3 @@
-
                         <!DOCTYPE html>
                         <html lang="en">
                         <head>
@@ -23,8 +22,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <style>
         :root {
@@ -1150,30 +1149,14 @@
             padding: 8px;
             border-radius: var(--radius-md);
             background: rgba(99, 102, 241, 0.05);
-            font-weight: 600;
         }
 
         .sync-online {
             color: var(--success);
-            font-weight: 700;
         }
 
         .sync-offline {
             color: var(--danger);
-            font-weight: 700;
-        }
-
-        .firebase-badge {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            padding: 4px 10px;
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin-left: 8px;
         }
 
         @media (max-width: 768px) {
@@ -1287,7 +1270,6 @@
         <div id="no-active-msg">Нет активных поездок</div>
         <div class="sync-status" id="sync-status">
             <i class="fas fa-sync-alt"></i> Синхронизация: <span id="sync-state">ожидание подключения...</span>
-            <span class="firebase-badge" style="display:none;"><i class="fas fa-cloud"></i> Firebase</span>
         </div>
     </div>
 
@@ -1545,170 +1527,92 @@
 </div>
 
 <script>
-    // === КОНФИГУРАЦИЯ FIREBASE С ВАШИМИ ДАННЫМИ ===
+    // === НАЧАЛО КОДА ДЛЯ FIREBASE ===
+    // ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ НА СВОИ ИЗ КОНСОЛИ FIREBASE
     const firebaseConfig = {
-        apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
-        authDomain: "skuter75rus-3d55d.firebaseapp.com",
-        databaseURL: "https://skuter75rus-3d55d-default-rtdb.firebaseio.com",
-        projectId: "skuter75rus-3d55d",
-        storageBucket: "skuter75rus-3d55d.firebasestorage.app",
-        messagingSenderId: "1054204994225",
-        appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
-        measurementId: "G-J47C67V554"
+        apiKey: "AIzaSyBvK...", // Замените на ваш apiKey
+        authDomain: "your-project.firebaseapp.com", // Замените на ваш authDomain
+        databaseURL: "https://your-project-default-rtdb.firebaseio.com", // Замените на ваш databaseURL
+        projectId: "your-project", // Замените на ваш projectId
+        storageBucket: "your-project.appspot.com", // Замените на ваш storageBucket
+        messagingSenderId: "1234567890", // Замените на ваш messagingSenderId
+        appId: "1:1234567890:web:abcdef1234567890" // Замените на ваш appId
     };
-
-    // Глобальные переменные для Firebase
+    
+    // Инициализация Firebase
     let firebaseApp = null;
     let firebaseDb = null;
     let isFirebaseConnected = false;
     let lastSyncTime = 0;
     
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ FIREBASE ===
     function initFirebase() {
         try {
-            // Проверяем, не инициализировано ли уже приложение
+            // Проверяем, инициализировано ли уже приложение
             if (!firebaseApp) {
                 firebaseApp = firebase.initializeApp(firebaseConfig);
                 firebaseDb = firebaseApp.database();
-                firebaseDb.goOnline();
+                isFirebaseConnected = true;
+                document.getElementById('firebase-status').innerText = 'Подключено';
+                document.getElementById('firebase-status').className = 'sync-online';
+                showToast("✅ Firebase подключен", 'success');
+                
+                // Подписываемся на изменения в базе данных
+                firebaseDb.ref('rentmaster').on('value', (snapshot) => {
+                    const newData = snapshot.val();
+                    if (newData) {
+                        // Обновляем глобальную базу данных
+                        window.updateGlobalDB(newData);
+                        lastSyncTime = Date.now();
+                        document.getElementById('sync-state').innerText = 'синхронизировано';
+                        document.getElementById('sync-state').className = 'sync-online';
+                    }
+                });
                 
                 // Отслеживаем состояние подключения
                 firebaseDb.ref('.info/connected').on('value', (snapshot) => {
                     const connected = snapshot.val();
                     isFirebaseConnected = connected;
-                    updateSyncStatus(connected);
-                    
-                    if (connected) {
-                        console.log("✅ Firebase подключен к базе данных");
-                        
-                        // Подписываемся на изменения в базе данных
-                        firebaseDb.ref('rentmaster').on('value', (snapshot) => {
-                            const newData = snapshot.val();
-                            if (newData) {
-                                // Обновляем глобальную базу данных
-                                window.updateGlobalDB(newData);
-                                lastSyncTime = Date.now();
-                                document.getElementById('sync-state').innerText = 'синхронизировано';
-                                document.getElementById('sync-state').className = 'sync-online';
-                                showToast("🔄 Данные синхронизированы с облаком", 'success');
-                            }
-                        }, (error) => {
-                            console.error("❌ Ошибка чтения данных из Firebase:", error);
-                            showToast("⚠️ Ошибка синхронизации с облаком", 'warning');
-                        });
-                    } else {
-                        console.log("⚠️ Firebase отключен от базы данных");
-                    }
+                    document.getElementById('firebase-status').innerText = connected ? 'Подключено' : 'Отключено';
+                    document.getElementById('firebase-status').className = connected ? 'sync-online' : 'sync-offline';
+                    document.getElementById('sync-state').innerText = connected ? 'онлайн' : 'оффлайн';
+                    document.getElementById('sync-state').className = connected ? 'sync-online' : 'sync-offline';
                 });
-                
-                // Проверяем подключение через 3 секунды
-                setTimeout(() => {
-                    if (!isFirebaseConnected) {
-                        console.warn("⚠️ Firebase не подключился в течение 3 секунд");
-                        showToast("⚠️ Проблема с подключением к облаку", 'warning');
-                    }
-                }, 3000);
-                
             }
         } catch (error) {
-            console.error("❌ КРИТИЧЕСКАЯ ОШИБКА инициализации Firebase:", error);
-            showToast("❌ Ошибка подключения к облаку. Проверьте конфигурацию.", 'danger');
-            updateSyncStatus(false);
+            console.error("Ошибка инициализации Firebase:", error);
+            document.getElementById('firebase-status').innerText = 'Ошибка подключения';
+            document.getElementById('firebase-status').className = 'sync-offline';
+            showToast("⚠️ Firebase не подключен. Проверьте конфигурацию.", 'warning');
         }
     }
     
-    // Обновление статуса синхронизации в интерфейсе
-    function updateSyncStatus(connected) {
-        const statusElement = document.getElementById('firebase-status');
-        const syncStateElement = document.getElementById('sync-state');
-        
-        if (connected) {
-            statusElement.innerText = 'Подключено';
-            statusElement.className = 'sync-online';
-            syncStateElement.innerText = 'онлайн';
-            syncStateElement.className = 'sync-online';
-            document.querySelector('.firebase-badge').style.display = 'inline-flex';
-        } else {
-            statusElement.innerText = 'Отключено';
-            statusElement.className = 'sync-offline';
-            syncStateElement.innerText = 'оффлайн';
-            syncStateElement.className = 'sync-offline';
-            document.querySelector('.firebase-badge').style.display = 'none';
-        }
-    }
-    
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ДАННЫХ В ОБЛАКО ===
+    // Функция для отправки данных в облако
     function sendToCloud(data) {
-        // Отправляем данные ТОЛЬКО если есть подключение к Firebase
         if (!isFirebaseConnected || !firebaseDb) {
-            console.warn("⚠️ Данные не отправлены: нет подключения к облаку");
-            // Не показываем тост при автоматической синхронизации, чтобы не спамить
+            showToast("⚠️ Нет подключения к облаку", 'warning');
             return;
         }
         
         try {
-            // Отправляем данные в узел 'rentmaster'
             firebaseDb.ref('rentmaster').set(data)
                 .then(() => {
                     lastSyncTime = Date.now();
-                    console.log("✅ Данные успешно отправлены в облако");
-                    
-                    // Обновляем статус только при ручной синхронизации
-                    if (document.getElementById('sync-state').innerText === 'принудительно') {
-                        document.getElementById('sync-state').innerText = 'синхронизировано';
-                        document.getElementById('sync-state').className = 'sync-online';
-                    }
-                })
-                .catch((error) => {
-                    console.error("❌ Ошибка отправки в облако:", error);
-                    showToast("❌ Ошибка отправки данных в облако", 'danger');
-                    updateSyncStatus(false);
-                });
-        } catch (error) {
-            console.error("❌ КРИТИЧЕСКАЯ ОШИБКА при отправке данных:", error);
-            showToast("❌ Критическая ошибка синхронизации", 'danger');
-            updateSyncStatus(false);
-        }
-    }
-    
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ===
-    function save() { 
-        localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        
-        // Отправляем данные в облако КАЖДЫЕ 10 СЕКУНД при наличии активных аренд
-        // или сразу при завершении аренды/изменении данных
-        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
-            if (window.sendToCloud) {
-                window.sendToCloud(db);
-            }
-        }
-    }
-    
-    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ПРИНУДИТЕЛЬНОЙ ЗАГРУЗКИ ===
-    function forceUploadToCloud() { 
-        if (!isFirebaseConnected || !firebaseDb) {
-            alert('⚠️ Firebase не подключен. Проверьте:\n1. Конфигурацию в коде\n2. Подключение к интернету\n3. Правила безопасности в консоли Firebase');
-            return;
-        }
-        
-        if(confirm('Вы уверены? Это перезапишет данные в облаке!')) { 
-            document.getElementById('sync-state').innerText = 'принудительно';
-            document.getElementById('sync-state').className = 'sync-warning';
-            
-            if(window.sendToCloud) { 
-                window.sendToCloud(db); 
-                setTimeout(() => {
-                    alert('✅ Данные успешно отправлены в облако!');
                     document.getElementById('sync-state').innerText = 'синхронизировано';
                     document.getElementById('sync-state').className = 'sync-online';
-                }, 1500);
-            } else {
-                alert('⚠️ Функция отправки в облако не определена.');
-            }
-        } 
+                    showToast("✅ Данные отправлены в облако", 'success');
+                })
+                .catch((error) => {
+                    console.error("Ошибка отправки в облако:", error);
+                    showToast("❌ Ошибка отправки в облако", 'danger');
+                });
+        } catch (error) {
+            console.error("Ошибка при отправке данных:", error);
+            showToast("❌ Ошибка синхронизации", 'danger');
+        }
     }
+    // === КОНЕЦ КОДА ДЛЯ FIREBASE ===
     
-    // === ОСТАЛЬНОЙ КОД ПРИЛОЖЕНИЯ (БЕЗ ИЗМЕНЕНИЙ) ===
+    // Основные переменные приложения
     let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
     let isMonitorMode = false;
     let tempStartData = null;
@@ -1741,6 +1645,7 @@
     }
 
     function init() {
+        // Проверяем режим мониторинга
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode') === 'monitor') {
             isMonitorMode = true;
@@ -1751,25 +1656,34 @@
             return; 
         }
 
+        // Запрашиваем разрешение на уведомления
         if ("Notification" in window) Notification.requestPermission();
+        
+        // Загружаем данные из локального хранилища
         loadDB();
         
-        // ИНИЦИАЛИЗИРУЕМ FIREBASE ПЕРЕД ЗАГРУЗКОЙ ДАННЫХ
+        // Инициализируем Firebase
         initFirebase();
         
+        // Устанавливаем сегодняшнюю дату для фильтров
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('hist-start').value = today;
         document.getElementById('hist-end').value = today;
         document.getElementById('sur-start').value = today;
         document.getElementById('sur-end').value = today;
 
+        // Обновляем интерфейс и запускаем таймер
         updateUI();
         setInterval(tick, 1000);
+        
+        // Обработчики кликов для закрытия модальных окон
         window.onclick = function(e) { 
             if(e.target.matches('.modal-overlay')) e.target.style.display='none'; 
             if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
                 document.getElementById('dev-dd').style.display='none'; 
         }
+        
+        // Включаем режим "Не спать"
         requestWakeLock();
     }
 
@@ -1785,6 +1699,7 @@
             db = JSON.parse(local);
             if(!db.password) db.password = '4892';
         } else {
+            // Данные по умолчанию для первого запуска
             db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
             db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#6366f1'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
             db.password = '4892';
@@ -1868,7 +1783,7 @@
     function save() { 
         localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
         
-        // Отправляем данные в облако ТОЛЬКО если есть активные аренды или недавние изменения
+        // Отправляем данные в облако только если есть активные аренды или недавние изменения
         if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
             if (window.sendToCloud) window.sendToCloud(db);
         }
@@ -2003,7 +1918,7 @@
 
     function exportSurcharge() {
         const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Время;Сверх;К оплате\n" +
-            db.history.filter(h => h.overDur > 0).map(record => 
+            db.history.filter(h => h.overDur > 0 && !h.deleted).map(record => 
                 `"${record.id}";"${record.vName}";"${record.cName}";"${record.cPhone}";"${new Date(record.ts).toLocaleTimeString()} - ${new Date(record.endTs).toLocaleTimeString()}";"${record.overDur}";"${record.overDur * (record.baseRate || 0)} ₽"`
             ).join("\n");
         
@@ -2022,6 +1937,8 @@
     }
 
     // === ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ===
+    // (рендеринг, обработка аренд и т.д. - полностью рабочие функции)
+    
     function renderNewRent() {
         const c = document.getElementById('fleet-selector'); c.innerHTML='';
         const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
@@ -2088,7 +2005,7 @@
                 <div>
                     <div class="item-name">${c.name} ${isBanned ? '(BAN)' : ''}</div>
                     <div class="item-sub">${c.phone}</div>
-                    ${c.comment ? `<div style="font-size:0.85rem;color:var(--text-tertiary);margin-top:4px;">${c.comment}</div>` : ''}
+                    ${c.comment ? `<div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">${c.comment}</div>` : ''}
                 </div>
                 <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})" style="height:36px;width:36px;padding:0;"><i class="fas fa-pen"></i></button>
             </div>`;
@@ -2235,7 +2152,7 @@
         const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
         if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-tertiary);">Нет свободных устройств</div>'; return; }
         free.forEach(f => {
-            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:var(--text-secondary);">Свободен</small></div></label>`;
+            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:var(--text-secondary)">Свободен</small></div></label>`;
         });
     }
     function finalizeSwap() {
@@ -2390,11 +2307,8 @@
         });
     }
 
-    // Инициализация приложения
+    // Инициализация приложения при загрузке
     window.addEventListener('DOMContentLoaded', init);
-    
-    // Экспортируем функцию для глобального доступа
-    window.sendToCloud = sendToCloud;
 </script>
 
 </body>
@@ -2403,123 +2317,15 @@
 
 
               <script>
-                              function initFirebase() {
-    try {
-        if (!firebaseApp) {
-            firebaseApp = firebase.initializeApp(firebaseConfig);
-            firebaseDb = firebaseApp.database();
-            
-            // Отслеживаем состояние подключения
-            firebaseDb.ref('.info/connected').on('value', (snapshot) => {
-                const connected = snapshot.val();
-                isFirebaseConnected = connected;
-                updateSyncStatus(connected);
-                
-                if (connected) {
-                    // Подписываемся на изменения в базе данных
-                    firebaseDb.ref('rentmaster').on('value', (snapshot) => {
-                        const newData = snapshot.val();
-                        if (newData) {
-                            window.updateGlobalDB(newData);
-                            lastSyncTime = Date.now();
-                            document.getElementById('sync-state').innerText = 'синхронизировано';
-                            document.getElementById('sync-state').className = 'sync-online';
-                            showToast("🔄 Данные синхронизированы с облаком", 'success');
-                        }
-                    }, (error) => {
-                        console.error("❌ Ошибка чтения данных из Firebase:", error);
-                        showToast("⚠️ Ошибка синхронизации с облаком", 'warning');
-                    });
-                }
-            });
-            
-            // Проверяем подключение через 3 секунды
-            setTimeout(() => {
-                if (!isFirebaseConnected) {
-                    console.warn("⚠️ Firebase не подключился в течение 3 секунд");
-                    showToast("⚠️ Проблема с подключением к облаку", 'warning');
-                }
-            }, 3000);
-        }
-    } catch (error) {
-        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА инициализации Firebase:", error);
-        showToast("❌ Ошибка подключения к облаку. Проверьте конфигурацию.", 'danger');
-        updateSyncStatus(false);
-    }
-}
-
-function sendToCloud(data) {
-    // Отправляем данные ТОЛЬКО если есть подключение к Firebase
-    if (!isFirebaseConnected || !firebaseDb) {
-        console.warn("⚠️ Данные не отправлены: нет подключения к облаку");
-        return;
-    }
-    
-    try {
-        firebaseDb.ref('rentmaster').set(data)
-            .then(() => {
-                lastSyncTime = Date.now();
-                console.log("✅ Данные успешно отправлены в облако");
-            })
-            .catch((error) => {
-                console.error("❌ Ошибка отправки в облако:", error);
-                showToast("❌ Ошибка отправки данных в облако", 'danger');
-                updateSyncStatus(false);
-            });
-    } catch (error) {
-        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА при отправке данных:", error);
-        showToast("❌ Критическая ошибка синхронизации", 'danger');
-        updateSyncStatus(false);
-    }
-}
-
-window.updateGlobalDB = function(newData) {
-    if (!newData) return;
-    
-    // Защита от перезаписи активных аренд пустыми данными
-    if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
-        const cHist = newData.history ? newData.history.length : 0;
-        const lHist = db.history ? db.history.length : 0;
-        if (cHist <= lHist) {
-            console.log("🛑 Blocked empty sync - сохраняем локальные активные аренды");
-            return; 
-        }
-    }
-    
-    db = { ...newData, password: newData.password || db.password || '4892' };
-    updateUI();   
-}
-
-function updateSyncStatus(connected) {
-    const statusElement = document.getElementById('firebase-status');
-    const syncStateElement = document.getElementById('sync-state');
-    
-    if (connected) {
-        statusElement.innerText = 'Подключено';
-        statusElement.className = 'sync-online';
-        syncStateElement.innerText = 'онлайн';
-        syncStateElement.className = 'sync-online';
-        document.querySelector('.firebase-badge').style.display = 'inline-flex';
-    } else {
-        statusElement.innerText = 'Отключено';
-        statusElement.className = 'sync-offline';
-        syncStateElement.innerText = 'оффлайн';
-        syncStateElement.className = 'sync-offline';
-        document.querySelector('.firebase-badge').style.display = 'none';
-    }
-}
-
-function save() { 
-    localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-    
-    // Отправляем данные в облако КАЖДЫЕ 10 СЕКУНД при наличии активных аренд
-    // или сразу при завершении аренды/изменении данных
-    if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 10000) {
-        if (window.sendToCloud) {
-            window.sendToCloud(db);
-        }
-    }
-}
+                              const firebaseConfig = {
+    apiKey: "AIzaSyBvK...", // ЗАМЕНИТЕ НА СВОЙ
+    authDomain: "your-project.firebaseapp.com", // ЗАМЕНИТЕ НА СВОЙ
+    databaseURL: "https://your-project-default-rtdb.firebaseio.com", // ЗАМЕНИТЕ НА СВОЙ
+    projectId: "your-project", // ЗАМЕНИТЕ НА СВОЙ
+    storageBucket: "your-project.appspot.com", // ЗАМЕНИТЕ НА СВОЙ
+    messagingSenderId: "1234567890", // ЗАМЕНИТЕ НА СВОЙ
+    appId: "1:1234567890:web:abcdef1234567890" // ЗАМЕНИТЕ НА СВОЙ
+};
 
 
               </script>
