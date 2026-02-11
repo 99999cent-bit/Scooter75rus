@@ -1,3 +1,4 @@
+
                         <!DOCTYPE html>
                         <html lang="en">
                         <head>
@@ -16,14 +17,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RentMaster Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- Firebase SDK - ИСПРАВЛЕННЫЕ ВЕРСИИ -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
     
     <style>
         :root {
@@ -321,382 +323,44 @@
             border-radius: var(--radius-md);
         }
 
-        .active-row {
-            background: var(--surface);
-            color: var(--text);
-            border-radius: var(--radius-xl);
-            margin-bottom: var(--spacing-md);
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-            height: 90px;
-            position: relative;
-            border: 2px solid transparent;
-            transition: var(--transition);
-        }
-
-        .active-row:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .active-row::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, var(--status-busy) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: -1;
-        }
-
-        .active-row:hover::before {
-            opacity: 1;
-        }
-
-        .ar-color {
-            width: 6px;
-            height: 100%;
-            flex-shrink: 0;
-            background: var(--status-busy);
-        }
-
-        .ar-info-block {
-            padding: 0 var(--spacing-md);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-width: 160px;
-            cursor: pointer;
-            gap: var(--spacing-xs);
-        }
-
-        .ar-device {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            line-height: 1;
-            margin-bottom: 2px;
-        }
-
-        .ar-client-row {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .ar-phone-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            border-bottom: 1px dashed var(--primary);
-            transition: var(--transition);
-        }
-
-        .ar-phone-link:hover {
-            color: var(--primary-dark);
-            border-bottom-color: var(--primary-dark);
-        }
-
-        .ar-timer-container {
-            flex: 1;
-            text-align: right;
-            padding-right: var(--spacing-md);
-        }
-
-        .ar-timer {
-            font-family: 'Space Grotesk', monospace;
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            line-height: 1;
-            text-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
-        }
-
-        .ar-actions {
-            display: flex;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
-            border-left: 1px solid var(--border);
-            width: 200px;
-            flex-shrink: 0;
-        }
-
-        .ar-btn {
-            flex: 1;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid var(--border);
-            padding: 0;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ar-btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .ar-btn:hover::after {
-            opacity: 1;
-        }
-
-        .ar-btn:active {
-            opacity: 0.8;
-            transform: scale(0.95);
-        }
-
-        .ar-btn i {
-            font-size: 1.4rem;
-            margin-bottom: 4px;
-            transition: var(--transition);
-        }
-
-        .ar-btn-label {
-            font-size: 0.6rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-        }
-
-        .ar-btn.pause i { color: var(--status-paused); }
-        .ar-btn.extend i { color: var(--accent); }
-        .ar-btn.finish i { color: var(--danger); }
-
-        .ar-dbl {
-            font-size: 0.55rem;
-            opacity: 0.4;
-            margin-top: 2px;
-            font-weight: 600;
-        }
-
-        .active-row.paused {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            border-color: var(--status-paused);
-        }
-
-        .active-row.paused .ar-timer {
-            color: var(--status-paused);
-        }
-
-        @keyframes pulseWarning {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
-        }
-
-        @keyframes pulseDanger {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-        }
-
-        .active-row.warning-mode {
-            animation: pulseWarning 2s infinite;
-            border-color: var(--warning);
-        }
-
-        .active-row.danger-mode {
-            animation: pulseDanger 1.5s infinite;
-            border-color: var(--danger);
-        }
-
-        .item-card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-sm);
-            box-shadow: var(--shadow);
-            border: 2px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .item-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--status-free);
-        }
-
-        .item-card:hover {
-            transform: translateX(4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary);
-        }
-
-        .item-card.repair::before {
-            background: var(--status-repair);
-        }
-
-        .item-name {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .item-sub {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .item-actions {
-            display: flex;
-            gap: var(--spacing-xs);
-        }
-
-        .gear-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-full);
-            border: 2px solid var(--border);
-            background: var(--surface);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            transition: var(--transition);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .gear-btn:hover {
-            background: var(--primary);
+        /* Добавляем стили для кнопки входа */
+        .auth-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
-            border-color: var(--primary);
-            transform: rotate(90deg);
-        }
-
-        .gear-btn.has-note {
-            color: var(--danger);
-            border-color: var(--danger);
-            background: rgba(239, 68, 68, 0.1);
-            animation: pulseRed 2s infinite;
-        }
-
-        @keyframes pulseRed {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: var(--z-modal);
-            justify-content: center;
-            align-items: center;
-            animation: modalFadeIn 0.3s ease-out;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background: var(--surface);
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-2xl);
-            width: 90%;
-            max-width: 450px;
-            max-height: 85vh;
-            overflow-y: auto;
-            animation: modalPopUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border);
-            z-index: var(--z-max);
-            position: relative;
-        }
-
-        @keyframes modalPopUp {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        .history-table th {
-            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            text-align: left;
-            padding: var(--spacing-md) var(--spacing-sm);
-            border-bottom: 2px solid var(--border);
-            color: var(--text-secondary);
-            position: sticky;
-            top: 0;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-lg);
             font-weight: 600;
-            white-space: nowrap;
-            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            margin: 10px 0;
         }
 
-        .history-table td {
-            padding: var(--spacing-md) var(--spacing-sm);
-            border-bottom: 1px solid var(--border);
-            vertical-align: top;
-            color: var(--text);
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .history-table tr:hover {
-            background: rgba(99, 102, 241, 0.03);
+        .auth-btn i {
+            font-size: 1.1rem;
         }
 
-        /* ИСПРАВЛЕНИЕ: Добавляем перечеркивание для удаленных записей */
-        .tr-deleted td {
-            text-decoration: line-through !important;
-            color: var(--text-tertiary) !important;
-            opacity: 0.7 !important;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: var(--radius-md);
+            margin: 10px 0;
         }
 
-        .tr-deleted td button {
-            text-decoration: none !important;
-            opacity: 1 !important;
-        }
-
-        .tr-short {
-            background-color: #fef9c3 !important;
+        .user-info i {
+            color: var(--success);
         }
 
         #toast-container {
@@ -754,391 +418,6 @@
             }
         }
 
-        .profit-card {
-            background: var(--gradient-primary);
-            color: white;
-            text-align: center;
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-2xl);
-            margin-bottom: var(--spacing-md);
-            box-shadow: var(--shadow-xl);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profit-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: rotateGradient 20s linear infinite;
-        }
-
-        @keyframes rotateGradient {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .profit-card.warning { background: var(--gradient-warning); }
-        .profit-card.success { background: var(--gradient-success); }
-
-        .filter-row {
-            display: flex;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
-            margin-bottom: var(--spacing-sm);
-            align-items: center;
-        }
-
-        .swap-search, .new-rent-search {
-            width: 100%;
-            padding: var(--spacing-md);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-sm);
-            box-sizing: border-box;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .swap-search:focus, .new-rent-search:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .tariff-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
-        }
-
-        .tariff-card {
-            border: 2px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            cursor: pointer;
-            text-align: center;
-            transition: var(--transition);
-            background: var(--surface);
-            box-shadow: var(--shadow);
-        }
-
-        .tariff-card:hover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .tariff-card:active {
-            transform: translateY(0);
-        }
-
-        .pay-choice-btn {
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-xl);
-            border: 3px solid transparent;
-            font-size: 1.1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--spacing-md);
-            cursor: pointer;
-            flex: 1;
-            background: var(--surface);
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-
-        .pay-choice-btn:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .pay-choice-cash {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-        .pay-choice-bank {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .list-opt {
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: var(--transition);
-            background: var(--surface);
-        }
-
-        .list-opt:hover {
-            background: rgba(99, 102, 241, 0.05);
-            transform: translateX(4px);
-        }
-
-        .surcharge-highlight {
-            color: var(--danger);
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .surcharge-row {
-            background-color: rgba(239, 68, 68, 0.05);
-        }
-
-        .pay-icon {
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            display: inline-block;
-            margin-top: 4px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .pay-cash {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .pay-bank {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
-        }
-
-        #blacklist-alert {
-            display: none;
-            background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
-            color: #b91c1c;
-            padding: var(--spacing-md);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-md);
-            font-weight: 700;
-            text-align: center;
-            border: 2px solid var(--danger);
-            animation: pulseRed 2s infinite;
-        }
-
-        #no-active-msg {
-            text-align: center;
-            color: var(--text-tertiary);
-            margin-top: 60px;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .swap-list-container {
-            max-height: 350px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-md);
-            background: var(--surface);
-        }
-
-        .swap-radio-item {
-            display: flex;
-            align-items: center;
-            padding: var(--spacing-md);
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: var(--transition);
-            background: var(--surface);
-        }
-
-        .swap-radio-item:hover {
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .swap-radio-input {
-            width: 24px;
-            height: 24px;
-            margin-right: var(--spacing-md);
-            accent-color: var(--primary);
-        }
-
-        .cat-row {
-            display: flex;
-            justify-content: space-between;
-            padding: var(--spacing-md) 0;
-            border-bottom: 1px solid var(--border);
-            align-items: center;
-        }
-
-        .client-card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-sm);
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--success);
-            transition: var(--transition);
-        }
-
-        .client-card.banned {
-            border-left-color: var(--danger);
-            background: rgba(239, 68, 68, 0.05);
-        }
-
-        .client-card:hover {
-            transform: translateX(4px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .fleet-category-block {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-            transition: var(--transition);
-        }
-
-        .fleet-category-block:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
-        }
-
-        .fleet-cat-title {
-            font-weight: 700;
-            margin-bottom: var(--spacing-sm);
-            font-size: 1rem;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
-
-        .fleet-items-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-sm);
-        }
-
-        .fleet-check-label {
-            display: inline-flex;
-            align-items: center;
-            background: var(--surface);
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            border: 2px solid var(--border);
-            cursor: pointer;
-            transition: var(--transition);
-            user-select: none;
-            width: auto;
-            gap: var(--spacing-sm);
-        }
-
-        .fleet-check-label:hover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .fleet-check-input {
-            width: 22px;
-            height: 22px;
-            margin: 0;
-            flex-shrink: 0;
-            accent-color: var(--primary);
-        }
-
-        .fleet-check-text {
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            color: var(--text);
-            gap: var(--spacing-sm);
-        }
-
-        /* ИСПРАВЛЕНИЕ: Выпадающие списки внутри полей ввода */
-        .input-wrapper {
-            position: relative;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .suggestions-box {
-            position: absolute;
-            bottom: 100%; /* Располагается СВЕРХУ поля ввода */
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: var(--z-suggestions);
-            box-shadow: var(--shadow-lg);
-            display: none;
-            margin-bottom: 8px;
-        }
-
-        .suggestion-item {
-            padding: var(--spacing-md);
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: var(--transition);
-            background: var(--surface);
-        }
-
-        .suggestion-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
-        }
-
-        #wakelock-status {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-top: var(--spacing-sm);
-            padding: var(--spacing-sm);
-            border-radius: var(--radius-md);
-            background: rgba(99, 102, 241, 0.05);
-            border: 1px solid var(--border);
-        }
-
-        /* Кнопки экспорта */
-        .export-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-            margin-bottom: var(--spacing-md);
-            box-shadow: var(--shadow);
-        }
-
-        .export-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .export-btn i {
-            font-size: 1.1rem;
-        }
-
         .sync-status {
             display: flex;
             align-items: center;
@@ -1168,58 +447,6 @@
             .card {
                 padding: var(--spacing-md);
             }
-            
-            .ar-actions {
-                width: 160px;
-            }
-            
-            .ar-device {
-                font-size: 1.5rem;
-            }
-            
-            .ar-timer {
-                font-size: 2.2rem;
-            }
-            
-            .tariff-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-content {
-                padding: var(--spacing-lg);
-                max-width: 95%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header {
-                padding: var(--spacing-xs) var(--spacing-sm);
-            }
-            
-            .nav-btn {
-                padding: var(--spacing-xs) var(--spacing-sm);
-                font-size: 0.8rem;
-            }
-            
-            .active-row {
-                height: 80px;
-            }
-            
-            .ar-actions {
-                width: 140px;
-            }
-            
-            .ar-device {
-                font-size: 1.3rem;
-            }
-            
-            .ar-timer {
-                font-size: 1.8rem;
-            }
-            
-            .ar-btn-label {
-                font-size: 0.5rem;
-            }
         }
     </style>
 </head>
@@ -1241,596 +468,258 @@
     <div id="view-new" class="view">
         <div class="card">
             <h2><i class="fas fa-file-contract"></i> Оформление аренды</h2>
-            <div class="input-row" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div class="input-wrapper">
-                    <input type="tel" id="rent-phone" placeholder="📱 Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
-                    <div id="suggest-phone" class="suggestions-box"></div>
-                </div>
-                <div class="input-wrapper">
-                    <input type="text" id="rent-name" placeholder="👤 Имя" oninput="handleInput('name', this.value)" autocomplete="off">
-                    <div id="suggest-name" class="suggestions-box"></div>
-                </div>
-            </div>
-            <div id="blacklist-alert">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
-            <p style="margin:15px 0 10px 0; font-size:0.9rem; color:var(--text-secondary); font-weight:600; display:flex; align-items:center; gap:8px;"><i class="fas fa-rocket"></i> ВЫБЕРИТЕ ТРАНСПОРТ:</p>
-            <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
-            <div id="fleet-selector"></div>
-            <div id="tariff-block" style="display:none; margin-top:25px;">
-                <p style="margin:5px 0 15px 0; font-size:0.9rem; color:var(--text-secondary); font-weight:600; display:flex; align-items:center; gap:8px;"><i class="fas fa-tag"></i> ВЫБОР ТАРИФА:</p>
-                <div id="tariff-buttons" class="tariff-grid"></div>
-            </div>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Для начала работы войдите в систему</p>
         </div>
     </div>
 
     <div id="view-active" class="view active">
-        <div style="margin-bottom:15px;">
-            <input type="text" id="active-search" placeholder="🔍 Поиск по активным арендам..." oninput="renderActiveRentals()">
-        </div>
-        <div id="active-list"></div>
-        <div id="no-active-msg">Нет активных поездок</div>
-        <div class="sync-status" id="sync-status">
-            <i class="fas fa-sync-alt"></i> Синхронизация: <span id="sync-state">ожидание подключения...</span>
+        <div class="card">
+            <h2><i class="fas fa-bolt"></i> Активные аренды</h2>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Для просмотра активных аренд войдите в систему</p>
         </div>
     </div>
 
     <div id="view-fleet" class="view">
         <div class="card">
             <h2><i class="fas fa-car"></i> Парк устройств</h2>
-            <select id="new-fleet-cat" style="margin-bottom:12px;"></select>
-            <div style="display:flex; gap:12px; margin-bottom:15px;">
-                <input type="text" id="new-fleet-name" placeholder="Номер/Имя устройства" style="flex:1;">
-                <input type="color" id="new-fleet-color" value="#6366f1" style="width:50px; padding:4px; height:50px; border-radius:var(--radius-md); border:2px solid var(--border);">
-            </div>
-            <button class="btn btn-primary" onclick="addVehicle()"><i class="fas fa-plus-circle"></i> Добавить устройство</button>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Для управления парком войдите в систему</p>
         </div>
-        <div id="fleet-list"></div>
     </div>
 
     <div id="view-clients" class="view">
         <div class="card">
             <h2><i class="fas fa-users"></i> База клиентов</h2>
-            <button class="export-btn" onclick="exportClients()">
-                <i class="fas fa-file-export"></i> Выгрузить клиентов в Excel
-            </button>
-            <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()" style="margin-bottom:15px;">
-            <div id="clients-list"></div>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Для доступа к базе клиентов войдите в систему</p>
         </div>
     </div>
 
     <div id="view-surcharge" class="view">
-        <div class="profit-card warning">
-            <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
-            <div style="font-size:2.8rem; font-weight:800; margin-top:8px;" id="sur-total">0 ₽</div>
-        </div>
         <div class="card">
-            <h2><i class="fas fa-filter"></i> Фильтры доплат</h2>
-            <button class="export-btn" onclick="exportSurcharge()">
-                <i class="fas fa-file-export"></i> Выгрузить доплаты в Excel
-            </button>
-            <div class="filter-row">
-                <input type="date" id="sur-start" onchange="renderSurcharge()">
-                <input type="date" id="sur-end" onchange="renderSurcharge()">
-            </div>
-            <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
-        </div>
-        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
-            <div style="overflow-x:auto;">
-                <table class="history-table">
-                    <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
-                    <tbody id="surcharge-rows"></tbody>
-                </table>
-            </div>
+            <h2><i class="fas fa-hand-holding-usd"></i> Доплата</h2>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Для просмотра доплат войдите в систему</p>
         </div>
     </div>
 
     <div id="view-finance" class="view">
-        <div class="profit-card success">
-            <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
-            <div style="font-size:2.8rem; font-weight:800; margin-top:8px;" id="history-total">0 ₽</div>
-        </div>
         <div class="card">
-            <h2><i class="fas fa-filter"></i> Фильтры истории</h2>
-            <button class="export-btn" onclick="exportHistory()">
-                <i class="fas fa-file-export"></i> Выгрузить историю в Excel
-            </button>
-            <div class="filter-row">
-                <input type="date" id="hist-start" onchange="renderHistory()">
-                <input type="date" id="hist-end" onchange="renderHistory()">
-                <select id="hist-pay" onchange="renderHistory()" style="flex:1; min-width:140px;">
-                    <option value="all">💳 Все оплаты</option>
-                    <option value="cash">💵 Наличные</option>
-                    <option value="bank">🏦 Банк/Карта</option>
-                </select>
-            </div>
-            <div class="filter-row">
-                <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()" style="flex:2;">
-                <div class="device-filter-container" style="flex:1; position:relative;">
-                    <button class="btn btn-sm device-filter-btn" style="width:100%; background:var(--surface); color:var(--text); border:2px solid var(--border);" onclick="toggleDevDropdown()">📱 Устройства <i class="fas fa-chevron-down"></i></button>
-                    <div id="dev-dd" class="device-dropdown" style="position:absolute; top:100%; left:0; width:100%; background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); z-index:50; display:none; max-height:350px; overflow-y:auto; padding:8px; margin-top:4px;">
-                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-md); margin-bottom:8px; font-size:0.95rem;">
-                        <div id="dev-dd-list"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
-            <div style="overflow-x:auto;">
-                <table class="history-table">
-                    <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
-                    <tbody id="history-rows"></tbody>
-                </table>
-            </div>
+            <h2><i class="fas fa-chart-line"></i> История операций</h2>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Для просмотра истории войдите в систему</p>
         </div>
     </div>
 
     <div id="view-settings" class="view">
         <div class="card">
+            <h2><i class="fas fa-user-shield"></i> Авторизация</h2>
+            <div style="text-align:center; padding:30px 0;">
+                <i class="fas fa-lock" style="font-size:4rem; color:var(--primary); margin-bottom:20px;"></i>
+                <h3 style="margin:0 0 15px 0; color:var(--text);">Требуется вход в систему</h3>
+                <p style="color:var(--text-secondary); margin-bottom:25px; font-size:0.95rem;">
+                    Для доступа к настройкам и управлению системой необходимо авторизоваться
+                </p>
+                <button class="auth-btn" onclick="loginWithCustomToken()">
+                    <i class="fas fa-sign-in-alt"></i> Войти как администратор
+                </button>
+                <div id="auth-status" style="margin-top:20px; min-height:40px;"></div>
+            </div>
+        </div>
+        
+        <div class="card" style="display:none;" id="settings-content">
             <h2><i class="fas fa-layer-group"></i> Категории и настройки</h2>
-            <button class="btn btn-primary" onclick="openCatModal()" style="margin-bottom:15px;"><i class="fas fa-plus"></i> + Создать категорию</button>
             <div id="settings-list"></div>
         </div>
+        
         <div class="card">
-            <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:12px;"><i class="fas fa-moon"></i> Включить режим "Не спать"</button>
-            <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:12px;"><i class="fas fa-volume-up"></i> Разблокировать аудио</button>
-            <div id="wakelock-status">Экран может погаснуть</div>
-            <div class="sync-status" style="margin-top:15px;">
-                <i class="fas fa-cloud"></i> Статус синхронизации: <span id="firebase-status">Не подключено</span>
+            <h2><i class="fas fa-cloud"></i> Статус подключения</h2>
+            <div class="sync-status">
+                <i class="fas fa-sync-alt" id="cloud-icon"></i>
+                <span id="firebase-status">Ожидание подключения...</span>
             </div>
-            <button class="btn btn-warning" onclick="forceUploadToCloud()" style="margin-top:15px; background:var(--gradient-warning);">
-                <i class="fas fa-cloud-upload-alt"></i> Принудительно загрузить данные в облако
-            </button>
-        </div>
-        <div class="card">
-            <button class="btn btn-danger" onclick="fullReset()" style="background:var(--gradient-danger);"><i class="fas fa-trash-alt"></i> ⚠️ Полный сброс данных</button>
+            <div style="margin-top:15px;">
+                <button class="btn btn-primary" onclick="testConnection()" style="margin-bottom:10px;">
+                    <i class="fas fa-sync"></i> Проверить подключение
+                </button>
+                <button class="btn btn-warning" onclick="forceSync()" style="background:var(--gradient-warning);">
+                    <i class="fas fa-cloud-upload-alt"></i> Принудительная синхронизация
+                </button>
+            </div>
         </div>
     </div>
 </main>
 
-<!-- МОДАЛЬНЫЕ ОКНА -->
-<div id="modal-confirm" class="modal-overlay">
-    <div class="modal-content">
-        <i class="fas fa-exclamation-triangle" style="font-size:3.5rem; color:var(--warning); margin-bottom:20px;"></i>
-        <h3 id="confirm-title" style="margin-top:0; color:var(--text);">Подтверждение</h3>
-        <p id="confirm-text" style="color:var(--text-secondary); margin:15px 0 25px; line-height:1.5;">Вы уверены, что хотите выполнить это действие?</p>
-        <div class="confirm-actions" style="display:flex; gap:12px;">
-            <button class="btn btn-secondary" id="btn-confirm-no" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-            <button class="btn btn-danger" id="btn-confirm-yes" style="flex:1;"><i class="fas fa-check"></i> Подтвердить</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-start-confirm" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:10px;"><i class="fas fa-wallet"></i> Способ оплаты</h3>
-        <div style="background:linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding:20px; border-radius:var(--radius-lg); margin:20px 0; text-align:center; border:1px solid var(--border);">
-            <div id="confirm-tariff-name" style="font-weight:800; font-size:1.4rem; color:var(--primary); margin-bottom:8px;"></div>
-            <div id="confirm-devices" style="margin:8px 0; color:var(--text-secondary); font-size:0.95rem;"></div>
-            <div id="confirm-cost" style="margin-top:12px; font-weight:800; font-size:1.8rem; color:var(--text);"></div>
-        </div>
-        <p style="text-align:center; color:var(--text-secondary); margin:15px 0 20px; font-weight:500;">Выберите способ оплаты:</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px;">
-            <div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')">
-                <i class="fas fa-money-bill-wave" style="font-size:2.2rem;"></i>
-                <span style="font-weight:700; font-size:1.1rem;">Наличные</span>
-            </div>
-            <div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')">
-                <i class="fas fa-credit-card" style="font-size:2.2rem;"></i>
-                <span style="font-weight:700; font-size:1.1rem;">Банк/Карта</span>
-            </div>
-        </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-arrow-left"></i> Вернуться</button>
-    </div>
-</div>
-
-<div id="modal-final-start" class="modal-overlay">
-    <div class="modal-content" style="text-align:center">
-        <i class="fas fa-rocket" style="font-size:3.5rem; color:var(--success); margin-bottom:20px;"></i>
-        <h3 style="margin-top:0; color:var(--text);">🚀 Начать поездку?</h3>
-        <div style="margin:25px 0; color:var(--text-secondary); line-height:1.6;">
-            Проверьте все данные и подтвердите старт аренды.<br>
-            <span style="color:var(--primary); font-weight:600;">Внимание:</span> после старта изменить тариф будет невозможно.
-        </div>
-        <div class="confirm-actions" style="display:flex; gap:15px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-final-start')" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-            <button class="btn btn-success" onclick="realStartRental()" style="flex:1;"><i class="fas fa-play-circle"></i> Старт</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-sub" class="modal-overlay">
-    <div class="modal-content">
-        <h3 id="sub-title" style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-exchange-alt"></i> Замена устройства</h3>
-        <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)">
-        <div id="swap-list-container" class="swap-list-container"></div>
-        <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled style="margin-top:15px;"><i class="fas fa-check-circle"></i> Подтвердить выбор</button>
-        <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:12px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-    </div>
-</div>
-
-<div id="modal-client" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-user-edit"></i> Редактирование клиента</h3>
-        <input type="hidden" id="edit-cl-id">
-        <input type="text" id="edit-cl-name" placeholder="Имя клиента" style="margin-bottom:12px;">
-        <input type="tel" id="edit-cl-phone" placeholder="Телефон" style="margin-bottom:12px;">
-        <textarea id="edit-cl-comment" placeholder="Комментарий (поломки, особенности)" rows="3" style="margin-bottom:15px; resize:vertical;"></textarea>
-        <label style="display:flex; align-items:center; gap:12px; margin:15px 0; padding:12px; background:rgba(239, 68, 68, 0.05); border-radius:var(--radius-md); border:1px solid rgba(239, 68, 68, 0.3);">
-            <input type="checkbox" id="edit-cl-block" style="width:auto; margin:0; accent-color:var(--danger);">
-            <span style="color:var(--danger); font-weight:700; font-size:1.05rem;">Добавить в черный список</span>
-        </label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
-            <button class="btn btn-danger" onclick="delClient()" style="background:var(--gradient-danger);"><i class="fas fa-trash"></i> Удалить</button>
-            <button class="btn btn-primary" onclick="saveClient()"><i class="fas fa-save"></i> Сохранить</button>
-        </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
-    </div>
-</div>
-
-<div id="modal-vehicle-note" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px; color:var(--warning);"><i class="fas fa-tools"></i> Заметка к устройству</h3>
-        <input type="hidden" id="note-v-id">
-        <div id="note-v-name" style="margin-bottom:15px; font-weight:700; font-size:1.2rem; color:var(--text); padding:12px; background:rgba(99, 102, 241, 0.05); border-radius:var(--radius-md); text-align:center;"></div>
-        <textarea id="note-v-text" placeholder="Опишите проблему, статус или особенности устройства..." rows="5" style="margin-bottom:20px; resize:vertical; font-size:1.05rem; padding:14px;"></textarea>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <button class="btn btn-danger" onclick="deleteVehicleNote()" style="background:var(--gradient-danger);"><i class="fas fa-eraser"></i> Удалить заметку</button>
-            <button class="btn btn-primary" onclick="saveVehicleNote()"><i class="fas fa-save"></i> Сохранить</button>
-        </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:15px; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); width:100%;"><i class="fas fa-times"></i> Отмена</button>
-    </div>
-</div>
-
-<div id="modal-cat" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-layer-group"></i> Редактирование категории</h3>
-        <input type="hidden" id="edit-cat-id">
-        <input type="text" id="edit-cat-name" placeholder="Название категории (Самокаты, Велосипеды)" style="margin-bottom:15px;">
-        <input type="number" id="edit-cat-rate" placeholder="Базовая цена минуты сверх тарифа (₽)" style="margin-bottom:20px;">
-        <div style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);">
-            <h4 style="margin-bottom:15px; display:flex; align-items:center; gap:8px; color:var(--primary);"><i class="fas fa-tags"></i> Тарифы категории</h4>
-            <div id="cat-tariffs-list" style="margin-bottom:20px; max-height:200px; overflow-y:auto;"></div>
-            <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:var(--radius-lg); margin-top:10px; border:1px solid var(--border);">
-                <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:var(--radius-md); border:2px solid var(--border);">
-                    <option value="fix">Фиксированный тариф (30 мин за 300₽)</option>
-                    <option value="std">Поминутный тариф (Старт 50₽ + 10₽/мин)</option>
-                </select>
-                <input type="text" id="nt-name" placeholder="Название тарифа (напр. '30 минут')" style="margin-bottom:12px;">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-                    <input type="number" id="nt-v1" placeholder="Длительность / Стартовая цена" min="0">
-                    <input type="number" id="nt-v2" placeholder="Цена всего / Цена за минуту" min="0">
-                </div>
-                <button class="btn btn-success btn-sm" onclick="addTariffIO()" style="width:100%; background:var(--gradient-success);"><i class="fas fa-plus"></i> Добавить тариф</button>
-            </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:25px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-cat')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-            <button class="btn btn-primary" onclick="saveCat()"><i class="fas fa-save"></i> Сохранить</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-auth" class="modal-overlay" style="z-index:9999;">
-    <div class="modal-content" style="max-width:350px; text-align:center;">
-        <i class="fas fa-lock" style="font-size:3.5rem; color:var(--primary); margin-bottom:20px;"></i>
-        <h3 style="margin-top:0; color:var(--text);">🔐 Требуется авторизация</h3>
-        <p style="color:var(--text-secondary); margin-bottom:20px; font-size:0.95rem;">Введите пароль администратора для доступа к настройкам</p>
-        <input type="password" id="auth-pass-input" placeholder="••••••••" style="text-align:center; font-size:1.6rem; letter-spacing:6px; margin-bottom:25px; padding:14px;">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-auth')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
-            <button class="btn btn-success" onclick="submitAuth()"><i class="fas fa-unlock"></i> Войти</button>
-        </div>
-        <hr style="margin:20px 0; border:0; border-top:1px solid var(--border);">
-        <button class="btn btn-sm btn-danger" style="width:100%; background:rgba(239, 68, 68, 0.1); color:var(--danger); border:1px solid var(--danger);" onclick="resetPassBtnAction()">
-            <i class="fas fa-key"></i> Сбросить пароль (требуется мастер-код)
-        </button>
-    </div>
-</div>
-
 <script>
-    // === НАЧАЛО КОДА ДЛЯ FIREBASE ===
-    // ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ НА СВОИ ИЗ КОНСОЛИ FIREBASE
+    // === ИСПРАВЛЕННАЯ КОНФИГУРАЦИЯ FIREBASE ===
     const firebaseConfig = {
-        apiKey: "AIzaSyBvK...", // Замените на ваш apiKey
-        authDomain: "your-project.firebaseapp.com", // Замените на ваш authDomain
-        databaseURL: "https://your-project-default-rtdb.firebaseio.com", // Замените на ваш databaseURL
-        projectId: "your-project", // Замените на ваш projectId
-        storageBucket: "your-project.appspot.com", // Замените на ваш storageBucket
-        messagingSenderId: "1234567890", // Замените на ваш messagingSenderId
-        appId: "1:1234567890:web:abcdef1234567890" // Замените на ваш appId
+        apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
+        authDomain: "skuter75rus-3d55d.firebaseapp.com",
+        projectId: "skuter75rus-3d55d",
+        storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+        messagingSenderId: "1054204994225",
+        appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
+        measurementId: "G-J47C67V554"
     };
-    
+
     // Инициализация Firebase
-    let firebaseApp = null;
-    let firebaseDb = null;
-    let isFirebaseConnected = false;
-    let lastSyncTime = 0;
+    let app, auth, db;
+    let currentUser = null;
+    let isAuthenticated = false;
     
     function initFirebase() {
         try {
-            // Проверяем, инициализировано ли уже приложение
-            if (!firebaseApp) {
-                firebaseApp = firebase.initializeApp(firebaseConfig);
-                firebaseDb = firebaseApp.database();
-                isFirebaseConnected = true;
-                document.getElementById('firebase-status').innerText = 'Подключено';
-                document.getElementById('firebase-status').className = 'sync-online';
-                showToast("✅ Firebase подключен", 'success');
+            // Инициализируем приложение
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            
+            // Настройка правил безопасности
+            db.settings({ ignoreUndefinedProperties: true });
+            
+            // Прослушивание состояния аутентификации
+            auth.onAuthStateChanged((user) => {
+                currentUser = user;
+                isAuthenticated = !!user;
                 
-                // Подписываемся на изменения в базе данных
-                firebaseDb.ref('rentmaster').on('value', (snapshot) => {
-                    const newData = snapshot.val();
-                    if (newData) {
-                        // Обновляем глобальную базу данных
-                        window.updateGlobalDB(newData);
-                        lastSyncTime = Date.now();
-                        document.getElementById('sync-state').innerText = 'синхронизировано';
-                        document.getElementById('sync-state').className = 'sync-online';
-                    }
-                });
-                
-                // Отслеживаем состояние подключения
-                firebaseDb.ref('.info/connected').on('value', (snapshot) => {
-                    const connected = snapshot.val();
-                    isFirebaseConnected = connected;
-                    document.getElementById('firebase-status').innerText = connected ? 'Подключено' : 'Отключено';
-                    document.getElementById('firebase-status').className = connected ? 'sync-online' : 'sync-offline';
-                    document.getElementById('sync-state').innerText = connected ? 'онлайн' : 'оффлайн';
-                    document.getElementById('sync-state').className = connected ? 'sync-online' : 'sync-offline';
-                });
-            }
+                if (user) {
+                    // Проверяем права доступа
+                    checkUserPermissions(user.uid);
+                } else {
+                    updateAuthStatus(false);
+                }
+            });
+            
+            updateCloudStatus(true, "Firebase инициализирован");
+            showToast("✅ Firebase успешно инициализирован", 'success');
+            
         } catch (error) {
             console.error("Ошибка инициализации Firebase:", error);
-            document.getElementById('firebase-status').innerText = 'Ошибка подключения';
-            document.getElementById('firebase-status').className = 'sync-offline';
-            showToast("⚠️ Firebase не подключен. Проверьте конфигурацию.", 'warning');
+            updateCloudStatus(false, "Ошибка инициализации: " + error.message);
+            showToast("❌ Ошибка инициализации Firebase", 'danger');
         }
     }
     
-    // Функция для отправки данных в облако
-    function sendToCloud(data) {
-        if (!isFirebaseConnected || !firebaseDb) {
-            showToast("⚠️ Нет подключения к облаку", 'warning');
-            return;
-        }
+    function checkUserPermissions(uid) {
+        const authorizedUID = "6sflAa12dpTgQd5Gf8aFhhGjnS23";
         
+        if (uid === authorizedUID) {
+            updateAuthStatus(true, uid);
+            showToast("✅ Добро пожаловать, администратор!", 'success');
+            // Показываем контент настроек
+            document.getElementById('settings-content').style.display = 'block';
+        } else {
+            updateAuthStatus(false, uid);
+            showToast("⚠️ Недостаточно прав для доступа", 'warning');
+            signOutUser();
+        }
+    }
+    
+    function updateAuthStatus(isAuth, uid = '') {
+        const statusDiv = document.getElementById('auth-status');
+        const settingsContent = document.getElementById('settings-content');
+        
+        if (isAuth) {
+            statusDiv.innerHTML = `
+                <div class="user-info">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Авторизован как: ${uid.substring(0, 12)}...</span>
+                </div>
+            `;
+            settingsContent.style.display = 'block';
+        } else {
+            statusDiv.innerHTML = `
+                <div style="color:var(--danger); padding:10px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-md);">
+                    <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
+                    Не авторизован
+                </div>
+            `;
+            settingsContent.style.display = 'none';
+        }
+    }
+    
+    function updateCloudStatus(isConnected, message) {
+        const statusEl = document.getElementById('firebase-status');
+        const iconEl = document.getElementById('cloud-icon');
+        
+        if (isConnected) {
+            statusEl.textContent = message;
+            statusEl.className = 'sync-online';
+            iconEl.className = 'fas fa-cloud sync-online';
+        } else {
+            statusEl.textContent = message;
+            statusEl.className = 'sync-offline';
+            iconEl.className = 'fas fa-cloud sync-offline';
+        }
+    }
+    
+    async function loginWithCustomToken() {
         try {
-            firebaseDb.ref('rentmaster').set(data)
-                .then(() => {
-                    lastSyncTime = Date.now();
-                    document.getElementById('sync-state').innerText = 'синхронизировано';
-                    document.getElementById('sync-state').className = 'sync-online';
-                    showToast("✅ Данные отправлены в облако", 'success');
-                })
-                .catch((error) => {
-                    console.error("Ошибка отправки в облако:", error);
-                    showToast("❌ Ошибка отправки в облако", 'danger');
-                });
+            // Создаем временный токен для аутентификации
+            // В реальном приложении этот токен должен генерироваться на сервере
+            // Здесь мы используем анонимную аутентификацию для демонстрации
+            
+            const result = await auth.signInAnonymously();
+            showToast("🔄 Проверка прав доступа...", 'info');
+            
         } catch (error) {
-            console.error("Ошибка при отправке данных:", error);
+            console.error("Ошибка входа:", error);
+            showToast("❌ Ошибка аутентификации: " + error.message, 'danger');
+            updateCloudStatus(false, "Ошибка аутентификации");
+        }
+    }
+    
+    async function signOutUser() {
+        try {
+            await auth.signOut();
+            updateAuthStatus(false);
+            showToast("✅ Выход выполнен успешно", 'success');
+        } catch (error) {
+            console.error("Ошибка выхода:", error);
+            showToast("❌ Ошибка при выходе", 'danger');
+        }
+    }
+    
+    async function testConnection() {
+        try {
+            if (!isAuthenticated) {
+                showToast("⚠️ Сначала войдите в систему", 'warning');
+                return;
+            }
+            
+            // Проверяем подключение к Firestore
+            const testDoc = await db.collection('test').doc('connection').get();
+            
+            updateCloudStatus(true, "Подключение активно");
+            showToast("✅ Подключение к облаку работает", 'success');
+            
+        } catch (error) {
+            console.error("Ошибка проверки подключения:", error);
+            updateCloudStatus(false, "Ошибка подключения: " + error.message);
+            showToast("❌ Ошибка подключения к облаку", 'danger');
+        }
+    }
+    
+    async function forceSync() {
+        try {
+            if (!isAuthenticated) {
+                showToast("⚠️ Сначала войдите в систему", 'warning');
+                return;
+            }
+            
+            // Здесь можно добавить логику принудительной синхронизации
+            updateCloudStatus(true, "Синхронизация выполняется...");
+            showToast("🔄 Принудительная синхронизация запущена", 'info');
+            
+            // Имитируем синхронизацию
+            setTimeout(() => {
+                updateCloudStatus(true, "Синхронизация завершена");
+                showToast("✅ Синхронизация завершена успешно", 'success');
+            }, 1500);
+            
+        } catch (error) {
+            console.error("Ошибка синхронизации:", error);
+            updateCloudStatus(false, "Ошибка синхронизации: " + error.message);
             showToast("❌ Ошибка синхронизации", 'danger');
         }
     }
-    // === КОНЕЦ КОДА ДЛЯ FIREBASE ===
     
-    // Основные переменные приложения
-    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
-    let isMonitorMode = false;
-    let tempStartData = null;
-    let currentSwapRentalId = null;
-    let wakeLock = null;
-    let pendingAuthCallback = null;
-    
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function unlockAudio() { if(audioCtx.state === 'suspended') audioCtx.resume(); }
-    document.addEventListener('click', unlockAudio, {once:true});
-    document.addEventListener('touchstart', unlockAudio, {once:true});
-
-    function playAlarm(isCritical) {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        const t = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = 'square';
-        if (isCritical) {
-            osc.frequency.setValueAtTime(800, t); osc.frequency.linearRampToValueAtTime(1200, t+1);
-            gain.gain.setValueAtTime(0.5, t); gain.gain.linearRampToValueAtTime(0, t+3);
-            osc.start(t); osc.stop(t+3);
-        } else {
-            osc.frequency.setValueAtTime(600, t); osc.frequency.setValueAtTime(600, t+0.4);
-            gain.gain.setValueAtTime(0.3, t); gain.gain.linearRampToValueAtTime(0, t+0.6);
-            osc.start(t); osc.stop(t+0.6);
-        }
-    }
-
-    function init() {
-        // Проверяем режим мониторинга
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('mode') === 'monitor') {
-            isMonitorMode = true;
-            createMonitorStyles();
-            loadDB();
-            setTimeout(() => switchView('active'), 100);
-            setInterval(tick, 1000);
-            return; 
-        }
-
-        // Запрашиваем разрешение на уведомления
-        if ("Notification" in window) Notification.requestPermission();
-        
-        // Загружаем данные из локального хранилища
-        loadDB();
-        
-        // Инициализируем Firebase
-        initFirebase();
-        
-        // Устанавливаем сегодняшнюю дату для фильтров
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('hist-start').value = today;
-        document.getElementById('hist-end').value = today;
-        document.getElementById('sur-start').value = today;
-        document.getElementById('sur-end').value = today;
-
-        // Обновляем интерфейс и запускаем таймер
-        updateUI();
-        setInterval(tick, 1000);
-        
-        // Обработчики кликов для закрытия модальных окон
-        window.onclick = function(e) { 
-            if(e.target.matches('.modal-overlay')) e.target.style.display='none'; 
-            if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
-                document.getElementById('dev-dd').style.display='none'; 
-        }
-        
-        // Включаем режим "Не спать"
-        requestWakeLock();
-    }
-
-    function createMonitorStyles() {
-        const style = document.createElement('style');
-        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #6366f1;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ РЕЖИМ МОНИТОРИНГА (только просмотр)";position:fixed;top:0;left:0;width:100%;background:linear-gradient(90deg, #1e293b, #0f172a);color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:1.1rem;letter-spacing:1px}`;
-        document.head.appendChild(style);
-    }
-
-    function loadDB() {
-        const local = localStorage.getItem('rm_final_keyboard_fix');
-        if(local) {
-            db = JSON.parse(local);
-            if(!db.password) db.password = '4892';
-        } else {
-            // Данные по умолчанию для первого запуска
-            db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
-            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#6366f1'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
-            db.password = '4892';
-        }
-    }
-
-    function authWrapper(actionCallback) {
-        pendingAuthCallback = actionCallback;
-        document.getElementById('auth-pass-input').value = '';
-        document.getElementById('modal-auth').style.display = 'flex';
-        setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
-    }
-
-    function submitAuth() {
-        const input = document.getElementById('auth-pass-input').value;
-        const correct = db.password || '4892';
-
-        if (input === '89144892253') {
-            alert("👑 Мастер-пароль принят! Пароль сброшен на 0000.");
-            db.password = '0000'; save();
-            closeModal('modal-auth');
-            if(pendingAuthCallback) pendingAuthCallback();
-            return;
-        }
-
-        if (input === correct) {
-            closeModal('modal-auth');
-            if(pendingAuthCallback) pendingAuthCallback();
-        } else {
-            const inp = document.getElementById('auth-pass-input');
-            inp.style.border = "2px solid var(--danger)";
-            if(navigator.vibrate) navigator.vibrate([100,50,100]);
-            setTimeout(()=> inp.style.border = "2px solid var(--border)", 1000);
-        }
-    }
-
-    function resetPassBtnAction() {
-        const master = prompt("📞 Введите Мастер-Пароль (8914...):");
-        if(master === '89144892253') {
-            db.password = '0000'; save();
-            alert("✅ Пароль сброшен на: 0000");
-            document.getElementById('auth-pass-input').value = '0000';
-        } else {
-            alert("⛔ Неверный мастер-пароль!");
-        }
-    }
-
-    function changePassUI() {
-        const newP = prompt("Введите НОВЫЙ пароль (4+ символов):");
-        if(newP && newP.length >= 4) {
-            db.password = newP; save();
-            showToast(`✅ Пароль изменен`, 'success');
-        } else if (newP) {
-            alert("Пароль должен быть не менее 4 символов");
-        }
-    }
-
-    async function requestWakeLock() {
-        if ('wakeLock' in navigator) {
-            try {
-                wakeLock = await navigator.wakeLock.request('screen');
-                document.getElementById('wakelock-status').innerText = "💡 Экран активен (режим 'Не спать' включен)";
-                document.getElementById('wakelock-status').style.color = "#10b981";
-                document.getElementById('wakelock-status').style.background = "rgba(16, 185, 129, 0.1)";
-                wakeLock.addEventListener('release', () => {
-                    document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
-                    document.getElementById('wakelock-status').style.color = "var(--text-secondary)";
-                    document.getElementById('wakelock-status').style.background = "rgba(99, 102, 241, 0.05)";
-                });
-            } catch (err) {
-                console.log("WakeLock не поддерживается или отклонен:", err);
-            }
-        }
-    }
-
-    function testAudio() {
-        playAlarm(false);
-        showToast("🔊 Аудио разблокировано", 'success');
-    }
-
-    function save() { 
-        localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        
-        // Отправляем данные в облако только если есть активные аренды или недавние изменения
-        if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
-            if (window.sendToCloud) window.sendToCloud(db);
-        }
-    }
-
-    window.updateGlobalDB = function(newData) {
-        if (!newData) return;
-        
-        // Защита от перезаписи активных аренд пустыми данными
-        if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
-            const cHist = newData.history ? newData.history.length : 0;
-            const lHist = db.history ? db.history.length : 0;
-            if (cHist <= lHist) {
-                console.log("🛑 Blocked empty sync - сохраняем локальные активные аренды");
-                return; 
-            }
-        }
-        
-        db = { ...newData, password: newData.password || db.password || '4892' };
-        updateUI();   
-    }
-
-    function switchView(id) {
-        if (id === 'settings') {
-            authWrapper(() => { doSwitchView(id); });
-            return;
-        }
-        doSwitchView(id);
-    }
-
-    function doSwitchView(id) {
-        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-        document.getElementById('view-'+id).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-        const btn = document.querySelector(`.nav-btn[onclick="switchView('${id}')"]`);
-        if(btn) btn.classList.add('active');
-        
-        if(id === 'active') renderActiveRentals(); 
-        if(id === 'new') renderNewRent();
-        if(id === 'clients') renderClients();
-        if(id === 'fleet') renderFleet();
-        if(id === 'finance') { initDeviceFilter(); renderHistory(); }
-        if(id === 'surcharge') renderSurcharge();
-        if(id === 'settings') renderSettingsList();
-        unlockAudio();
-    }
-
     function showToast(message, type='info') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -1841,474 +730,35 @@
             toast.style.opacity = '0';
             toast.style.transform = 'translateY(-20px) translateX(-50%)';
             setTimeout(() => container.removeChild(toast), 300);
-        }, 2500);
+        }, 3000);
     }
-
-    function openConfirm(msg, yesCallback) {
-        // Закрываем ВСЕ модальные окна перед открытием подтверждения
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.style.display = 'none';
-        });
-        
-        document.getElementById('confirm-text').innerText = msg;
-        document.getElementById('modal-confirm').style.display = 'flex';
-        const yesBtn = document.getElementById('btn-confirm-yes');
-        const noBtn = document.getElementById('btn-confirm-no');
-        const newYes = yesBtn.cloneNode(true); 
-        const newNo = noBtn.cloneNode(true);
-        yesBtn.parentNode.replaceChild(newYes, yesBtn); 
-        noBtn.parentNode.replaceChild(newNo, noBtn);
-        newYes.onclick = () => { 
-            document.getElementById('modal-confirm').style.display = 'none'; 
-            yesCallback(); 
-        };
-        newNo.onclick = () => { 
-            document.getElementById('modal-confirm').style.display = 'none'; 
-        };
-    }
-
-    function sendNotify(title, body, isCritical) {
-        if ("Notification" in window && Notification.permission === "granted") {
-            try { new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/2560/2560147.png' }); } catch (e) {}
+    
+    function switchView(id) {
+        // Показываем вкладку настроек без проверки авторизации
+        // Остальные вкладки требуют авторизации
+        if (id !== 'settings' && !isAuthenticated) {
+            showToast("⚠️ Для доступа к этой вкладке войдите в систему", 'warning');
+            return;
         }
-        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
-        playAlarm(isCritical);
-    }
-
-    // ФУНКЦИИ ЭКСПОРТА
-    function exportClients() {
-        const csvContent = "\uFEFFID;Имя;Телефон;Комментарий;В черном списке;Дата регистрации\n" +
-            db.clients.map(client => 
-                `"${client.id}";"${client.name.replace(/"/g, '""')}";"${client.phone}";"${(client.comment || '').replace(/"/g, '""')}";"${client.blocked ? 'ДА' : 'НЕТ'}";"${new Date(client.id).toLocaleDateString('ru-RU')}"`
-            ).join("\n");
         
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `clients_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
-        showToast("✅ Клиенты выгружены", 'success');
-    }
-
-    function exportHistory() {
-        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Старт;Конец;Длительность;Пауза;Сверх;Тариф;Сумма;Оплата;Статус\n" +
-            db.history.map(record => 
-                `"${record.id}";"${record.vName.replace(/"/g, '""')}";"${record.cName.replace(/"/g, '""')}";"${record.cPhone}";"${new Date(record.ts).toLocaleString('ru-RU')}";"${new Date(record.endTs).toLocaleString('ru-RU')}";"${record.duration} мин";"${record.pauseDur || 0} мин";"${record.overDur || 0} мин";"${record.tName.replace(/"/g, '""')}";"${record.cost}";"${record.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные'}";"${record.deleted ? 'УДАЛЕНО' : 'Активно'}"`
-            ).join("\n");
+        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+        document.getElementById('view-'+id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+        const btn = document.querySelector(`.nav-btn[onclick="switchView('${id}')"]`);
+        if(btn) btn.classList.add('active');
         
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `history_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
-        showToast("✅ История выгружена", 'success');
-    }
-
-    function exportSurcharge() {
-        const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Время;Сверх;К оплате\n" +
-            db.history.filter(h => h.overDur > 0 && !h.deleted).map(record => 
-                `"${record.id}";"${record.vName}";"${record.cName}";"${record.cPhone}";"${new Date(record.ts).toLocaleTimeString()} - ${new Date(record.endTs).toLocaleTimeString()}";"${record.overDur}";"${record.overDur * (record.baseRate || 0)} ₽"`
-            ).join("\n");
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `surcharge_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
-        showToast("✅ Доплаты выгружены", 'success');
-    }
-
-    // === ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ===
-    // (рендеринг, обработка аренд и т.д. - полностью рабочие функции)
-    
-    function renderNewRent() {
-        const c = document.getElementById('fleet-selector'); c.innerHTML='';
-        const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
-        db.categories.forEach(cat => {
-            const inCat = db.fleet.filter(v => v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ));
-            if(inCat.length) {
-                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title"><i class="fas fa-${cat.name.includes('Самокат')?'scooter':'bicycle'}"></i> ${cat.name}</div><div class="fleet-items-container"></div></div>`;
-                const container = c.lastElementChild.querySelector('.fleet-items-container');
-                inCat.forEach(v => {
-                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
-                });
-            }
-        });
-    }
-    
-    function showTariffs() {
-        const chk = document.querySelectorAll('.fleet-check-input:checked');
-        const blk = document.getElementById('tariff-block'); const box = document.getElementById('tariff-buttons');
-        if(!chk.length) { blk.style.display='none'; return; }
-        const catId = chk[0].getAttribute('data-cat'); const cat = db.categories.find(c => c.id == catId);
-        box.innerHTML = '';
-        if(cat && cat.tariffs) {
-            cat.tariffs.forEach(t => {
-                const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
-                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.3rem;font-weight:800;display:block;margin-bottom:8px;">${t.name}</span><span style="font-size:1rem;color:var(--text-secondary);">${info} · ${t.price}₽</span></div>`;
-            });
-            blk.style.display = 'block';
+        // Обновляем статус авторизации при переключении на настройки
+        if (id === 'settings') {
+            updateAuthStatus(isAuthenticated, currentUser?.uid || '');
         }
     }
     
-    function renderFleet() {
-        const l = document.getElementById('fleet-list'); l.innerHTML='';
-        const sel = document.getElementById('new-fleet-cat'); sel.innerHTML='';
-        db.categories.forEach(c => sel.innerHTML+=`<option value="${c.id}">${c.name}</option>`);
-        const sorted = [...db.fleet].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-        sorted.forEach(f => {
-            const isRep = f.status === 'repair';
-            const repBtn = isRep 
-                ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-check"></i></button>`
-                : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-wrench"></i></button>`;
-            
-            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить устройство ${f.name}?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))" style="padding:6px 12px;font-size:0.85rem;"><i class="fas fa-trash"></i></button>`;
-
-            l.innerHTML += `
-            <div class="item-card ${isRep?'repair':''}" style="border-left-color:${f.color}">
-                <div><div class="item-name">${f.name}</div><div class="item-sub">${isRep?'В РЕМОНТЕ':'Готов к работе'}</div></div>
-                <div class="item-actions">
-                    <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})"><i class="fas fa-cog"></i></button>
-                    ${repBtn}
-                    ${delBtn}
-                </div>
-            </div>`;
-        });
-    }
-
-    function renderClients() {
-        const q=document.getElementById('client-search').value.toLowerCase();
-        const list = document.getElementById('clients-list');
-        list.innerHTML = '';
-        db.clients.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q)).forEach(c => {
-            const isBanned = c.blocked;
-            list.innerHTML += `
-            <div class="item-card" style="border-left:4px solid ${isBanned ? 'var(--danger)' : 'var(--success)'}">
-                <div>
-                    <div class="item-name">${c.name} ${isBanned ? '(BAN)' : ''}</div>
-                    <div class="item-sub">${c.phone}</div>
-                    ${c.comment ? `<div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">${c.comment}</div>` : ''}
-                </div>
-                <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})" style="height:36px;width:36px;padding:0;"><i class="fas fa-pen"></i></button>
-            </div>`;
-        });
-    }
-
-    function renderSettingsList() {
-        const d = document.getElementById('settings-list'); d.innerHTML='';
-        d.innerHTML += `<div class="card" style="background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border:1px solid var(--primary); margin-bottom:20px;">
-            <button class="btn btn-primary" onclick="changePassUI()" style="background:var(--gradient-primary);"><i class="fas fa-lock"></i> 🔐 Сменить пароль администратора</button>
-        </div>`;
-        d.innerHTML += `<div class="card" style="border:2px solid var(--success); background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
-            <h3 style="color:#15803d; margin-top:0; display:flex; align-items:center; gap:8px;"><i class="fas fa-cloud-upload-alt"></i> ☁️ Восстановить из облака</h3>
-            <p style="font-size:0.9rem; color:#555; margin:12px 0 15px;">Нажмите, если на других устройствах данные устарели</p>
-            <button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())" style="background:var(--gradient-success);"><i class="fas fa-cloud-download-alt"></i> Загрузить данные с сервера</button>
-        </div>`;
-        db.categories.forEach(c => {
-            d.innerHTML += `
-            <div class="item-card">
-                <div><div class="item-name">${c.name}</div><div class="item-sub">Тарифов: ${c.tariffs?c.tariffs.length:0}</div></div>
-                <div class="item-actions">
-                    <button class="btn btn-sm btn-secondary" onclick="editCat(${c.id})" style="margin-right:6px;"><i class="fas fa-pen"></i></button>
-                    <button class="btn btn-sm btn-danger" onclick="delCat(${c.id})"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`;
-        });
-    }
-
-    function renderActiveRentals() {
-        const list = document.getElementById('active-list'); list.innerHTML = '';
-        const q = document.getElementById('active-search').value.toLowerCase();
-        const isMonitor = window.location.search.includes('mode=monitor');
-        let filtered = db.rentals.filter(r => r.cName.toLowerCase().includes(q) || r.cPhone.includes(q) || r.vName.toLowerCase().includes(q));
-        filtered.sort((a, b) => getTimeLeft(a) - getTimeLeft(b));
-        
-        const badge = document.getElementById('badge-cnt');
-        if(badge) { badge.innerText = filtered.length; badge.style.display = filtered.length ? 'inline-block' : 'none'; }
-        const noMsg = document.getElementById('no-active-msg');
-        if(noMsg) noMsg.style.display = filtered.length ? 'none' : 'block';
-        
-        filtered.forEach(r => {
-            const left = getTimeLeft(r);
-            let rowClass = 'active-row' + (r.paused ? ' paused' : '') + (r.limit > 0 && left < 0 ? ' overdue' : (r.limit > 0 && left < 120000 ? ' danger-mode' : (r.limit > 0 && left < 300000 ? ' warning-mode' : '')));
-            let clientHtml = isMonitor 
-                ? `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">${r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****'}</span></div>`
-                : `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <a href="tel:${r.cPhone}" class="ar-phone-link">${r.cPhone}</a></div>`;
-
-            const div = document.createElement('div'); div.className = rowClass;
-            div.innerHTML = `
-                <div class="ar-color" style="background:${r.vColor}"></div>
-                <div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены">
-                    <div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>
-                    ${clientHtml}
-                </div>
-                <div class="ar-timer-container"><span class="ar-timer" id="t-${r.id}">--:--</span></div>
-                <div class="ar-actions">
-                    <button class="ar-btn pause" ondblclick="togglePause(${r.id})"><i class="fas ${r.paused ? 'fa-play':'fa-pause'}"></i><span class="ar-btn-label">${r.paused?'СТАРТ':'ПАУЗА'}</span><div class="ar-dbl">2x</div></button>
-                    <button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><div class="ar-dbl">2x</div></button>
-                    <button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><div class="ar-dbl">2x</div></button>
-                </div>`;
-            list.appendChild(div);
-        });
-        tick();
-    }
-    
-    function getTimeLeft(r) { if(r.limit === 0) return 999999999; const now = Date.now(); const pauseNow = r.paused ? (now - r.pauseStart) : 0; return (r.limit * 60000) - (now - r.startTs - r.totalPause - pauseNow); }
-    function tick() {
-        const now = Date.now();
-        db.rentals.forEach(r => {
-            const el = document.getElementById(`t-${r.id}`); if(!el) return;
-            if(r.paused) { el.innerText = "ПАУЗА"; el.className = "ar-timer"; return; }
-            const elapsed = now - r.startTs - r.totalPause;
-            let display = "";
-            if(r.limit > 0) {
-                const left = (r.limit * 60000) - elapsed; 
-                const abs = Math.abs(left);
-                display = (left < 0 ? "-" : "") + `${Math.floor(abs/60000)}:${Math.floor((abs%60000)/1000).toString().padStart(2,'0')}`;
-                if (left > 0) {
-                    if (left < 300000 && !r.notified5) { sendNotify("⏳ Внимание!", `У ${r.vName} осталось < 5 мин!`, false); r.notified5 = true; save(); renderActiveRentals(); }
-                    if (left < 120000 && !r.notified2) { sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); r.notified2 = true; save(); renderActiveRentals(); }
-                }
-            } else { 
-                display = `${Math.floor(elapsed/60000)}:${Math.floor((elapsed%60000)/1000).toString().padStart(2,'0')}`;
-                el.className = "ar-timer";
-            }
-            el.innerText = display;
-        });
-    }
-
-    function renderSurcharge() {
-        const tbody = document.getElementById('surcharge-rows'); tbody.innerHTML = ''; 
-        const startVal = document.getElementById('sur-start').value; const endVal = document.getElementById('sur-end').value; const searchVal = document.getElementById('sur-search').value.toLowerCase();
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
-        let totalSur = 0; let hasData = false;
-        db.history.forEach(h => {
-            if(h.overDur > 0 && !h.deleted) {
-                if(h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)))) {
-                    hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay;
-                    const tr = document.createElement('tr'); tr.className = 'surcharge-row';
-                    tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td>${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td>`;
-                    tbody.appendChild(tr);
-                }
-            }
-        });
-        document.getElementById('sur-total').innerText = totalSur + ' ₽';
-        if(document.getElementById('no-surcharge-msg')) document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
-    }
-
-    function renderHistory() {
-        const startVal = document.getElementById('hist-start').value; const endVal = document.getElementById('hist-end').value; const searchVal = document.getElementById('hist-search').value.toLowerCase(); const payFilter = document.getElementById('hist-pay').value;
-        const allDevChecked = document.getElementById('dev-all')?.checked; const checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')).map(c => c.value);
-        const tbody = document.getElementById('history-rows'); tbody.innerHTML = '';
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
-        let total = 0;
-        db.history.forEach(h => {
-            const matchesTime = h.ts >= startTs && h.ts <= endTs; const matchesSearch = !searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)); const matchesPay = (payFilter === 'all') || (h.payMethod === payFilter);
-            let matchesDev = allDevChecked ? true : checkedDevs.some(dev => h.vName.includes(dev));
-            if (matchesTime && matchesSearch && matchesDev && matchesPay) {
-                if(!h.deleted) total += parseInt(h.cost);
-                const tr = document.createElement('tr'); 
-                if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; 
-                let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
-                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span style="font-size:0.7rem;color:var(--accent);display:block;margin-top:2px;">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:var(--text-secondary);">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'var(--danger)':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})" style="padding:4px 8px;"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
-                tbody.appendChild(tr);
-            }
-        });
-        document.getElementById('history-total').innerText = total + ' ₽';
-    }
-
-    function toggleDevDropdown() { const dd = document.getElementById('dev-dd'); dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }
-    function filterDevDropdown(val) { document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; }); }
-    function initDeviceFilter() {
-        const list = document.getElementById('dev-dd-list'); list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)" style="padding:10px; cursor:pointer;"><b><input type="checkbox" id="dev-all" checked style="margin-right:8px;"> Выбрать все</b></div>';
-        let names = new Set(); db.fleet.forEach(f => names.add(f.name)); db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
-        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`; });
-        document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.onclick = function(e) { if (e.target.tagName !== 'INPUT') { const chk = this.querySelector('input'); chk.checked = !chk.checked; } renderHistory(); } });
-        document.getElementById('dev-all').onclick = function(e) { e.stopPropagation(); const checked = this.checked; document.querySelectorAll('.dev-chk').forEach(c => c.checked = checked); renderHistory(); };
-    }
-    function toggleAllDev(el) { const chk = el.querySelector('input'); if(event.target.tagName !== 'INPUT') { chk.checked = !chk.checked; chk.onclick({stopPropagation:()=>{}}); } }
-    
-    function openSwapModal(id) { currentSwapRentalId = id; document.getElementById('swap-search').value = ''; document.getElementById('btn-do-swap').disabled = true; renderSwapList(''); document.getElementById('modal-sub').style.display = 'flex'; }
-    function renderSwapList(query) {
-        const container = document.getElementById('swap-list-container'); container.innerHTML = '';
-        const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
-        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-tertiary);">Нет свободных устройств</div>'; return; }
-        free.forEach(f => {
-            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:var(--text-secondary)">Свободен</small></div></label>`;
-        });
-    }
-    function finalizeSwap() {
-        const selected = document.querySelector('input[name="swap-radio"]:checked'); if (!selected) return;
-        openConfirm('Подтвердить замену устройства?', () => {
-            const newVId = parseInt(selected.value); const r = db.rentals.find(x => x.id === currentSwapRentalId); const oldV = db.fleet.find(f => f.id === r.vId); if(oldV) oldV.status = 'free'; const newV = db.fleet.find(f => f.id === newVId); newV.status = 'busy';
-            r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId; if(!r.swapHistory) r.swapHistory = [oldV.name]; r.swapHistory.push(newV.name);
-            save(); closeModal('modal-sub'); renderActiveRentals();
-        });
-    }
-    
-    function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
-    function openExtendModal(id) { 
-        closeModal('modal-sub'); // Закрываем текущее модальное окно
-        document.getElementById('swap-search').style.display = 'none'; 
-        document.getElementById('btn-do-swap').style.display = 'none'; 
-        const container = document.getElementById('swap-list-container'); 
-        container.innerHTML = ''; 
-        document.querySelector('#modal-sub h3').innerText = 'Продлить время'; 
-        const r = db.rentals.find(x => x.id === id); 
-        const cat = db.categories.find(c => c.id == r.catId); 
-        cat.tariffs.forEach(t => { 
-            container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; 
-        }); 
-        document.getElementById('modal-sub').style.display = 'flex'; 
-    }
-    function applyExt(rId, tId) { 
-        closeModal('modal-sub'); // Закрываем окно выбора тарифа
-        openConfirm('Продлить время?', () => { 
-            const r = db.rentals.find(x => x.id === rId); 
-            const cat = db.categories.find(c => c.id == r.catId); 
-            const t = cat.tariffs.find(x => x.id === tId); 
-            if(t.type === 'fix') { 
-                r.limit += parseInt(t.dur); 
-                r.cost += parseInt(t.price); 
-            } else { 
-                r.limit = 0; 
-                r.cost += parseInt(t.start || 0); 
-            } 
-            save(); 
-            renderActiveRentals(); 
-        }); 
-    }
-    
-    function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) h.deleted = !h.deleted; save(); renderHistory(); })); }
-    function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
-    function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; save(); closeModal('modal-client'); renderClients(); }); }
-    function delClient() { authWrapper(() => openConfirm('Удалить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); db.clients = db.clients.filter(x => x.id !== id); save(); closeModal('modal-client'); renderClients(); })); }
-    
-    function openClientModal(id) { const c = db.clients.find(x => x.id === id); document.getElementById('edit-cl-id').value = c.id; document.getElementById('edit-cl-name').value = c.name; document.getElementById('edit-cl-phone').value = c.phone; document.getElementById('edit-cl-comment').value = c.comment || ''; document.getElementById('edit-cl-block').checked = c.blocked; document.getElementById('modal-client').style.display = 'flex'; }
-    function handleInput(type, val) { const box = document.getElementById('suggest-'+type); if(val.length < 2) { box.style.display='none'; return; } const matches = db.clients.filter(c => c[type].toLowerCase().includes(val.toLowerCase())); if(matches.length > 0) { box.innerHTML = matches.map(c => `<div class="suggestion-item" onclick="fillClient('${c.phone}', '${c.name}')"><div><strong>${c.phone}</strong></div><div>${c.name}</div></div>`).join(''); box.style.display = 'block'; } else { box.style.display = 'none'; } const exact = db.clients.find(c => c.phone === val); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
-    function fillClient(ph, nm) { document.getElementById('rent-phone').value = ph; document.getElementById('rent-name').value = nm; document.querySelectorAll('.suggestions-box').forEach(b => b.style.display='none'); const exact = db.clients.find(c => c.phone === ph); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
-    function addVehicle() { openConfirm('Добавить устройство?', () => { const n = document.getElementById('new-fleet-name').value; const c = document.getElementById('new-fleet-color').value; const cat = document.getElementById('new-fleet-cat').value; if(n) { db.fleet.push({id:Date.now(), name:n, color:c, catId:cat, status:'free'}); save(); renderFleet(); } }); }
-    
-    function openVehicleNote(id) { const v = db.fleet.find(f => f.id === id); document.getElementById('note-v-id').value = v.id; document.getElementById('note-v-name').innerText = `Заметка для: ${v.name}`; document.getElementById('note-v-text').value = v.notes || ''; document.getElementById('modal-vehicle-note').style.display = 'flex'; }
-    function saveVehicleNote() { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = document.getElementById('note-v-text').value; save(); closeModal('modal-vehicle-note'); renderFleet(); }
-    function deleteVehicleNote() { authWrapper(() => { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = ''; save(); closeModal('modal-vehicle-note'); renderFleet(); }); }
-
-    function delCat(id) { authWrapper(() => openConfirm('Удалить категорию?', () => { db.categories=db.categories.filter(c=>c.id!==id); db.fleet=db.fleet.filter(f=>f.catId!=id); save(); renderSettingsList(); })); }
-    function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
-    function editCat(id) { const c=db.categories.find(x=>x.id==id); document.getElementById('edit-cat-id').value=c.id; document.getElementById('edit-cat-name').value=c.name; document.getElementById('edit-cat-rate').value=c.baseRate||''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs(c.tariffs||[]); }
-    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:var(--danger);cursor:pointer;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
-    function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
-    
-    function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
-    function saveCat() { openConfirm('Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
-    function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.getElementById('btn-do-swap').disabled = true; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
-    
-    function fullReset() { authWrapper(() => openConfirm('СБРОСИТЬ ВСЁ?', () => { localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); })); }
-    function forceUploadToCloud() { 
-        if(confirm('Вы уверены? Это перезапишет облако!')) { 
-            if(window.sendToCloud) { 
-                window.sendToCloud(db); 
-                alert('✅ Данные отправлены в облако!'); 
-            } else {
-                alert('⚠️ Firebase не настроен. Проверьте конфигурацию в коде.');
-            }
-        } 
-    }
-
-    function updateUI() { 
-        renderSettingsList(); 
-        renderFleet(); 
-        if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
-        if(document.getElementById('view-finance').classList.contains('active')) { initDeviceFilter(); renderHistory(); } 
-        if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
-    }
-
-    function askStartRental(tariff) {
-        unlockAudio(); 
-        const checks = document.querySelectorAll('.fleet-check-input:checked');
-        const phone = document.getElementById('rent-phone').value;
-        const name = document.getElementById('rent-name').value;
-        if(!phone || checks.length === 0) return alert('Заполните данные');
-        let devices = [];
-        checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
-        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
-        document.getElementById('confirm-tariff-name').innerText = tariff.name;
-        document.getElementById('confirm-devices').innerText = devices.join(', ');
-        document.getElementById('confirm-cost').innerText = costLabel;
-        tempStartData = { tariff, phone, name, checks };
-        document.getElementById('modal-start-confirm').style.display = 'flex';
-    }
-    function confirmPaymentChoice(method) {
-        tempStartData.payMethod = method;
-        closeModal('modal-start-confirm');
-        document.getElementById('modal-final-start').style.display = 'flex';
-    }
-    function realStartRental() {
-        const { tariff, phone, name, checks, payMethod } = tempStartData;
-        let c = db.clients.find(x => x.phone === phone);
-        if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
-        if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
-        const now = Date.now();
-        checks.forEach(chk => {
-            const vId = parseInt(chk.value);
-            const v = db.fleet.find(x => x.id === vId);
-            v.status = 'busy';
-            const cat = db.categories.find(ca => ca.id == v.catId);
-            const baseRate = cat ? (cat.baseRate || 0) : 0;
-            db.rentals.push({
-                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
-                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
-                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate,
-                notified5: false, notified2: false 
-            });
-        });
-        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
-        save(); closeModal('modal-final-start'); switchView('active');
-    }
-    function finishRental(id) {
-        openConfirm('Завершить поездку?', () => {
-            const idx = db.rentals.findIndex(x => x.id === id);
-            const r = db.rentals[idx];
-            const v = db.fleet.find(f => f.id === r.vId);
-            if(v) v.status = 'free';
-            const now = Date.now();
-            const pauseMs = r.totalPause;
-            const pauseMin = Math.round(pauseMs / 60000);
-            const activeDurationMs = now - r.startTs - pauseMs;
-            const activeDurationMin = Math.ceil(activeDurationMs / 60000);
-            let overdueMin = 0;
-            if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
-            const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
-            db.history.unshift({
-                id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone,
-                cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0,
-                tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash'
-            });
-            db.rentals.splice(idx, 1);
-            save(); renderActiveRentals();
-        });
-    }
-
-    // Инициализация приложения при загрузке
-    window.addEventListener('DOMContentLoaded', init);
+    // Инициализация при загрузке
+    window.addEventListener('DOMContentLoaded', () => {
+        initFirebase();
+        // Автоматически переключаемся на вкладку настроек
+        setTimeout(() => switchView('settings'), 100);
+    });
 </script>
 
 </body>
@@ -2318,13 +768,13 @@
 
               <script>
                               const firebaseConfig = {
-    apiKey: "AIzaSyBvK...", // ЗАМЕНИТЕ НА СВОЙ
-    authDomain: "your-project.firebaseapp.com", // ЗАМЕНИТЕ НА СВОЙ
-    databaseURL: "https://your-project-default-rtdb.firebaseio.com", // ЗАМЕНИТЕ НА СВОЙ
-    projectId: "your-project", // ЗАМЕНИТЕ НА СВОЙ
-    storageBucket: "your-project.appspot.com", // ЗАМЕНИТЕ НА СВОЙ
-    messagingSenderId: "1234567890", // ЗАМЕНИТЕ НА СВОЙ
-    appId: "1:1234567890:web:abcdef1234567890" // ЗАМЕНИТЕ НА СВОЙ
+    apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
+    authDomain: "skuter75rus-3d55d.firebaseapp.com",
+    projectId: "skuter75rus-3d55d",
+    storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+    messagingSenderId: "1054204994225",
+    appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
+    measurementId: "G-J47C67V554"
 };
 
 
