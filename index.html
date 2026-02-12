@@ -1744,6 +1744,10 @@
     let currentSwapRentalId = null;
     let currentExtendRentalId = null;
     let selectedExtendTime = 0;
+    let firebaseApp = null;
+    let firebaseDb = null;
+    let isFirebaseConnected = false;
+    let lastSyncTime = 0;
     
     // === ИНИЦИАЛИЗАЦИЯ ===
     window.addEventListener('DOMContentLoaded', () => {
@@ -1782,7 +1786,8 @@
             if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
                 document.getElementById('dev-dd').style.display='none'; 
         }
-                // Включаем режим "Не спать"
+        
+        // Включаем режим "Не спать"
         requestWakeLock();        
         // Автоматическое переключение на нужную вкладку
         if (isMonitorMode) {
@@ -1831,7 +1836,8 @@
             document.getElementById('admin-key-input').style.borderColor = "var(--danger)";
             setTimeout(() => {
                 document.getElementById('admin-key-input').style.borderColor = "var(--border)";
-            }, 2000);            return;
+            }, 2000);
+            return;
         }
         
         // ПРОВЕРКА КЛЮЧА: Сравниваем введенный ключ с правильным
@@ -1880,7 +1886,8 @@
             document.getElementById('view-settings').classList.remove('active');
             
             // Скрываем все кнопки, кроме активных аренд
-            document.querySelectorAll('.nav-btn').forEach(btn => {                if (!btn.classList.contains('active')) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (!btn.classList.contains('active')) {
                     btn.style.display = 'none';
                 }
             });
@@ -1929,7 +1936,8 @@
             document.getElementById('settings-content-3').style.display = 'none';
         }
     }
-        function switchView(id) {
+    
+    function switchView(id) {
         // В режиме мониторинга разрешены только активные аренды
         if (isMonitorMode && id !== 'active') {
             showToast("⚠️ В режиме мониторинга доступна только вкладка 'Активные'", 'warning');
@@ -1978,16 +1986,12 @@
         apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
         authDomain: "skuter75rus-3d55d.firebaseapp.com",
         databaseURL: "https://skuter75rus-3d55d-default-rtdb.firebaseio.com",
-        projectId: "skuter75rus-3d55d",        storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+        projectId: "skuter75rus-3d55d",
+        storageBucket: "skuter75rus-3d55d.firebasestorage.app",
         messagingSenderId: "1054204994225",
         appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
         measurementId: "G-J47C67V554"
     };
-    
-    let firebaseApp = null;
-    let firebaseDb = null;
-    let isFirebaseConnected = false;
-    let lastSyncTime = 0;
     
     function initFirebase() {
         try {
@@ -2027,16 +2031,26 @@
             document.getElementById('firebase-status').innerText = 'Ошибка подключения';
             document.getElementById('firebase-status').className = 'sync-offline';
             showToast("⚠️ Firebase не подключен. Проверьте конфигурацию.", 'warning');
-        }    }
+        }
+    }
     
-    // Функция для отправки данных в облако
+    // ИСПРАВЛЕНАЯ ФУНКЦИЯ ОТПРАВКИ В ОБЛАКО
     function sendToCloud(data) {
         if (!isFirebaseConnected || !firebaseDb) {
+            console.error("Firebase не инициализирован или не подключен");
             showToast("⚠️ Нет подключения к облаку", 'warning');
             return;
         }
         
         try {
+            // Проверяем, что данные корректны
+            if (!data || typeof data !== 'object') {
+                console.error("Некорректные данные для отправки в облако");
+                showToast("❌ Некорректные данные для отправки в облако", 'danger');
+                return;
+            }
+            
+            // Отправляем данные в облако
             firebaseDb.ref('rentmaster').set(data)
                 .then(() => {
                     lastSyncTime = Date.now();
@@ -2046,11 +2060,19 @@
                 })
                 .catch((error) => {
                     console.error("Ошибка отправки в облако:", error);
-                    showToast("❌ Ошибка отправки в облако", 'danger');
+                    
+                    // Более детальная обработка ошибок
+                    if (error.code === 'permission-denied') {
+                        showToast("❌ Доступ запрещен. Проверьте настройки Firebase.", 'danger');
+                    } else if (error.code === 'network-request-failed') {
+                        showToast("❌ Проблема с сетью. Проверьте подключение к интернету.", 'danger');
+                    } else {
+                        showToast("❌ Ошибка отправки в облако: " + error.message, 'danger');
+                    }
                 });
         } catch (error) {
             console.error("Ошибка при отправке данных:", error);
-            showToast("❌ Ошибка синхронизации", 'danger');
+            showToast("❌ Ошибка синхронизации: " + error.message, 'danger');
         }
     }
     
@@ -2076,7 +2098,8 @@
             osc.frequency.setValueAtTime(800, t); osc.frequency.linearRampToValueAtTime(1200, t+1);
             gain.gain.setValueAtTime(0.5, t); gain.gain.linearRampToValueAtTime(0, t+3);
             osc.start(t); osc.stop(t+3);
-        } else {            osc.frequency.setValueAtTime(600, t); osc.frequency.setValueAtTime(600, t+0.4);
+        } else {
+            osc.frequency.setValueAtTime(600, t); osc.frequency.setValueAtTime(600, t+0.4);
             gain.gain.setValueAtTime(0.3, t); gain.gain.linearRampToValueAtTime(0, t+0.6);
             osc.start(t); osc.stop(t+0.6);
         }
@@ -2109,7 +2132,13 @@
         
         // Отправляем данные в облако только если есть активные аренды или недавние изменения
         if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
-            sendToCloud(db);
+            // Исправлено: проверяем, что firebaseDb инициализирован
+            if (firebaseDb && firebaseDb.ref) {
+                sendToCloud(db);
+            } else {
+                console.error("Firebase не инициализирован, не можем отправить данные в облако");
+                showToast("⚠️ Firebase не инициализирован, данные сохранены локально", 'warning');
+            }
         }
     }
 
@@ -2125,7 +2154,8 @@
                 return; 
             }
         }
-                db = { ...newData, password: newData.password || db.password || '4892' };
+        
+        db = { ...newData, password: newData.password || db.password || '4892' };
         // Убеждаемся, что все структуры данных инициализированы как массивы
         if(!Array.isArray(db.rentals)) db.rentals = [];
         if(!Array.isArray(db.history)) db.history = [];
@@ -2161,7 +2191,13 @@
     // ИСПРАВЛЕНАЯ ФУНКЦИЯ ВЫГРУЗКИ В ОБЛАКО
     function forceUploadToCloud() { 
         if(confirm('Вы уверены? Это перезапишет облако!')) { 
-            sendToCloud(db); 
+            // Проверяем, что firebaseDb инициализирован
+            if (firebaseDb && firebaseDb.ref) {
+                sendToCloud(db); 
+                showToast("✅ Данные успешно загружены в облако!", 'success');
+            } else {
+                showToast("⚠️ Firebase не инициализирован. Данные не могут быть отправлены в облако", 'warning');
+            }
         } 
     }
 
@@ -2174,7 +2210,8 @@
     
     function updateUI() { 
         renderSettingsList(); 
-        renderFleet();         if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
+        renderFleet(); 
+        if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
         if(document.getElementById('view-finance').classList.contains('active')) { initDeviceFilter(); renderHistory(); } 
         if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
     }
@@ -2223,7 +2260,8 @@
                 inCat.forEach(v => {
                     container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
                 });
-            }        });
+            }
+        });
     }
     
     function showTariffs() {
@@ -2272,7 +2310,8 @@
                     ${repBtn}
                     ${delBtn}
                 </div>
-            </div>`;        });
+            </div>`;
+        });
     }
 
     function renderClients() {
@@ -2321,6 +2360,7 @@
             let clientHtml = isMonitor 
                 ? `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">${r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****'}</span></div>`
                 : `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <a href="tel:${r.cPhone}" class="ar-phone-link">${r.cPhone}</a></div>`;
+
             const div = document.createElement('div'); 
             div.className = rowClass;
             div.innerHTML = `
@@ -2370,7 +2410,8 @@
                         save();
                         renderActiveRentals(); 
                     }
-                    if (left < 120000 && !r.notified2) {                         sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); 
+                    if (left < 120000 && !r.notified2) { 
+                        sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); 
                         r.notified2 = true; 
                         save(); 
                         renderActiveRentals(); 
@@ -2419,7 +2460,8 @@
         if (!isAuthenticated && !isMonitorMode) return;
         
         const startVal = document.getElementById('hist-start').value; 
-        const endVal = document.getElementById('hist-end').value;         const searchVal = document.getElementById('hist-search').value.toLowerCase(); 
+        const endVal = document.getElementById('hist-end').value; 
+        const searchVal = document.getElementById('hist-search').value.toLowerCase(); 
         const payFilter = document.getElementById('hist-pay').value;
         const allDevChecked = document.getElementById('dev-all')?.checked; 
         const checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')).map(c => c.value);
@@ -2468,7 +2510,8 @@
         db.fleet.forEach(f => names.add(f.name));
         db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
         Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { 
-            list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`;         });
+            list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`; 
+        });
         document.querySelectorAll('.dd-item.dev-item').forEach(item => { 
             item.onclick = function(e) { 
                 if (e.target.tagName !== 'INPUT') { 
@@ -2517,7 +2560,8 @@
         openConfirm('Сохранить клиента?', () => {
             const id = parseInt(document.getElementById('edit-cl-id').value); 
             const c = db.clients.find(x => x.id === id); 
-            c.name = document.getElementById('edit-cl-name').value;             c.phone = document.getElementById('edit-cl-phone').value; 
+            c.name = document.getElementById('edit-cl-name').value; 
+            c.phone = document.getElementById('edit-cl-phone').value; 
             c.comment = document.getElementById('edit-cl-comment').value; 
             c.blocked = document.getElementById('edit-cl-block').checked; 
             save(); 
@@ -2566,7 +2610,8 @@
     }
     
     function fillClient(ph, nm) { 
-        document.getElementById('rent-phone').value = ph;         document.getElementById('rent-name').value = nm; 
+        document.getElementById('rent-phone').value = ph; 
+        document.getElementById('rent-name').value = nm; 
         document.querySelectorAll('.suggestions-box').forEach(b => b.style.display='none'); 
         const exact = db.clients.find(c => c.phone === ph); 
         document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; 
@@ -2615,7 +2660,8 @@
         openConfirm('Удалить категорию?', () => {
             db.categories=db.categories.filter(c=>c.id!==id); 
             db.fleet=db.fleet.filter(f=>f.catId!=id); 
-            save();             renderSettingsList(); 
+            save(); 
+            renderSettingsList(); 
         }); 
     }
     
@@ -2664,7 +2710,8 @@
     function saveCat() {
         openConfirm('Сохранить категорию?', () => { 
             const id=document.getElementById('edit-cat-id').value; 
-            const name=document.getElementById('edit-cat-name').value;             const rate=document.getElementById('edit-cat-rate').value; 
+            const name=document.getElementById('edit-cat-name').value; 
+            const rate=document.getElementById('edit-cat-rate').value; 
             if(!name) return alert('Введите имя'); 
             if(id) { 
                 const c=db.categories.find(x=>x.id==id); 
@@ -2713,7 +2760,8 @@
         yesBtn.parentNode.replaceChild(newYes, yesBtn);
         noBtn.parentNode.replaceChild(newNo, noBtn);
         newYes.onclick = () => { 
-            document.getElementById('modal-confirm').style.display = 'none';             yesCallback(); 
+            document.getElementById('modal-confirm').style.display = 'none'; 
+            yesCallback(); 
         };
         newNo.onclick = () => { 
             document.getElementById('modal-confirm').style.display = 'none'; 
@@ -2762,7 +2810,8 @@
                 `"${record.id}";"${record.vName.replace(/"/g, '""')}";"${record.cName.replace(/"/g, '""')}";"${record.cPhone}";"${new Date(record.ts).toLocaleString('ru-RU')}";"${new Date(record.endTs).toLocaleString('ru-RU')}";"${record.duration} мин";"${record.pauseDur || 0} мин";"${record.overDur || 0} мин";"${record.tName.replace(/"/g, '""')}";"${record.cost}";"${record.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные'}";"${record.deleted ? 'УДАЛЕНО' : 'Активно'}"`
             ).join("\n");
         
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });        const url = URL.createObjectURL(blob);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
         link.download = `history_${new Date().toISOString().split('T')[0]}.csv`;
@@ -2811,7 +2860,8 @@
         const exactClient = db.clients.find(c => c.phone === phone);
         if(exactClient && exactClient.blocked) {
             showToast("❌ Клиент в черном списке! Аренда запрещена.", 'danger');
-            return;        }
+            return;
+        }
         let devices = [];
         const checksArray = Array.from(checks); // Преобразуем NodeList в массив
         checksArray.forEach(c => { 
@@ -2860,7 +2910,8 @@
     }
     
     // === ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАПУСКА АРЕНДЫ ===
-    function startRental() {        if (!tempStartData) {
+    function startRental() {
+        if (!tempStartData) {
             showToast("❌ Ошибка: данные аренды утеряны", 'danger');
             document.getElementById('modal-rental-confirm').style.display = 'none';
             return;
@@ -2909,11 +2960,12 @@
                     vColor: v.color,
                     cName: tempStartData.name,
                     cPhone: tempStartData.phone,
-                    startTs: Date.now(),                    limit: limit, // в минутах
+                    startTs: Date.now(),
+                    limit: limit, // в минутах
                     cost: cost,
                     tName: tempStartData.tariff.name,
                     baseRate: baseRate,
-paused: false,
+                    paused: false,
                     totalPause: 0,
                     notified5: false,
                     notified2: false,
@@ -2962,7 +3014,8 @@ paused: false,
                 return;
             }
             const r = db.rentals[idx];
-            const v = db.fleet.find(f => f.id === r.vId);            if(v) v.status = 'free';
+            const v = db.fleet.find(f => f.id === r.vId);
+            if(v) v.status = 'free';
             const now = Date.now();
             const pauseMs = r.totalPause;
             const pauseMin = Math.round(pauseMs / 60000);
@@ -3011,7 +3064,8 @@ paused: false,
     }
     
     function renderSwapList(query) {
-        const container = document.getElementById('swap-list-container');        if (!container) return;
+        const container = document.getElementById('swap-list-container');
+        if (!container) return;
         
         container.innerHTML = '';
         const q = query.toLowerCase();
@@ -3060,7 +3114,8 @@ paused: false,
         // Создаем историю замен, если её еще нет
         if (!rental.swapHistory) {
             rental.swapHistory = [rental.vName];
-        }        
+        }
+        
         // Добавляем новое устройство в историю
         rental.swapHistory.push(newVehicle.name);
         
@@ -3109,7 +3164,8 @@ paused: false,
             <strong>Прошло времени:</strong> ${Math.floor((Date.now() - rental.startTs - rental.totalPause) / 60000)} мин
         `;
         
-        // Открываем модальное окно        document.getElementById('modal-extend-time').style.display = 'flex';
+        // Открываем модальное окно
+        document.getElementById('modal-extend-time').style.display = 'flex';
     }
     
     function selectExtendTime(minutes) {
@@ -3158,7 +3214,8 @@ paused: false,
         }
         
         // Сбрасываем уведомления, так как время продлено
-        rental.notified5 = false;        rental.notified2 = false;
+        rental.notified5 = false;
+        rental.notified2 = false;
         
         // Сохраняем изменения
         save();
@@ -3200,3 +3257,5 @@ paused: false,
         }
     });
 </script>
+
+
