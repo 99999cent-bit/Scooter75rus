@@ -537,8 +537,7 @@
             font-weight: 700;
             color: var(--text);
             margin-bottom: var(--spacing-xs);
-        }
-        .item-sub {
+        }        .item-sub {
             font-size: 0.85rem;
             color: var(--text-secondary);
         }
@@ -586,8 +585,8 @@
             display: none;
             position: fixed;
             top: 0;
-            left: 0;            width: 100%;
-            height: 100%;
+            left: 0;
+            width: 100%;            height: 100%;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
             z-index: var(--z-modal);
@@ -635,8 +634,8 @@
 
         .history-table th {
             background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            text-align: left;            padding: var(--spacing-md) var(--spacing-sm);
-            border-bottom: 2px solid var(--border);
+            text-align: left;
+            padding: var(--spacing-md) var(--spacing-sm);            border-bottom: 2px solid var(--border);
             color: var(--text-secondary);
             position: sticky;
             top: 0;
@@ -685,8 +684,7 @@
             gap: var(--spacing-sm);
             pointer-events: none;
         }
-        .toast {
-            background: var(--surface-dark);
+        .toast {            background: var(--surface-dark);
             color: white;
             padding: var(--spacing-md) var(--spacing-lg);
             border-radius: var(--radius-xl);
@@ -733,9 +731,9 @@
             padding: var(--spacing-xl);
             border-radius: var(--radius-2xl);
             margin-bottom: var(--spacing-md);
-            box-shadow: var(--shadow-xl);            position: relative;
-            overflow: hidden;
-        }
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;        }
 
         .profit-card::before {
             content: '';
@@ -782,9 +780,9 @@
 
         /* ИЗМЕНЕНИЕ: Теперь в строке ровно два тарифа */
         .tariff-grid {
-            display: grid;            grid-template-columns: repeat(2, 1fr); /* Было: repeat(auto-fit, minmax(150px, 1fr)) */
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Было: repeat(auto-fit, minmax(150px, 1fr)) */
+            gap: var(--spacing-md);            margin-top: var(--spacing-md);
         }
 
         .tariff-card {
@@ -831,9 +829,9 @@
         }
 
         .pay-choice-cash {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);            border-color: var(--success);
-            color: var(--success);
-        }
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: var(--success);
+            color: var(--success);        }
 
         .pay-choice-bank {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
@@ -880,9 +878,9 @@
 
         .pay-cash {
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            color: #166534;            border: 1px solid #bbf7d0;
+            color: #166534;
+            border: 1px solid #bbf7d0;
         }
-
         .pay-bank {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             color: #1e40af;
@@ -929,9 +927,9 @@
             background: var(--surface);
         }
 
-        .swap-radio-item:hover {            background: rgba(99, 102, 241, 0.05);
+        .swap-radio-item:hover {
+            background: rgba(99, 102, 241, 0.05);
         }
-
         .swap-radio-input {
             width: 24px;
             height: 24px;
@@ -978,8 +976,8 @@
 
         .fleet-category-block:hover {
             border-color: var(--primary);
-            box-shadow: var(--shadow);        }
-
+            box-shadow: var(--shadow);
+        }
         .fleet-cat-title {
             font-weight: 700;
             margin-bottom: var(--spacing-sm);
@@ -1027,9 +1025,9 @@
         .fleet-check-text {
             font-size: 1rem;
             font-weight: 600;
-            display: flex;            align-items: center;
-            color: var(--text);
-            gap: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            color: var(--text);            gap: var(--spacing-sm);
         }
 
         /* ИСПРАВЛЕНИЕ: Выпадающие списки внутри полей ввода */
@@ -1076,8 +1074,8 @@
             padding: var(--spacing-sm);
             border-radius: var(--radius-md);
             background: rgba(99, 102, 241, 0.05);
-            border: 1px solid var(--border);        }
-
+            border: 1px solid var(--border);
+        }
         /* Кнопки экспорта */
         .export-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -1125,9 +1123,9 @@
         }
 
         /* Стили для авторизации */
-        .auth-required {            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
+        .auth-required {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 1px solid var(--border);            border-radius: var(--radius-lg);
             padding: 30px;
             text-align: center;
             display: block;
@@ -1176,8 +1174,7 @@
             font-size: 1.1rem;
         }
         .user-info {
-            display: flex;
-            align-items: center;
+            display: flex;            align-items: center;
             gap: 8px;
             padding: 8px;
             background: rgba(99, 102, 241, 0.1);
@@ -1226,8 +1223,7 @@
         }
         .extend-btn.selected {
             border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.1);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: rgba(99, 102, 241, 0.1);            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
 
         @media (max-width: 768px) {
@@ -1272,11 +1268,11 @@
             }
             
             .nav-btn {
-                padding: var(--spacing-xs) var(--spacing-sm);                font-size: 0.8rem;
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 0.8rem;
             }
             
-            .active-row {
-                height: 80px;
+            .active-row {                height: 80px;
             }
             
             .ar-actions {
@@ -1321,11 +1317,11 @@
     <div id="view-new" class="view">
         <div class="card">
             <h2><i class="fas fa-file-contract"></i> Оформление аренды</h2>
-            <div class="auth-required" id="new-auth-required">                <i class="fas fa-lock"></i>
+            <div class="auth-required" id="new-auth-required">
+                <i class="fas fa-lock"></i>
                 <h3>Требуется авторизация</h3>
                 <p>Для оформления новой аренды войдите в систему</p>
-                <button class="btn btn-primary" style="margin-top:20px; max-width:300px; margin-left:auto; margin-right:auto;" onclick="openAdminAuthModal()">
-                    <i class="fas fa-key"></i> Войти как администратор
+                <button class="btn btn-primary" style="margin-top:20px; max-width:300px; margin-left:auto; margin-right:auto;" onclick="openAdminAuthModal()">                    <i class="fas fa-key"></i> Войти как администратор
                 </button>
             </div>
             <div id="new-content" style="display:none;">
@@ -1370,11 +1366,11 @@
                 <div id="active-list"></div>
                 <div id="no-active-msg">Нет активных поездок</div>
                 <div class="sync-status" id="sync-status">
-                    <i class="fas fa-sync-alt"></i> Синхронизация: <span id="sync-state">ожидание подключения...</span>                </div>
+                    <i class="fas fa-sync-alt"></i> Синхронизация: <span id="sync-state">ожидание подключения...</span>
+                </div>
             </div>
         </div>
     </div>
-
     <!-- Вкладка Парк устройств -->
     <div id="view-fleet" class="view">
         <div class="card">
@@ -1423,8 +1419,7 @@
     <!-- Вкладка Доплата -->
     <div id="view-surcharge" class="view">
         <div class="card">
-            <h2><i class="fas fa-hand-holding-usd"></i> Доплата</h2>
-            <div class="auth-required" id="surcharge-auth-required">
+            <h2><i class="fas fa-hand-holding-usd"></i> Доплата</h2>            <div class="auth-required" id="surcharge-auth-required">
                 <i class="fas fa-lock"></i>
                 <h3>Требуется авторизация</h3>
                 <p>Для просмотра доплат войдите в систему</p>
@@ -1468,12 +1463,12 @@
                 <i class="fas fa-lock"></i>
                 <h3>Требуется авторизация</h3>
                 <p>Для просмотра истории войдите в систему</p>
-                <button class="btn btn-primary" style="margin-top:20px; max-width:300px; margin-left:auto; margin-right:auto;" onclick="openAdminAuthModal()">                    <i class="fas fa-key"></i> Войти как администратор
+                <button class="btn btn-primary" style="margin-top:20px; max-width:300px; margin-left:auto; margin-right:auto;" onclick="openAdminAuthModal()">
+                    <i class="fas fa-key"></i> Войти как администратор
                 </button>
             </div>
             <div id="finance-content" style="display:none;">
-                <div class="profit-card success">
-                    <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
+                <div class="profit-card success">                    <div style="opacity:0.9; font-size:0.95rem; letter-spacing:0.5px;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
                     <div style="font-size:2.8rem; font-weight:800; margin-top:8px;" id="history-total">0 ₽</div>
                 </div>
                 <div class="card">
@@ -1517,12 +1512,12 @@
     <div id="view-settings" class="view">
         <div class="card">
             <h2><i class="fas fa-layer-group"></i> Категории и настройки</h2>
-            <div class="auth-required" id="settings-auth-required">                <i class="fas fa-lock"></i>
+            <div class="auth-required" id="settings-auth-required">
+                <i class="fas fa-lock"></i>
                 <h3>Требуется авторизация</h3>
                 <p>Для доступа к настройкам войдите в систему</p>
                 <button class="btn btn-primary" style="margin-top:20px; max-width:300px; margin-left:auto; margin-right:auto;" onclick="openAdminAuthModal()">
-                    <i class="fas fa-key"></i> Войти как администратор
-                </button>
+                    <i class="fas fa-key"></i> Войти как администратор                </button>
             </div>
             <div id="settings-content" style="display:none;">
                 <button class="btn btn-primary" onclick="openCatModal()" style="margin-bottom:15px;"><i class="fas fa-plus"></i> + Создать категорию</button>
@@ -1566,12 +1561,12 @@
     </div>
 </main>
 
-<!-- МОДАЛЬНЫЕ ОКНА --><div id="modal-confirm" class="modal-overlay">
+<!-- МОДАЛЬНЫЕ ОКНА -->
+<div id="modal-confirm" class="modal-overlay">
     <div class="modal-content">
         <i class="fas fa-exclamation-triangle" style="font-size:3.5rem; color:var(--warning); margin-bottom:20px;"></i>
         <h3 id="confirm-title" style="margin-top:0; color:var(--text);">Подтверждение</h3>
-        <p id="confirm-text" style="color:var(--text-secondary); margin:15px 0 25px; line-height:1.5;">Вы уверены, что хотите выполнить это действие?</p>
-        <div class="confirm-actions" style="display:flex; gap:12px;">
+        <p id="confirm-text" style="color:var(--text-secondary); margin:15px 0 25px; line-height:1.5;">Вы уверены, что хотите выполнить это действие?</p>        <div class="confirm-actions" style="display:flex; gap:12px;">
             <button class="btn btn-secondary" id="btn-confirm-no" style="flex:1; background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
             <button class="btn btn-danger" id="btn-confirm-yes" style="flex:1;"><i class="fas fa-check"></i> Подтвердить</button>
         </div>
@@ -1615,12 +1610,12 @@
             <div style="background:rgba(99, 102, 241, 0.05); padding:15px; border-radius:var(--radius-lg); margin-top:10px; border:1px solid var(--border);">
                 <select id="nt-type" style="width:100%; margin-bottom:12px; padding:10px; border-radius:var(--radius-md); border:2px solid var(--border);">
                     <option value="fix">Фиксированный тариф (30 мин за 300₽)</option>
-                    <option value="std">Поминутный тариф (Старт 50₽ + 10₽/мин)</option>                </select>
+                    <option value="std">Поминутный тариф (Старт 50₽ + 10₽/мин)</option>
+                </select>
                 <input type="text" id="nt-name" placeholder="Название тарифа (напр. '30 минут')" style="margin-bottom:12px;">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
                     <input type="number" id="nt-v1" placeholder="Длительность / Стартовая цена" min="0">
-                    <input type="number" id="nt-v2" placeholder="Цена всего / Цена за минуту" min="0">
-                </div>
+                    <input type="number" id="nt-v2" placeholder="Цена всего / Цена за минуту" min="0">                </div>
                 <button class="btn btn-success btn-sm" onclick="addTariffIO()" style="width:100%; background:var(--gradient-success);"><i class="fas fa-plus"></i> Добавить тариф</button>
             </div>
         </div>
@@ -1669,8 +1664,7 @@
 <div id="modal-payment-choice" class="modal-overlay">
     <div class="modal-content">
         <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-credit-card"></i> Выберите тип оплаты</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
-            <button class="pay-choice-btn pay-choice-cash" onclick="selectPaymentType('cash')">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">            <button class="pay-choice-btn pay-choice-cash" onclick="selectPaymentType('cash')">
                 <i class="fas fa-money-bill-wave" style="font-size:2.5rem;"></i>
                 <span style="font-size:1.2rem; font-weight:700;">Наличные</span>
             </button>
@@ -1713,12 +1707,12 @@
         <div class="swap-list-container" id="swap-list-container" style="margin-top:10px;">
             <!-- Список устройств будет сгенерирован здесь -->
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">            <button class="btn btn-secondary" onclick="closeModal('modal-swap-device')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+            <button class="btn btn-secondary" onclick="closeModal('modal-swap-device')" style="background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><i class="fas fa-times"></i> Отмена</button>
             <button class="btn btn-primary" id="btn-do-swap" onclick="performSwap()" disabled style="background:var(--gradient-primary);"><i class="fas fa-exchange-alt"></i> Заменить устройство</button>
         </div>
     </div>
 </div>
-
 <!-- Модальное окно для продления времени -->
 <div id="modal-extend-time" class="modal-overlay">
     <div class="modal-content">
@@ -1739,7 +1733,6 @@
         </div>
     </div>
 </div>
-
 </body>
 </html>
 <script>
@@ -1789,8 +1782,7 @@
             if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) 
                 document.getElementById('dev-dd').style.display='none'; 
         }
-        
-        // Включаем режим "Не спать"
+                // Включаем режим "Не спать"
         requestWakeLock();        
         // Автоматическое переключение на нужную вкладку
         if (isMonitorMode) {
@@ -1839,8 +1831,8 @@
             document.getElementById('admin-key-input').style.borderColor = "var(--danger)";
             setTimeout(() => {
                 document.getElementById('admin-key-input').style.borderColor = "var(--border)";
-            }, 2000);
-            return;        }
+            }, 2000);            return;
+        }
         
         // ПРОВЕРКА КЛЮЧА: Сравниваем введенный ключ с правильным
         if (input === ADMIN_KEY) {
@@ -1888,8 +1880,8 @@
             document.getElementById('view-settings').classList.remove('active');
             
             // Скрываем все кнопки, кроме активных аренд
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                if (!btn.classList.contains('active')) {                    btn.style.display = 'none';
+            document.querySelectorAll('.nav-btn').forEach(btn => {                if (!btn.classList.contains('active')) {
+                    btn.style.display = 'none';
                 }
             });
         } else {
@@ -1937,8 +1929,8 @@
             document.getElementById('settings-content-3').style.display = 'none';
         }
     }
-    
-    function switchView(id) {        // В режиме мониторинга разрешены только активные аренды
+        function switchView(id) {
+        // В режиме мониторинга разрешены только активные аренды
         if (isMonitorMode && id !== 'active') {
             showToast("⚠️ В режиме мониторинга доступна только вкладка 'Активные'", 'warning');
             return;
@@ -1986,8 +1978,8 @@
         apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
         authDomain: "skuter75rus-3d55d.firebaseapp.com",
         databaseURL: "https://skuter75rus-3d55d-default-rtdb.firebaseio.com",
-        projectId: "skuter75rus-3d55d",
-        storageBucket: "skuter75rus-3d55d.firebasestorage.app",        messagingSenderId: "1054204994225",
+        projectId: "skuter75rus-3d55d",        storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+        messagingSenderId: "1054204994225",
         appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
         measurementId: "G-J47C67V554"
     };
@@ -2035,8 +2027,8 @@
             document.getElementById('firebase-status').innerText = 'Ошибка подключения';
             document.getElementById('firebase-status').className = 'sync-offline';
             showToast("⚠️ Firebase не подключен. Проверьте конфигурацию.", 'warning');
-        }
-    }    
+        }    }
+    
     // Функция для отправки данных в облако
     function sendToCloud(data) {
         if (!isFirebaseConnected || !firebaseDb) {
@@ -2084,8 +2076,8 @@
             osc.frequency.setValueAtTime(800, t); osc.frequency.linearRampToValueAtTime(1200, t+1);
             gain.gain.setValueAtTime(0.5, t); gain.gain.linearRampToValueAtTime(0, t+3);
             osc.start(t); osc.stop(t+3);
-        } else {
-            osc.frequency.setValueAtTime(600, t); osc.frequency.setValueAtTime(600, t+0.4);            gain.gain.setValueAtTime(0.3, t); gain.gain.linearRampToValueAtTime(0, t+0.6);
+        } else {            osc.frequency.setValueAtTime(600, t); osc.frequency.setValueAtTime(600, t+0.4);
+            gain.gain.setValueAtTime(0.3, t); gain.gain.linearRampToValueAtTime(0, t+0.6);
             osc.start(t); osc.stop(t+0.6);
         }
     }
@@ -2117,7 +2109,7 @@
         
         // Отправляем данные в облако только если есть активные аренды или недавние изменения
         if (db.rentals.length > 0 || (Date.now() - lastSyncTime) > 5000) {
-            if (window.sendToCloud) window.sendToCloud(db);
+            sendToCloud(db);
         }
     }
 
@@ -2133,8 +2125,8 @@
                 return; 
             }
         }
-        
-        db = { ...newData, password: newData.password || db.password || '4892' };        // Убеждаемся, что все структуры данных инициализированы как массивы
+                db = { ...newData, password: newData.password || db.password || '4892' };
+        // Убеждаемся, что все структуры данных инициализированы как массивы
         if(!Array.isArray(db.rentals)) db.rentals = [];
         if(!Array.isArray(db.history)) db.history = [];
         if(!Array.isArray(db.clients)) db.clients = [];
@@ -2166,14 +2158,10 @@
         }
     }
 
+    // ИСПРАВЛЕНАЯ ФУНКЦИЯ ВЫГРУЗКИ В ОБЛАКО
     function forceUploadToCloud() { 
         if(confirm('Вы уверены? Это перезапишет облако!')) { 
-            if(window.sendToCloud) { 
-                window.sendToCloud(db); 
-                alert('✅ Данные отправлены в облако!'); 
-            } else {
-                alert('⚠️ Firebase не настроен. Проверьте конфигурацию в коде.');
-            }
+            sendToCloud(db); 
         } 
     }
 
@@ -2183,10 +2171,10 @@
             location.reload(); 
         } 
     }
+    
     function updateUI() { 
         renderSettingsList(); 
-        renderFleet(); 
-        if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
+        renderFleet();         if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
         if(document.getElementById('view-finance').classList.contains('active')) { initDeviceFilter(); renderHistory(); } 
         if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
     }
@@ -2232,10 +2220,10 @@
             if(inCat.length) {
                 c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title"><i class="fas fa-${cat.name.includes('Самокат')?'scooter':'bicycle'}"></i> ${cat.name}</div><div class="fleet-items-container"></div></div>`;
                 const container = c.lastElementChild.querySelector('.fleet-items-container');
-                inCat.forEach(v => {                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
+                inCat.forEach(v => {
+                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
                 });
-            }
-        });
+            }        });
     }
     
     function showTariffs() {
@@ -2281,10 +2269,10 @@
                 <div><div class="item-name">${f.name}</div><div class="item-sub">${isRep?'В РЕМОНТЕ':'Готов к работе'}</div></div>
                 <div class="item-actions">
                     <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})"><i class="fas fa-cog"></i></button>
-                    ${repBtn}                    ${delBtn}
+                    ${repBtn}
+                    ${delBtn}
                 </div>
-            </div>`;
-        });
+            </div>`;        });
     }
 
     function renderClients() {
@@ -2330,9 +2318,9 @@
         filtered.forEach(r => {
             const left = getTimeLeft(r);
             let rowClass = 'active-row' + (r.paused ? ' paused' : '') + (r.limit > 0 && left < 0 ? ' overdue' : (r.limit > 0 && left < 120000 ? ' danger-mode' : (r.limit > 0 && left < 300000 ? ' warning-mode' : '')));
-            let clientHtml = isMonitor                 ? `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">${r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****'}</span></div>`
+            let clientHtml = isMonitor 
+                ? `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">${r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****'}</span></div>`
                 : `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <a href="tel:${r.cPhone}" class="ar-phone-link">${r.cPhone}</a></div>`;
-
             const div = document.createElement('div'); 
             div.className = rowClass;
             div.innerHTML = `
@@ -2379,10 +2367,10 @@
                     if (left < 300000 && !r.notified5) { 
                         sendNotify("⏳ Внимание!", `У ${r.vName} осталось < 5 мин!`, false); 
                         r.notified5 = true; 
-                        save();                         renderActiveRentals(); 
+                        save();
+                        renderActiveRentals(); 
                     }
-                    if (left < 120000 && !r.notified2) { 
-                        sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); 
+                    if (left < 120000 && !r.notified2) {                         sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); 
                         r.notified2 = true; 
                         save(); 
                         renderActiveRentals(); 
@@ -2428,10 +2416,10 @@
     }
 
     function renderHistory() {
-        if (!isAuthenticated && !isMonitorMode) return;        
+        if (!isAuthenticated && !isMonitorMode) return;
+        
         const startVal = document.getElementById('hist-start').value; 
-        const endVal = document.getElementById('hist-end').value; 
-        const searchVal = document.getElementById('hist-search').value.toLowerCase(); 
+        const endVal = document.getElementById('hist-end').value;         const searchVal = document.getElementById('hist-search').value.toLowerCase(); 
         const payFilter = document.getElementById('hist-pay').value;
         const allDevChecked = document.getElementById('dev-all')?.checked; 
         const checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')).map(c => c.value);
@@ -2477,10 +2465,10 @@
         
         list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)" style="padding:10px; cursor:pointer;"><b><input type="checkbox" id="dev-all" checked style="margin-right:8px;"> Выбрать все</b></div>';
         let names = new Set(); 
-        db.fleet.forEach(f => names.add(f.name));         db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
+        db.fleet.forEach(f => names.add(f.name));
+        db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
         Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { 
-            list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`; 
-        });
+            list.innerHTML += `<div class="dd-item dev-item" style="padding:8px; border-bottom:1px solid var(--border); cursor:pointer;"><input type="checkbox" class="dev-chk" value="${n}" checked style="margin-right:8px;"> <label>${n}</label></div>`;         });
         document.querySelectorAll('.dd-item.dev-item').forEach(item => { 
             item.onclick = function(e) { 
                 if (e.target.tagName !== 'INPUT') { 
@@ -2526,10 +2514,10 @@
     }
     
     function saveClient() { 
-        openConfirm('Сохранить клиента?', () => {             const id = parseInt(document.getElementById('edit-cl-id').value); 
+        openConfirm('Сохранить клиента?', () => {
+            const id = parseInt(document.getElementById('edit-cl-id').value); 
             const c = db.clients.find(x => x.id === id); 
-            c.name = document.getElementById('edit-cl-name').value; 
-            c.phone = document.getElementById('edit-cl-phone').value; 
+            c.name = document.getElementById('edit-cl-name').value;             c.phone = document.getElementById('edit-cl-phone').value; 
             c.comment = document.getElementById('edit-cl-comment').value; 
             c.blocked = document.getElementById('edit-cl-block').checked; 
             save(); 
@@ -2575,10 +2563,10 @@
         } 
         const exact = db.clients.find(c => c.phone === val); 
         document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; 
-    }    
+    }
+    
     function fillClient(ph, nm) { 
-        document.getElementById('rent-phone').value = ph; 
-        document.getElementById('rent-name').value = nm; 
+        document.getElementById('rent-phone').value = ph;         document.getElementById('rent-name').value = nm; 
         document.querySelectorAll('.suggestions-box').forEach(b => b.style.display='none'); 
         const exact = db.clients.find(c => c.phone === ph); 
         document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; 
@@ -2624,10 +2612,10 @@
     }
 
     function delCat(id) { 
-        openConfirm('Удалить категорию?', () => {             db.categories=db.categories.filter(c=>c.id!==id); 
+        openConfirm('Удалить категорию?', () => {
+            db.categories=db.categories.filter(c=>c.id!==id); 
             db.fleet=db.fleet.filter(f=>f.catId!=id); 
-            save(); 
-            renderSettingsList(); 
+            save();             renderSettingsList(); 
         }); 
     }
     
@@ -2673,10 +2661,10 @@
         }); 
     }
     
-    function saveCat() {         openConfirm('Сохранить категорию?', () => { 
+    function saveCat() {
+        openConfirm('Сохранить категорию?', () => { 
             const id=document.getElementById('edit-cat-id').value; 
-            const name=document.getElementById('edit-cat-name').value; 
-            const rate=document.getElementById('edit-cat-rate').value; 
+            const name=document.getElementById('edit-cat-name').value;             const rate=document.getElementById('edit-cat-rate').value; 
             if(!name) return alert('Введите имя'); 
             if(id) { 
                 const c=db.categories.find(x=>x.id==id); 
@@ -2722,10 +2710,10 @@
         const noBtn = document.getElementById('btn-confirm-no');
         const newYes = yesBtn.cloneNode(true); 
         const newNo = noBtn.cloneNode(true);
-        yesBtn.parentNode.replaceChild(newYes, yesBtn);         noBtn.parentNode.replaceChild(newNo, noBtn);
+        yesBtn.parentNode.replaceChild(newYes, yesBtn);
+        noBtn.parentNode.replaceChild(newNo, noBtn);
         newYes.onclick = () => { 
-            document.getElementById('modal-confirm').style.display = 'none'; 
-            yesCallback(); 
+            document.getElementById('modal-confirm').style.display = 'none';             yesCallback(); 
         };
         newNo.onclick = () => { 
             document.getElementById('modal-confirm').style.display = 'none'; 
@@ -2771,10 +2759,10 @@
         
         const csvContent = "\uFEFFID;Устройство;Клиент;Телефон;Старт;Конец;Длительность;Пауза;Сверх;Тариф;Сумма;Оплата;Статус\n" +
             db.history.map(record => 
-                `"${record.id}";"${record.vName.replace(/"/g, '""')}";"${record.cName.replace(/"/g, '""')}";"${record.cPhone}";"${new Date(record.ts).toLocaleString('ru-RU')}";"${new Date(record.endTs).toLocaleString('ru-RU')}";"${record.duration} мин";"${record.pauseDur || 0} мин";"${record.overDur || 0} мин";"${record.tName.replace(/"/g, '""')}";"${record.cost}";"${record.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные'}";"${record.deleted ? 'УДАЛЕНО' : 'Активно'}"`            ).join("\n");
+                `"${record.id}";"${record.vName.replace(/"/g, '""')}";"${record.cName.replace(/"/g, '""')}";"${record.cPhone}";"${new Date(record.ts).toLocaleString('ru-RU')}";"${new Date(record.endTs).toLocaleString('ru-RU')}";"${record.duration} мин";"${record.pauseDur || 0} мин";"${record.overDur || 0} мин";"${record.tName.replace(/"/g, '""')}";"${record.cost}";"${record.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные'}";"${record.deleted ? 'УДАЛЕНО' : 'Активно'}"`
+            ).join("\n");
         
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
         link.download = `history_${new Date().toISOString().split('T')[0]}.csv`;
@@ -2820,10 +2808,10 @@
             return;
         }
         // Проверка на черный список
-        const exactClient = db.clients.find(c => c.phone === phone);        if(exactClient && exactClient.blocked) {
+        const exactClient = db.clients.find(c => c.phone === phone);
+        if(exactClient && exactClient.blocked) {
             showToast("❌ Клиент в черном списке! Аренда запрещена.", 'danger');
-            return;
-        }
+            return;        }
         let devices = [];
         const checksArray = Array.from(checks); // Преобразуем NodeList в массив
         checksArray.forEach(c => { 
@@ -2869,10 +2857,10 @@
         // Закрываем окно выбора оплаты и открываем окно подтверждения
         document.getElementById('modal-payment-choice').style.display = 'none';
         document.getElementById('modal-rental-confirm').style.display = 'flex';
-    }    
+    }
+    
     // === ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАПУСКА АРЕНДЫ ===
-    function startRental() {
-        if (!tempStartData) {
+    function startRental() {        if (!tempStartData) {
             showToast("❌ Ошибка: данные аренды утеряны", 'danger');
             document.getElementById('modal-rental-confirm').style.display = 'none';
             return;
@@ -2918,14 +2906,14 @@
                     id: rentalId,
                     vId: v.id,
                     vName: v.name,
-                    vColor: v.color,                    cName: tempStartData.name,
+                    vColor: v.color,
+                    cName: tempStartData.name,
                     cPhone: tempStartData.phone,
-                    startTs: Date.now(),
-                    limit: limit, // в минутах
+                    startTs: Date.now(),                    limit: limit, // в минутах
                     cost: cost,
                     tName: tempStartData.tariff.name,
                     baseRate: baseRate,
-                    paused: false,
+paused: false,
                     totalPause: 0,
                     notified5: false,
                     notified2: false,
@@ -2974,8 +2962,7 @@
                 return;
             }
             const r = db.rentals[idx];
-            const v = db.fleet.find(f => f.id === r.vId);
-            if(v) v.status = 'free';
+            const v = db.fleet.find(f => f.id === r.vId);            if(v) v.status = 'free';
             const now = Date.now();
             const pauseMs = r.totalPause;
             const pauseMin = Math.round(pauseMs / 60000);
@@ -3001,46 +2988,204 @@
         });
     }
     
-    function openSwapModal(id) { 
-        currentSwapRentalId = id; 
-        document.getElementById('swap-search').value = ''; 
-        document.getElementById('btn-do-swap').disabled = true; 
-        renderSwapList(''); 
-        // document.getElementById('modal-sub').style.display = 'flex'; // Закомментировано, т.к. модальное окно не реализовано в текущей версии
+    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАМЕНЫ УСТРОЙСТВА ===
+    function openSwapModal(id) {
+        const rental = db.rentals.find(x => x.id === id);
+        if (!rental) {
+            showToast("❌ Аренда не найдена", 'danger');
+            return;
+        }
+        
+        currentSwapRentalId = id;
+        document.getElementById('swap-search').value = '';
+        document.getElementById('btn-do-swap').disabled = true;
+        
+        // Показываем текущее устройство
+        document.getElementById('swap-current-device').innerText = `Текущее устройство: ${rental.vName}`;
+        
+        // Открываем модальное окно
+        document.getElementById('modal-swap-device').style.display = 'flex';
+        
+        // Рендерим список доступных устройств
+        renderSwapList('');
     }
     
     function renderSwapList(query) {
-        const container = document.getElementById('swap-list-container'); 
-        if (!container) return;
+        const container = document.getElementById('swap-list-container');        if (!container) return;
         
         container.innerHTML = '';
-        const q = query.toLowerCase(); 
+        const q = query.toLowerCase();
         const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
-        if(free.length === 0) { 
-            container.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-tertiary);">Нет свободных устройств</div>'; 
-            return; 
+        
+        if (free.length === 0) {
+            container.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-tertiary);">Нет свободных устройств</div>';
+            return;
         }
+        
         free.forEach(f => {
-            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:var(--text-secondary)">Свободен</small></div></label>`;
+            container.innerHTML += `
+                <label class="swap-radio-item">
+                    <input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false">
+                    <div>
+                        <div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div>
+                        <small style="color:var(--text-secondary)">Свободен</small>
+                    </div>
+                </label>`;
         });
     }
     
-    function togglePause(id) { 
-        const r = db.rentals.find(x => x.id === id); 
-        if(!r) return;
-        if(r.paused) { 
-            r.totalPause += (Date.now() - r.pauseStart); 
-            r.paused = false; 
-        } else { 
-            r.pauseStart = Date.now(); 
-            r.paused = true; 
-        } 
-        save(); 
-        renderActiveRentals(); 
+    function performSwap() {
+        const selectedRadio = document.querySelector('input[name="swap-radio"]:checked');
+        if (!selectedRadio) {
+            showToast("⚠️ Выберите устройство для замены", 'warning');
+            return;
+        }
+        
+        const newVehicleId = parseInt(selectedRadio.value);
+        const rental = db.rentals.find(x => x.id === currentSwapRentalId);
+        
+        if (!rental) {
+            showToast("❌ Аренда не найдена", 'danger');
+            return;
+        }
+        
+        const oldVehicle = db.fleet.find(f => f.id === rental.vId);
+        const newVehicle = db.fleet.find(f => f.id === newVehicleId);
+        
+        if (!oldVehicle || !newVehicle) {
+            showToast("❌ Ошибка: устройство не найдено", 'danger');
+            return;
+        }
+        
+        // Создаем историю замен, если её еще нет
+        if (!rental.swapHistory) {
+            rental.swapHistory = [rental.vName];
+        }        
+        // Добавляем новое устройство в историю
+        rental.swapHistory.push(newVehicle.name);
+        
+        // Меняем статусы устройств
+        oldVehicle.status = 'free';
+        newVehicle.status = 'busy';
+        
+        // Обновляем данные аренды
+        rental.vId = newVehicle.id;
+        rental.vName = newVehicle.name;
+        rental.vColor = newVehicle.color;
+        
+        // Сохраняем изменения
+        save();
+        
+        // Закрываем модальное окно
+        closeModal('modal-swap-device');
+        
+        // Обновляем интерфейс
+        renderActiveRentals();
+        
+        showToast(`✅ Устройство заменено: ${oldVehicle.name} → ${newVehicle.name}`, 'success');
     }
     
-    function openExtendModal(id) { 
-        alert('Функция продления времени будет доступна после полной реализации системы');
+    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ПРОДЛЕНИЯ ВРЕМЕНИ ===
+    function openExtendModal(id) {
+        const rental = db.rentals.find(x => x.id === id);
+        if (!rental) {
+            showToast("❌ Аренда не найдена", 'danger');
+            return;
+        }
+        
+        currentExtendRentalId = id;
+        selectedExtendTime = 0;
+        
+        // Очищаем выделение кнопок
+        document.querySelectorAll('.extend-btn').forEach(btn => btn.classList.remove('selected'));
+        document.getElementById('custom-extend-time').value = '';
+        
+        // Показываем информацию об арендованном устройстве
+        const currentMinutes = rental.limit > 0 ? rental.limit : 'Безлимит';
+        document.getElementById('extend-current-info').innerHTML = `
+            <strong>Устройство:</strong> ${rental.vName}<br>
+            <strong>Клиент:</strong> ${rental.cName}<br>
+            <strong>Текущий лимит:</strong> ${currentMinutes} мин<br>
+            <strong>Прошло времени:</strong> ${Math.floor((Date.now() - rental.startTs - rental.totalPause) / 60000)} мин
+        `;
+        
+        // Открываем модальное окно        document.getElementById('modal-extend-time').style.display = 'flex';
+    }
+    
+    function selectExtendTime(minutes) {
+        selectedExtendTime = minutes;
+        
+        // Убираем выделение со всех кнопок
+        document.querySelectorAll('.extend-btn').forEach(btn => btn.classList.remove('selected'));
+        
+        // Находим и выделяем нажатую кнопку
+        const buttons = document.querySelectorAll('.extend-btn');
+        for (let btn of buttons) {
+            if (btn.textContent.includes(`+${minutes} мин`)) {
+                btn.classList.add('selected');
+                break;
+            }
+        }
+        
+        // Очищаем кастомное поле
+        document.getElementById('custom-extend-time').value = '';
+    }
+    
+    function performExtend() {
+        // Получаем время из кастомного поля, если оно заполнено
+        const customTime = parseInt(document.getElementById('custom-extend-time').value);
+        if (customTime && customTime > 0) {
+            selectedExtendTime = customTime;
+        }
+        
+        if (selectedExtendTime <= 0) {
+            showToast("⚠️ Выберите время для продления", 'warning');
+            return;
+        }
+        
+        const rental = db.rentals.find(x => x.id === currentExtendRentalId);
+        if (!rental) {
+            showToast("❌ Аренда не найдена", 'danger');
+            return;
+        }
+        
+        // Если это безлимитная аренда (лимит = 0), устанавливаем новый лимит
+        if (rental.limit === 0) {
+            rental.limit = selectedExtendTime;
+        } else {
+            // Иначе добавляем время к существующему лимиту
+            rental.limit += selectedExtendTime;
+        }
+        
+        // Сбрасываем уведомления, так как время продлено
+        rental.notified5 = false;        rental.notified2 = false;
+        
+        // Сохраняем изменения
+        save();
+        
+        // Закрываем модальное окно
+        closeModal('modal-extend-time');
+        
+        // Обновляем интерфейс
+        renderActiveRentals();
+        
+        showToast(`✅ Время аренды продлено на ${selectedExtendTime} мин`, 'success');
+    }
+    
+    function togglePause(id) {
+        const r = db.rentals.find(x => x.id === id);
+        if (!r) return;
+        
+        if (r.paused) {
+            r.totalPause += (Date.now() - r.pauseStart);
+            r.paused = false;
+        } else {
+            r.pauseStart = Date.now();
+            r.paused = true;
+        }
+        
+        save();
+        renderActiveRentals();
     }
     
     // Обработка нажатия Enter в поле ввода ключа
@@ -3055,5 +3200,3 @@
         }
     });
 </script>
-
-
