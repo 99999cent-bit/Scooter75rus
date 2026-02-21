@@ -13,15 +13,29 @@
             --repair-bg: #fef08a; --repair-border: #eab308;
             --deleted-text: #94a3b8;
         }
+        html {
+            overscroll-behavior: none; /* Запрет pull-to-refresh на уровне HTML */
+        }
         body { 
             font-family: 'Segoe UI', Roboto, sans-serif; 
             background: var(--bg); color: var(--text); 
-            margin: 0; height: 100dvh; 
-            display: flex; flex-direction: column; 
+            margin: 0; 
+            height: 100dvh; width: 100vw;
             overflow: hidden; user-select: none; 
             -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior: none; /* Запрет pull-to-refresh на уровне Body */
         }
         
+        /* НОВАЯ ОБЕРТКА ДЛЯ ИДЕАЛЬНОГО МАСШТАБА */
+        #app-wrapper {
+            position: absolute; top: 0; left: 0;
+            transform-origin: top left;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+            overscroll-behavior: none;
+        }
+
         /* HEADER */
         header { background: var(--surface); padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; z-index: 20; }
         .nav-btn { background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; color: #475569; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: 0.2s; font-size: 0.9rem; }
@@ -35,6 +49,8 @@
             overflow-y: auto; 
             max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; 
             scroll-behavior: smooth; 
+            overscroll-behavior-y: contain; /* Оставляем скролл только внутри main, не передаем его выше */
+            -webkit-overflow-scrolling: touch; /* Плавный скролл для iOS */
         }
         .view { display: none; }
         .view.active { display: block; animation: fadeIn 0.2s; }
@@ -66,16 +82,19 @@
         .ar-device { font-size: 1.6rem; font-weight: 800; color: inherit; line-height: 1; margin-bottom: 4px; }
         .ar-client-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: inherit; opacity: 0.9; }
         .ar-phone-link { color: inherit; text-decoration: none; font-weight: 600; border-bottom: 1px dashed currentColor; }
-        .ar-timer-container { flex: 1; text-align: right; padding-right: 15px; }
+        
+        .ar-timer-container { flex: 1; text-align: right; padding-right: 15px; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .ar-timer-container:active { opacity: 0.5; }
         .ar-timer { font-family: 'Courier New', monospace; font-size: 2.8rem; font-weight: 700; color: inherit; line-height: 1; }
+        
         .ar-actions { display: flex; height: 100%; background: rgba(0,0,0,0.3); border-left: 1px solid rgba(255,255,255,0.1); width: 180px; flex-shrink: 0; }
         .ar-btn { flex: 1; border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.1); padding: 0; transition: 0.1s; }
         .ar-btn:active { opacity: 0.7; }
-        .ar-btn.pause { background: #ca8a04; color: #fff; }
+        .ar-btn.relay { background: #8b5cf6; color: #fff; } 
         .ar-btn.extend { background: #2563eb; color: #fff; }
         .ar-btn.finish { background: #dc2626; color: #fff; }
         .ar-btn i { font-size: 1.2rem; margin-bottom: 4px; }
-        .ar-btn-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; }
+        .ar-btn-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; text-align: center; }
         .ar-dbl { font-size: 0.5rem; opacity: 0.6; }
         .active-row.paused { background: #3f3f2a; }
 
@@ -151,295 +170,326 @@
         .toast.danger { border-left: 6px solid var(--danger); background: #7f1d1d; }
         @keyframes slideDown { from { transform: translateY(-20px) translateX(-50%); opacity: 0; } to { transform: translateY(0) translateX(-50%); opacity: 1; } }
         
-        /* WAKE LOCK STATUS */
         #wakelock-status { font-size: 0.7rem; color: #64748b; text-align: center; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-<div id="global-login" class="modal-overlay" style="z-index: 100000; background: #0f172a; display: flex; flex-direction: column;">
-    <div class="modal-content" style="text-align:center; max-width: 320px;">
-        <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-        <h2 style="margin-top:0; color: #1e293b;">Prokat Erofei</h2>
-        <p style="color:#64748b; margin-bottom: 20px;">Вход в систему</p>
-        <input type="email" id="admin-email" placeholder="Email администратора" style="text-align:center; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
-        <input type="password" id="admin-password" placeholder="Пароль" style="text-align:center; font-size:1.2rem; letter-spacing: 2px; width: 100%; box-sizing: border-box;">
-        <button class="btn btn-primary" id="btn-global-login" onclick="window.loginFirebase()" style="margin-top:15px; padding: 15px; width: 100%;">Войти</button>
-        <p id="global-login-error" style="color:var(--danger); display:none; margin-top:10px; font-size:0.9rem; font-weight:bold;">Ошибка входа!</p>
+<div id="app-wrapper">
+
+    <div id="global-login" class="modal-overlay" style="z-index: 100000; background: #0f172a; display: flex; flex-direction: column;">
+        <div class="modal-content" style="text-align:center; max-width: 320px;">
+            <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+            <h2 style="margin-top:0; color: #1e293b;">Prokat Erofei</h2>
+            <p style="color:#64748b; margin-bottom: 20px;">Вход в систему</p>
+            <input type="email" id="admin-email" placeholder="Email администратора" style="text-align:center; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
+            <input type="password" id="admin-password" placeholder="Пароль" style="text-align:center; font-size:1.2rem; letter-spacing: 2px; width: 100%; box-sizing: border-box;">
+            <button class="btn btn-primary" id="btn-global-login" onclick="window.loginFirebase()" style="margin-top:15px; padding: 15px; width: 100%;">Войти</button>
+            <p id="global-login-error" style="color:var(--danger); display:none; margin-top:10px; font-size:0.9rem; font-weight:bold;">Ошибка входа!</p>
+        </div>
     </div>
-</div>
 
-<div id="toast-container"></div>
+    <div id="toast-container"></div>
 
-<header>
-    <button class="nav-btn active" onclick="switchView('active')"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
-    <button class="nav-btn" onclick="switchView('new')"><i class="fas fa-plus"></i> Новая</button>
-    <button class="nav-btn" onclick="switchView('fleet')"><i class="fas fa-bicycle"></i> Парк</button>
-    <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
-    <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
-    <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
-    <button class="nav-btn" onclick="switchView('settings')"><i class="fas fa-cog"></i></button>
-</header>
+    <header>
+        <button class="nav-btn active" onclick="switchView('active')"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
+        <button class="nav-btn" onclick="switchView('new')"><i class="fas fa-plus"></i> Новая</button>
+        <button class="nav-btn" onclick="switchView('fleet')"><i class="fas fa-bicycle"></i> Парк</button>
+        <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
+        <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
+        <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
+        <button class="nav-btn" onclick="switchView('settings')"><i class="fas fa-cog"></i></button>
+    </header>
 
-<main>
-    <div id="view-new" class="view">
-        <div class="card">
-            <h2>📝 Оформление</h2>
-            <div class="input-row">
-                <div class="input-wrapper">
-                    <input type="tel" id="rent-phone" placeholder="Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
-                    <div id="suggest-phone" class="suggestions-box"></div>
+    <main>
+        <div id="view-new" class="view">
+            <div class="card">
+                <h2>📝 Оформление</h2>
+                <div class="input-row">
+                    <div class="input-wrapper">
+                        <input type="tel" id="rent-phone" placeholder="Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
+                        <div id="suggest-phone" class="suggestions-box"></div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="text" id="rent-name" placeholder="Имя" oninput="handleInput('name', this.value)" autocomplete="off">
+                        <div id="suggest-name" class="suggestions-box"></div>
+                    </div>
                 </div>
-                <div class="input-wrapper">
-                    <input type="text" id="rent-name" placeholder="Имя" oninput="handleInput('name', this.value)" autocomplete="off">
-                    <div id="suggest-name" class="suggestions-box"></div>
+                <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
+                <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
+                <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
+                <div id="fleet-selector"></div>
+                <div id="tariff-block" style="display:none; margin-top:20px;">
+                    <p style="margin:5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБОР ТАРИФА:</p>
+                    <div id="tariff-buttons" class="tariff-grid"></div>
                 </div>
             </div>
-            <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
-            <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
-            <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
-            <div id="fleet-selector"></div>
-            <div id="tariff-block" style="display:none; margin-top:20px;">
-                <p style="margin:5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБОР ТАРИФА:</p>
-                <div id="tariff-buttons" class="tariff-grid"></div>
+        </div>
+
+        <div id="view-active" class="view active">
+            <div style="margin-bottom:10px;">
+                <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
+            </div>
+            <div id="active-list"></div>
+            <div id="no-active-msg" style="text-align:center; color:#94a3b8; margin-top:50px;">Нет активных поездок</div>
+        </div>
+
+        <div id="view-fleet" class="view">
+            <div class="card">
+                <h2>Парк устройств</h2>
+                <select id="new-fleet-cat"></select>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 10px;">
+                    <input type="text" id="new-fleet-name" placeholder="Имя устройства" style="flex:1; min-width: 120px; margin-bottom:0;">
+                    <input type="tel" id="new-fleet-sim" placeholder="SIM (напр. +7999...)" style="flex:1; min-width: 120px; margin-bottom:0;">
+                    <input type="color" id="new-fleet-color" value="#3b82f6" style="width:50px; padding:2px; height:46px; margin-bottom:0;">
+                </div>
+                <button class="btn btn-primary" onclick="addVehicle()">Добавить</button>
+            </div>
+            <div id="fleet-list"></div>
+        </div>
+
+        <div id="view-clients" class="view">
+            <div class="card">
+                <h2>База клиентов</h2>
+                <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()">
+                <div id="clients-list" style="margin-top:10px;"></div>
             </div>
         </div>
-    </div>
 
-    <div id="view-active" class="view active">
-        <div style="margin-bottom:10px;">
-            <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
-        </div>
-        <div id="active-list"></div>
-        <div id="no-active-msg" style="text-align:center; color:#94a3b8; margin-top:50px;">Нет активных поездок</div>
-    </div>
-
-    <div id="view-fleet" class="view">
-        <div class="card">
-            <h2>Парк устройств</h2>
-            <select id="new-fleet-cat"></select>
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="new-fleet-name" placeholder="Номер/Имя">
-                <input type="color" id="new-fleet-color" value="#3b82f6" style="width:50px; padding:2px; height:46px;">
+        <div id="view-surcharge" class="view">
+            <div class="profit-card" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <div style="opacity:0.9; font-size:0.9rem;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
+                <div style="font-size:2.5rem; font-weight:800;" id="sur-total">0 ₽</div>
             </div>
-            <button class="btn btn-primary" onclick="addVehicle()">Добавить</button>
-        </div>
-        <div id="fleet-list"></div>
-    </div>
-
-    <div id="view-clients" class="view">
-        <div class="card">
-            <h2>База клиентов</h2>
-            <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()">
-            <div id="clients-list" style="margin-top:10px;"></div>
-        </div>
-    </div>
-
-    <div id="view-surcharge" class="view">
-        <div class="profit-card" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div style="opacity:0.9; font-size:0.9rem;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
-            <div style="font-size:2.5rem; font-weight:800;" id="sur-total">0 ₽</div>
-        </div>
-        <div class="card">
-            <h2>Фильтры доплат</h2>
-            <div class="filter-row">
-                <input type="date" id="sur-start" onchange="renderSurcharge()">
-                <input type="date" id="sur-end" onchange="renderSurcharge()">
+            <div class="card">
+                <h2>Фильтры доплат</h2>
+                <div class="filter-row">
+                    <input type="date" id="sur-start" onchange="renderSurcharge()">
+                    <input type="date" id="sur-end" onchange="renderSurcharge()">
+                </div>
+                <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
             </div>
-            <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
-        </div>
-        <div class="card" style="padding:0; overflow:hidden;">
-            <div style="overflow-x:auto;">
-                <table class="history-table">
-                    <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
-                    <tbody id="surcharge-rows"></tbody>
-                </table>
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div style="overflow-x:auto;">
+                    <table class="history-table">
+                        <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
+                        <tbody id="surcharge-rows"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="view-finance" class="view">
-        <div class="profit-card">
-            <div style="opacity:0.9; font-size:0.9rem;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
-            <div style="font-size:2.5rem; font-weight:800;" id="history-total">0 ₽</div>
-        </div>
-        <div class="card">
-            <h2>Фильтры</h2>
-            <div class="filter-row">
-                <input type="date" id="hist-start" onchange="renderHistory()">
-                <input type="date" id="hist-end" onchange="renderHistory()">
-                <select id="hist-pay" onchange="renderHistory()">
-                    <option value="all">💳 Все оплаты</option>
-                    <option value="cash">💵 Наличные</option>
-                    <option value="bank">🏦 Банк/Карта</option>
-                </select>
+        <div id="view-finance" class="view">
+            <div class="profit-card">
+                <div style="opacity:0.9; font-size:0.9rem;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
+                <div style="font-size:2.5rem; font-weight:800;" id="history-total">0 ₽</div>
             </div>
-            <div class="filter-row">
-                <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()">
-                <div class="device-filter-container">
-                    <button class="btn btn-sm device-filter-btn" onclick="toggleDevDropdown()">📱 Выбор устройств <i class="fas fa-chevron-down"></i></button>
-                    <div id="dev-dd" class="device-dropdown">
-                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)">
-                        <div id="dev-dd-list"></div>
+            <div class="card">
+                <h2>Фильтры</h2>
+                <div class="filter-row">
+                    <input type="date" id="hist-start" onchange="renderHistory()">
+                    <input type="date" id="hist-end" onchange="renderHistory()">
+                    <select id="hist-pay" onchange="renderHistory()">
+                        <option value="all">💳 Все оплаты</option>
+                        <option value="cash">💵 Наличные</option>
+                        <option value="bank">🏦 Банк/Карта</option>
+                    </select>
+                </div>
+                <div class="filter-row">
+                    <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()">
+                    <div class="device-filter-container">
+                        <button class="btn btn-sm device-filter-btn" onclick="toggleDevDropdown()">📱 Выбор устройств <i class="fas fa-chevron-down"></i></button>
+                        <div id="dev-dd" class="device-dropdown">
+                            <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)">
+                            <div id="dev-dd-list"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="card" style="padding:0; overflow:hidden;">
-            <div style="overflow-x:auto;">
-                <table class="history-table">
-                    <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
-                    <tbody id="history-rows"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="view-settings" class="view">
-        <div class="card">
-            <h2>Категории</h2>
-            <button class="btn btn-primary" onclick="openCatModal()">+ Создать категорию</button>
-            <div id="settings-list" style="margin-top:15px;"></div>
-        </div>
-        <div class="card">
-            <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:10px; width:100%;">💡 Включить "Не спать" (WakeLock)</button>
-            <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:10px; width:100%;">🔊 Разблокировать аудио</button>
-            <div id="wakelock-status">Экран может погаснуть (нажми кнопку)</div>
-        </div>
-        <div class="card"><button class="btn btn-danger" onclick="fullReset()">⚠ Полный сброс данных</button></div>
-    </div>
-</main>
-
-<div id="modal-confirm" class="modal-overlay" style="z-index: 200;">
-    <div class="modal-content" style="text-align:center;">
-        <i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-        <h3 id="confirm-title">Подтверждение</h3>
-        <p id="confirm-text" style="color:#64748b; margin-bottom:20px;">Вы уверены?</p>
-        <div class="confirm-actions">
-            <button class="btn btn-danger" id="btn-confirm-no">НЕТ</button>
-            <button class="btn btn-success" id="btn-confirm-yes">ДА</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-start-confirm" class="modal-overlay">
-    <div class="modal-content">
-        <h3>💰 Форма оплаты</h3>
-        <div style="background:#f8fafc; padding:15px; border-radius:10px; margin:15px 0; text-align:center; border:1px solid #eee;">
-            <div id="confirm-tariff-name" style="font-weight:bold; font-size:1.2rem; color:var(--primary);"></div>
-            <div id="confirm-devices" style="margin-top:5px; color:#64748b;"></div>
-            <div id="confirm-cost" style="margin-top:10px; font-weight:bold; font-size:1.5rem;"></div>
-        </div>
-        <p style="text-align:center; color:#64748b; margin-bottom:10px;">Выберите способ оплаты:</p>
-        <div style="display:flex; gap:15px; margin-bottom:15px;">
-            <div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')">
-                <i class="fas fa-money-bill-wave" style="font-size:2rem;"></i> Наличные
-            </div>
-            <div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')">
-                <i class="fas fa-credit-card" style="font-size:2rem;"></i> Банк/Карта
-            </div>
-        </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')">Отмена</button>
-    </div>
-</div>
-
-<div id="modal-final-start" class="modal-overlay" style="z-index: 150;">
-    <div class="modal-content" style="text-align:center">
-        <h3>🚀 Начать поездку?</h3>
-        <div style="margin:20px 0; color:#64748b;">Проверьте данные и подтвердите старт.</div>
-        <div class="confirm-actions">
-            <button class="btn btn-danger" onclick="closeModal('modal-final-start')">Нет</button>
-            <button class="btn btn-success" onclick="realStartRental()">Да, поехали</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-sub" class="modal-overlay">
-    <div class="modal-content">
-        <h3 id="sub-title">Выбор</h3>
-        <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)">
-        <div id="swap-list-container" class="swap-list-container"></div>
-        <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled>Подтвердить выбор</button>
-        <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:10px;">Закрыть</button>
-    </div>
-</div>
-
-<div id="modal-client" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Клиент</h3>
-        <input type="hidden" id="edit-cl-id">
-        <input type="text" id="edit-cl-name" placeholder="Имя">
-        <input type="tel" id="edit-cl-phone" placeholder="Телефон">
-        <textarea id="edit-cl-comment" placeholder="Комментарий" rows="3"></textarea>
-        <label style="display:flex; align-items:center; gap:10px; margin:10px 0;"><input type="checkbox" id="edit-cl-block" style="width:auto; margin:0;"><span style="color:var(--danger); font-weight:bold;">Черный список</span></label>
-        <div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-danger" onclick="delClient()">Удалить</button><button class="btn btn-primary" onclick="saveClient()">Сохранить</button></div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:10px;">Отмена</button>
-    </div>
-</div>
-
-<div id="modal-vehicle-note" class="modal-overlay">
-    <div class="modal-content">
-        <h3>⚙️ Заметка к устройству</h3>
-        <input type="hidden" id="note-v-id">
-        <div id="note-v-name" style="margin-bottom:10px; font-weight:bold;"></div>
-        <textarea id="note-v-text" placeholder="Опишите проблему или статус..." rows="5"></textarea>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-danger" onclick="deleteVehicleNote()">Удалить заметку</button>
-            <button class="btn btn-primary" onclick="saveVehicleNote()">Сохранить</button>
-        </div>
-        <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:10px;">Отмена</button>
-    </div>
-</div>
-
-<div id="modal-cat" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Категория</h3>
-        <input type="hidden" id="edit-cat-id">
-        <input type="text" id="edit-cat-name" placeholder="Название">
-        <input type="number" id="edit-cat-rate" placeholder="Цена минуты (сверх тарифа) ₽">
-        <div style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
-            <h4>Тарифы</h4><div id="cat-tariffs-list"></div>
-            <div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-top:10px;">
-                <select id="nt-type"><option value="fix">Фиксированный</option><option value="std">Поминутный</option></select>
-                <input type="text" id="nt-name" placeholder="Имя (напр. 30 мин)">
-                <div style="display:flex; gap:5px;">
-                    <input type="number" id="nt-v1" placeholder="Мин / Старт">
-                    <input type="number" id="nt-v2" placeholder="Цена / Мин">
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div style="overflow-x:auto;">
+                    <table class="history-table">
+                        <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
+                        <tbody id="history-rows"></tbody>
+                    </table>
                 </div>
-                <button class="btn btn-success btn-sm" onclick="addTariffIO()">+ Тариф</button>
             </div>
         </div>
-        
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Отмена</button>
-            <button class="btn btn-primary" onclick="saveCat()">Сохранить</button>
+
+        <div id="view-settings" class="view">
+            <div class="card">
+                <h2>🔍 Размер интерфейса</h2>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="btn btn-secondary" onclick="changeScale(-0.01)" style="font-size: 1.5rem;">➖</button>
+                    <div id="scale-display" style="flex:1; text-align:center; font-weight:bold; font-size:1.5rem; color: var(--primary);">100%</div>
+                    <button class="btn btn-secondary" onclick="changeScale(0.01)" style="font-size: 1.5rem;">➕</button>
+                </div>
+                <p style="font-size:0.8rem; color:#64748b; text-align:center; margin-top:10px;">Шаг 1%. Сохраняется автоматически.</p>
+            </div>
+
+            <div class="card">
+                <h2>Категории</h2>
+                <button class="btn btn-primary" onclick="openCatModal()">+ Создать категорию</button>
+                <div id="settings-list" style="margin-top:15px;"></div>
+            </div>
+            <div class="card">
+                <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:10px; width:100%;">💡 Включить "Не спать" (WakeLock)</button>
+                <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:10px; width:100%;">🔊 Разблокировать аудио</button>
+                <div id="wakelock-status">Экран может погаснуть (нажми кнопку)</div>
+            </div>
+            <div class="card"><button class="btn btn-danger" onclick="fullReset()">⚠ Полный сброс данных</button></div>
+        </div>
+    </main>
+
+    <div id="modal-confirm" class="modal-overlay" style="z-index: 200;">
+        <div class="modal-content" style="text-align:center;">
+            <i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+            <h3 id="confirm-title">Подтверждение</h3>
+            <p id="confirm-text" style="color:#64748b; margin-bottom:20px;">Вы уверены?</p>
+            <div class="confirm-actions">
+                <button class="btn btn-danger" id="btn-confirm-no">НЕТ</button>
+                <button class="btn btn-success" id="btn-confirm-yes">ДА</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="modal-auth" class="modal-overlay" style="z-index: 9999;">
-    <div class="modal-content" style="max-width: 300px; text-align: center;">
-        <h3 style="margin-top:0;">🔐 Введите PIN</h3>
-        <input type="password" id="auth-pass-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing: 5px;">
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn btn-secondary" onclick="closeModal('modal-auth')">Отмена</button>
-            <button class="btn btn-success" onclick="submitAuth()">OK</button>
+    <div id="modal-relay" class="modal-overlay" style="z-index: 250;">
+        <div class="modal-content" style="text-align:center;">
+            <i class="fas fa-power-off" style="font-size:3rem; color:#8b5cf6; margin-bottom:15px;"></i>
+            <h3 style="margin-top:0;">Управление питанием</h3>
+            <div id="relay-v-name" style="margin-bottom:10px; font-weight:bold; font-size: 1.2rem; color: #1e293b;"></div>
+            <p style="color:#64748b; font-size:0.9rem; margin-bottom: 20px;">Программа подготовит SMS-команду для включения или выключения трекера.</p>
+            <input type="hidden" id="relay-v-id">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-danger" onclick="sendSmsCommand('OFF')"><i class="fas fa-lock"></i> ЗАГЛУШИТЬ (ВЫКЛ)</button>
+                <button class="btn btn-success" onclick="sendSmsCommand('ON')"><i class="fas fa-unlock"></i> ЗАВЕСТИ (ВКЛ)</button>
+                <button class="btn btn-secondary" onclick="closeModal('modal-relay')" style="margin-top: 10px;">Отмена</button>
+            </div>
         </div>
-        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-        <button class="btn btn-sm btn-danger" style="width:100%; background: #fee2e2; color: #b91c1c; border:none;" onclick="resetPassBtnAction()">
-            <i class="fas fa-key"></i> Сброс PIN
-        </button>
     </div>
-</div>
 
+    <div id="modal-start-confirm" class="modal-overlay">
+        <div class="modal-content">
+            <h3>💰 Форма оплаты</h3>
+            <div style="background:#f8fafc; padding:15px; border-radius:10px; margin:15px 0; text-align:center; border:1px solid #eee;">
+                <div id="confirm-tariff-name" style="font-weight:bold; font-size:1.2rem; color:var(--primary);"></div>
+                <div id="confirm-devices" style="margin-top:5px; color:#64748b;"></div>
+                <div id="confirm-cost" style="margin-top:10px; font-weight:bold; font-size:1.5rem;"></div>
+            </div>
+            <p style="text-align:center; color:#64748b; margin-bottom:10px;">Выберите способ оплаты:</p>
+            <div style="display:flex; gap:15px; margin-bottom:15px;">
+                <div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')">
+                    <i class="fas fa-money-bill-wave" style="font-size:2rem;"></i> Наличные
+                </div>
+                <div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')">
+                    <i class="fas fa-credit-card" style="font-size:2rem;"></i> Банк/Карта
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="modal-final-start" class="modal-overlay" style="z-index: 150;">
+        <div class="modal-content" style="text-align:center">
+            <h3>🚀 Начать поездку?</h3>
+            <div style="margin:20px 0; color:#64748b;">Проверьте данные и подтвердите старт.</div>
+            <div class="confirm-actions">
+                <button class="btn btn-danger" onclick="closeModal('modal-final-start')">Нет</button>
+                <button class="btn btn-success" onclick="realStartRental()">Да, поехали</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-sub" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="sub-title">Выбор</h3>
+            <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)">
+            <div id="swap-list-container" class="swap-list-container"></div>
+            <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled>Подтвердить выбор</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="modal-client" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Клиент</h3>
+            <input type="hidden" id="edit-cl-id">
+            <input type="text" id="edit-cl-name" placeholder="Имя">
+            <input type="tel" id="edit-cl-phone" placeholder="Телефон">
+            <textarea id="edit-cl-comment" placeholder="Комментарий" rows="3"></textarea>
+            <label style="display:flex; align-items:center; gap:10px; margin:10px 0;"><input type="checkbox" id="edit-cl-block" style="width:auto; margin:0;"><span style="color:var(--danger); font-weight:bold;">Черный список</span></label>
+            <div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-danger" onclick="delClient()">Удалить</button><button class="btn btn-primary" onclick="saveClient()">Сохранить</button></div>
+            <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:10px;">Отмена</button>
+        </div>
+    </div>
+
+    <div id="modal-vehicle-note" class="modal-overlay">
+        <div class="modal-content">
+            <h3>⚙️ Настройки устройства</h3>
+            <input type="hidden" id="note-v-id">
+            <div id="note-v-name" style="margin-bottom:10px; font-weight:bold; color: var(--primary);"></div>
+            <label style="font-size: 0.85rem; color: #64748b; font-weight: bold; margin-bottom: 5px; display: block;">Номер SIM-карты (Трекера)</label>
+            <input type="tel" id="note-v-sim" placeholder="+7999..." style="margin-bottom: 15px;">
+            <label style="font-size: 0.85rem; color: #64748b; font-weight: bold; margin-bottom: 5px; display: block;">Заметка / Поломка</label>
+            <textarea id="note-v-text" placeholder="Опишите статус или проблему..." rows="4"></textarea>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-danger" onclick="deleteVehicleNote()">Удалить данные</button>
+                <button class="btn btn-primary" onclick="saveVehicleNote()">Сохранить</button>
+            </div>
+            <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:10px;">Отмена</button>
+        </div>
+    </div>
+
+    <div id="modal-cat" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Категория</h3>
+            <input type="hidden" id="edit-cat-id">
+            <input type="text" id="edit-cat-name" placeholder="Название">
+            <input type="number" id="edit-cat-rate" placeholder="Цена минуты (сверх тарифа) ₽">
+            <div style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
+                <h4>Тарифы</h4><div id="cat-tariffs-list"></div>
+                <div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-top:10px;">
+                    <select id="nt-type"><option value="fix">Фиксированный</option><option value="std">Поминутный</option></select>
+                    <input type="text" id="nt-name" placeholder="Имя (напр. 30 мин)">
+                    <div style="display:flex; gap:5px;">
+                        <input type="number" id="nt-v1" placeholder="Мин / Старт">
+                        <input type="number" id="nt-v2" placeholder="Цена / Мин">
+                    </div>
+                    <button class="btn btn-success btn-sm" onclick="addTariffIO()">+ Тариф</button>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Отмена</button>
+                <button class="btn btn-primary" onclick="saveCat()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-auth" class="modal-overlay" style="z-index: 9999;">
+        <div class="modal-content" style="max-width: 300px; text-align: center;">
+            <h3 style="margin-top:0;">🔐 Введите PIN</h3>
+            <input type="password" id="auth-pass-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing: 5px;">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-auth')">Отмена</button>
+                <button class="btn btn-success" onclick="submitAuth()">OK</button>
+            </div>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+            <button class="btn btn-sm btn-danger" style="width:100%; background: #fee2e2; color: #b91c1c; border:none;" onclick="resetPassBtnAction()">
+                <i class="fas fa-key"></i> Сброс PIN
+            </button>
+        </div>
+    </div>
+
+</div>
 <script>
-    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
+    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892', scale: 1.0 };
     let isMonitorMode = false;
     let tempStartData = null;
     let currentSwapRentalId = null;
     let wakeLock = null;
     let pendingAuthCallback = null;
 
+    // --- AUDIO ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function unlockAudio() { if(audioCtx.state === 'suspended') audioCtx.resume(); }
     document.addEventListener('click', unlockAudio, {once:true});
@@ -464,15 +514,16 @@
         }
     }
 
+    // --- INIT ---
     function init() {
         const urlParams = new URLSearchParams(window.location.search);
-        
-        // В режиме монитора мы не показываем экран входа (Firebase Auth решит этот вопрос сам через правила read: true)
+        // В режиме монитора мы не требуем пароль Firebase (правила базы разрешают чтение всем)
         if (urlParams.get('mode') === 'monitor') {
             isMonitorMode = true;
             document.getElementById('global-login').style.display = 'none';
             createMonitorStyles();
             loadDB();
+            applyScale(); 
             setTimeout(() => switchView('active'), 100);
             setInterval(tick, 1000);
             return; 
@@ -480,6 +531,7 @@
 
         if ("Notification" in window) Notification.requestPermission();
         loadDB();
+        applyScale(); 
         
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('hist-start').value = today;
@@ -504,14 +556,48 @@
         if(local) {
             db = JSON.parse(local);
             if(!db.password) db.password = '4892';
+            if(!db.scale) db.scale = 1.0;
         } else {
             db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
-            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
+            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6', sim:''}];
             db.password = '4892';
+            db.scale = 1.0;
         }
     }
 
-    // Вспомогательный ПИН-код (не Firebase, а локальный ПИН)
+    // --- ИДЕАЛЬНЫЙ МАСШТАБ (ЧЕРЕЗ TRANSFORM) ---
+    function changeScale(delta) {
+        if (!db.scale) db.scale = 1.0;
+        db.scale = parseFloat((db.scale + delta).toFixed(2));
+        
+        if (db.scale < 0.50) db.scale = 0.50;
+        if (db.scale > 1.50) db.scale = 1.50;
+        
+        save();
+        applyScale();
+    }
+
+    function applyScale() {
+        if (!db.scale) db.scale = 1.0;
+        
+        const wrapper = document.getElementById('app-wrapper');
+        const scaleDisplay = document.getElementById('scale-display');
+        
+        // Применяем аппаратное масштабирование
+        wrapper.style.transform = `scale(${db.scale})`;
+        
+        // Магия для устранения "мертвой зоны" внизу:
+        // Увеличиваем виртуальную ширину и высоту обертки так, чтобы после сжатия она занимала 100% экрана
+        wrapper.style.width = `${100 / db.scale}vw`;
+        wrapper.style.height = `${100 / db.scale}dvh`;
+
+        if (scaleDisplay) scaleDisplay.innerText = Math.round(db.scale * 100) + '%';
+    }
+
+    // Пересчитываем размер, если перевернули телефон
+    window.addEventListener('resize', applyScale);
+
+    // --- БЕЗОПАСНОСТЬ НАСТРОЕК (ЛОКАЛЬНЫЙ PIN) ---
     function authWrapper(actionCallback) {
         pendingAuthCallback = actionCallback;
         document.getElementById('auth-pass-input').value = '';
@@ -524,37 +610,24 @@
         const correct = db.password || '4892';
         if (input === '89144892253') {
             alert("👑 Мастер-пароль! Сброс на 0000.");
-            db.password = '0000'; save();
-            closeModal('modal-auth');
+            db.password = '0000'; save(); closeModal('modal-auth');
             if(pendingAuthCallback) pendingAuthCallback();
             return;
         }
         if (input === correct) {
-            closeModal('modal-auth');
-            if(pendingAuthCallback) pendingAuthCallback();
+            closeModal('modal-auth'); if(pendingAuthCallback) pendingAuthCallback();
         } else {
             const inp = document.getElementById('auth-pass-input');
-            inp.style.border = "2px solid red";
-            navigator.vibrate([100,50,100]);
+            inp.style.border = "2px solid red"; navigator.vibrate([100,50,100]);
             setTimeout(()=> inp.style.border = "1px solid #ccc", 1000);
         }
     }
 
     function resetPassBtnAction() {
         const master = prompt("📞 Введите Мастер-Пароль (8914...):");
-        if(master === '89144892253') {
-            db.password = '0000'; save();
-            alert("✅ Пароль сброшен на: 0000");
-            document.getElementById('auth-pass-input').value = '0000';
-        } else {
-            alert("⛔ Ошибка!");
-        }
+        if(master === '89144892253') { db.password = '0000'; save(); alert("✅ Пароль сброшен на: 0000"); document.getElementById('auth-pass-input').value = '0000'; } else { alert("⛔ Ошибка!"); }
     }
-
-    function changePassUI() {
-        const newP = prompt("Введите НОВЫЙ PIN-код:");
-        if(newP) { db.password = newP; save(); alert("✅ PIN изменен на: " + newP); }
-    }
+    function changePassUI() { const newP = prompt("Введите НОВЫЙ PIN-код:"); if(newP) { db.password = newP; save(); alert("✅ PIN изменен на: " + newP); } }
 
     async function requestWakeLock() {
         if ('wakeLock' in navigator) {
@@ -577,22 +650,20 @@
         if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
             const cHist = newData.history ? newData.history.length : 0;
             const lHist = db.history ? db.history.length : 0;
-            if (cHist <= lHist) { return; }
+            if (cHist <= lHist) return; 
         }
-        db = { ...newData, password: newData.password || db.password || '4892' };
+        db = { ...newData, password: newData.password || db.password || '4892', scale: newData.scale || db.scale || 1.0 };
         updateUI();   
+        applyScale(); 
     }
 
-    function switchView(id) {
-        if (id === 'settings') { authWrapper(() => { doSwitchView(id); }); return; }
-        doSwitchView(id);
-    }
+    function switchView(id) { if (id === 'settings') { authWrapper(() => { doSwitchView(id); }); return; } doSwitchView(id); }
 
     function doSwitchView(id) {
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
         document.getElementById('view-'+id).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-        if(event && event.currentTarget) event.currentTarget.classList.add('active');
+        if(event && event.currentTarget) event.currentTarget.classList.add('active'); 
         if(id === 'active') renderActiveRentals(); 
         if(id === 'new') renderNewRent();
         if(id === 'clients') renderClients();
@@ -604,10 +675,8 @@
     }
 
     function openConfirm(msg, yesCallback) {
-        document.getElementById('confirm-text').innerText = msg;
-        document.getElementById('modal-confirm').style.display = 'flex';
-        const yesBtn = document.getElementById('btn-confirm-yes');
-        const noBtn = document.getElementById('btn-confirm-no');
+        document.getElementById('confirm-text').innerText = msg; document.getElementById('modal-confirm').style.display = 'flex';
+        const yesBtn = document.getElementById('btn-confirm-yes'); const noBtn = document.getElementById('btn-confirm-no');
         const newYes = yesBtn.cloneNode(true); const newNo = noBtn.cloneNode(true);
         yesBtn.parentNode.replaceChild(newYes, yesBtn); noBtn.parentNode.replaceChild(newNo, noBtn);
         newYes.onclick = () => { document.getElementById('modal-confirm').style.display = 'none'; yesCallback(); };
@@ -616,10 +685,10 @@
 
     function sendNotify(title, body, isCritical) {
         if ("Notification" in window && Notification.permission === "granted") { try { new Notification(title, { body: body }); } catch (e) {} }
-        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
-        playAlarm(isCritical);
+        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]); playAlarm(isCritical);
     }
 
+    // --- RENTAL LOGIC ---
     function askStartRental(tariff) {
         unlockAudio(); 
         const checks = document.querySelectorAll('.fleet-check-input:checked');
@@ -629,11 +698,8 @@
         let devices = [];
         checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
         let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
-        document.getElementById('confirm-tariff-name').innerText = tariff.name;
-        document.getElementById('confirm-devices').innerText = devices.join(', ');
-        document.getElementById('confirm-cost').innerText = costLabel;
-        tempStartData = { tariff, phone, name, checks };
-        document.getElementById('modal-start-confirm').style.display = 'flex';
+        document.getElementById('confirm-tariff-name').innerText = tariff.name; document.getElementById('confirm-devices').innerText = devices.join(', '); document.getElementById('confirm-cost').innerText = costLabel;
+        tempStartData = { tariff, phone, name, checks }; document.getElementById('modal-start-confirm').style.display = 'flex';
     }
     function confirmPaymentChoice(method) { tempStartData.payMethod = method; closeModal('modal-start-confirm'); document.getElementById('modal-final-start').style.display = 'flex'; }
     function realStartRental() {
@@ -643,15 +709,15 @@
         if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
         const now = Date.now();
         checks.forEach(chk => {
-            const vId = parseInt(chk.value);
-            const v = db.fleet.find(x => x.id === vId);
-            v.status = 'busy';
-            const cat = db.categories.find(ca => ca.id == v.catId);
-            const baseRate = cat ? (cat.baseRate || 0) : 0;
-            db.rentals.push({ id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone, startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)), tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate, notified5: false, notified2: false });
+            const vId = parseInt(chk.value); const v = db.fleet.find(x => x.id === vId); v.status = 'busy';
+            const cat = db.categories.find(ca => ca.id == v.catId); const baseRate = cat ? (cat.baseRate || 0) : 0;
+            db.rentals.push({
+                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
+                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
+                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate, notified5: false, notified2: false 
+            });
         });
-        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
-        save(); closeModal('modal-final-start'); switchView('active');
+        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = ''; save(); closeModal('modal-final-start'); switchView('active');
     }
     function finishRental(id) {
         openConfirm('Завершить поездку?', () => {
@@ -662,6 +728,35 @@
             db.history.unshift({ id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone, cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0, tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash' });
             db.rentals.splice(idx, 1); save(); renderActiveRentals();
         });
+    }
+
+    // --- РЕЛЕ / SMS КОМАНДЫ ---
+    function openRelayModal(vehicleId) {
+        const v = db.fleet.find(f => f.id === vehicleId);
+        if (!v) return;
+        if (!v.sim || v.sim.trim() === '') {
+            alert(`У устройства ${v.name} не указан номер SIM-карты!\nЗайдите в настройки Парка (шестеренка) и укажите номер.`);
+            return;
+        }
+        document.getElementById('relay-v-id').value = vehicleId;
+        document.getElementById('relay-v-name').innerText = v.name + ` (${v.sim})`;
+        document.getElementById('modal-relay').style.display = 'flex';
+    }
+
+    function sendSmsCommand(action) {
+        const vId = parseInt(document.getElementById('relay-v-id').value);
+        const v = db.fleet.find(f => f.id === vId);
+        if(!v || !v.sim) return;
+
+        const cmd = action === 'OFF' ? 'Relay,1#' : 'Relay,0#'; 
+        
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const separator = isIOS ? '&' : '?';
+        
+        const smsUrl = `sms:${v.sim}${separator}body=${encodeURIComponent(cmd)}`;
+        window.location.href = smsUrl;
+        
+        closeModal('modal-relay');
     }
 
     // --- RENDERERS ---
@@ -693,6 +788,7 @@
             blk.style.display = 'block';
         }
     }
+
     function renderFleet() {
         const l = document.getElementById('fleet-list'); l.innerHTML='';
         const sel = document.getElementById('new-fleet-cat'); sel.innerHTML='';
@@ -706,10 +802,19 @@
             
             const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))"><i class="fas fa-trash"></i></button>`;
 
+            const relayBtn = `<button class="btn btn-sm" style="background: #8b5cf6; color: white;" onclick="openRelayModal(${f.id})" title="Вкл/Выкл питание"><i class="fas fa-power-off"></i></button>`;
+
+            let simInfo = f.sim ? `<div style="font-size:0.75rem; color:#8b5cf6; margin-top:2px;"><i class="fas fa-sim-card"></i> ${f.sim}</div>` : `<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Нет SIM-карты</div>`;
+
             l.innerHTML += `
             <div class="item-card ${isRep?'repair':''}" style="border-left-color:${f.color}">
-                <div><div class="item-name">${f.name}</div><div class="item-sub">${isRep?'В РЕМОНТЕ':'Готов к работе'}</div></div>
+                <div>
+                    <div class="item-name">${f.name}</div>
+                    <div class="item-sub">${isRep?'В РЕМОНТЕ':'Готов к работе'}</div>
+                    ${simInfo}
+                </div>
                 <div class="item-actions">
+                    ${relayBtn}
                     <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})"><i class="fas fa-cog"></i></button>
                     ${repBtn}
                     ${delBtn}
@@ -766,9 +871,14 @@
                     <div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>
                     ${clientHtml}
                 </div>
-                <div class="ar-timer-container"><span class="ar-timer" id="t-${r.id}">--:--</span></div>
+                <div class="ar-timer-container" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">
+                    <span class="ar-timer" id="t-${r.id}">--:--</span>
+                    ${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}
+                </div>
                 <div class="ar-actions">
-                    <button class="ar-btn pause" ondblclick="togglePause(${r.id})"><i class="fas ${r.paused ? 'fa-play':'fa-pause'}"></i><span class="ar-btn-label">${r.paused?'СТАРТ':'ПАУЗА'}</span><div class="ar-dbl">2x</div></button>
+                    <button class="ar-btn relay" ondblclick="openRelayModal(${r.vId})">
+                        <i class="fas fa-power-off"></i><span class="ar-btn-label">РЕЛЕ</span><div class="ar-dbl">2x</div>
+                    </button>
                     <button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><div class="ar-dbl">2x</div></button>
                     <button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><div class="ar-dbl">2x</div></button>
                 </div>`;
@@ -817,7 +927,7 @@
             }
         });
         document.getElementById('sur-total').innerText = totalSur + ' ₽';
-        document.getElementById('no-surcharge-msg') ? document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block' : null;
+        document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
     }
 
     function renderHistory() {
@@ -883,11 +993,48 @@
     function openClientModal(id) { const c = db.clients.find(x => x.id === id); document.getElementById('edit-cl-id').value = c.id; document.getElementById('edit-cl-name').value = c.name; document.getElementById('edit-cl-phone').value = c.phone; document.getElementById('edit-cl-comment').value = c.comment || ''; document.getElementById('edit-cl-block').checked = c.blocked; document.getElementById('modal-client').style.display = 'flex'; }
     function handleInput(type, val) { const box = document.getElementById('suggest-'+type); if(val.length < 2) { box.style.display='none'; return; } const matches = db.clients.filter(c => c[type].toLowerCase().includes(val.toLowerCase())); if(matches.length > 0) { box.innerHTML = matches.map(c => `<div class="suggestion-item" onclick="fillClient('${c.phone}', '${c.name}')"><div><strong>${c.phone}</strong></div><div>${c.name}</div></div>`).join(''); box.style.display = 'block'; } else { box.style.display = 'none'; } const exact = db.clients.find(c => c.phone === val); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
     function fillClient(ph, nm) { document.getElementById('rent-phone').value = ph; document.getElementById('rent-name').value = nm; document.querySelectorAll('.suggestions-box').forEach(b => b.style.display='none'); const exact = db.clients.find(c => c.phone === ph); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
-    function addVehicle() { openConfirm('Добавить устройство?', () => { const n = document.getElementById('new-fleet-name').value; const c = document.getElementById('new-fleet-color').value; const cat = document.getElementById('new-fleet-cat').value; if(n) { db.fleet.push({id:Date.now(), name:n, color:c, catId:cat, status:'free'}); save(); renderFleet(); } }); }
     
-    function openVehicleNote(id) { const v = db.fleet.find(f => f.id === id); document.getElementById('note-v-id').value = v.id; document.getElementById('note-v-name').innerText = `Заметка для: ${v.name}`; document.getElementById('note-v-text').value = v.notes || ''; document.getElementById('modal-vehicle-note').style.display = 'flex'; }
-    function saveVehicleNote() { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = document.getElementById('note-v-text').value; save(); closeModal('modal-vehicle-note'); renderFleet(); }
-    function deleteVehicleNote() { authWrapper(() => { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = ''; save(); closeModal('modal-vehicle-note'); renderFleet(); }); }
+    function addVehicle() { 
+        openConfirm('Добавить устройство?', () => { 
+            const n = document.getElementById('new-fleet-name').value; 
+            const sim = document.getElementById('new-fleet-sim').value; 
+            const c = document.getElementById('new-fleet-color').value; 
+            const cat = document.getElementById('new-fleet-cat').value; 
+            if(n) { 
+                db.fleet.push({id:Date.now(), name:n, color:c, catId:cat, sim: sim, status:'free'}); 
+                save(); renderFleet(); 
+                document.getElementById('new-fleet-name').value = '';
+                document.getElementById('new-fleet-sim').value = '';
+            } 
+        }); 
+    }
+    
+    function openVehicleNote(id) { 
+        const v = db.fleet.find(f => f.id === id); 
+        document.getElementById('note-v-id').value = v.id; 
+        document.getElementById('note-v-name').innerText = `Настройки: ${v.name}`; 
+        document.getElementById('note-v-sim').value = v.sim || ''; 
+        document.getElementById('note-v-text').value = v.notes || ''; 
+        document.getElementById('modal-vehicle-note').style.display = 'flex'; 
+    }
+    
+    function saveVehicleNote() { 
+        const id = parseInt(document.getElementById('note-v-id').value); 
+        const v = db.fleet.find(f => f.id === id); 
+        v.sim = document.getElementById('note-v-sim').value;
+        v.notes = document.getElementById('note-v-text').value; 
+        save(); closeModal('modal-vehicle-note'); renderFleet(); 
+    }
+    
+    function deleteVehicleNote() { 
+        authWrapper(() => { 
+            const id = parseInt(document.getElementById('note-v-id').value); 
+            const v = db.fleet.find(f => f.id === id); 
+            v.notes = ''; 
+            v.sim = '';
+            save(); closeModal('modal-vehicle-note'); renderFleet(); 
+        }); 
+    }
 
     function delCat(id) { authWrapper(() => openConfirm('Удалить категорию?', () => { db.categories=db.categories.filter(c=>c.id!==id); db.fleet=db.fleet.filter(f=>f.catId!=id); save(); renderSettingsList(); })); }
     function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
@@ -910,17 +1057,14 @@
         if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
     }
 
-    // Запускаем инициализацию UI
     init();
 </script>
 
 <script type="module">
-  // 1. Импортируем нужные пакеты из Firebase v10.7.1
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // 2. Ваш конфиг (остался прежним)
   const firebaseConfig = {
     apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
     authDomain: "skuter75rus-3d55d.firebaseapp.com",
@@ -931,16 +1075,15 @@
     measurementId: "G-J47C67V554"
   };
 
-  // 3. Инициализация
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
   const dbCloud = getFirestore(app);
+  const auth = getAuth(app); // Инициализация модуля авторизации
 
   console.log("🔥 Firebase и Авторизация подключены!");
 
   const myDataRef = doc(dbCloud, "rent_app", "base");
 
-  // 4. Отслеживание статуса пользователя
+  // Отслеживание статуса авторизации в Firebase
   onAuthStateChanged(auth, (user) => {
       const urlParams = new URLSearchParams(window.location.search);
       const isMonitor = urlParams.get('mode') === 'monitor';
@@ -950,14 +1093,14 @@
           document.getElementById('global-login').style.display = 'none';
       } else {
           console.log("⚠️ Нет активной сессии Firebase");
-          // Если это не режим монитора, показываем окно входа
+          // Показываем окно входа, если это не монитор
           if (!isMonitor) {
               document.getElementById('global-login').style.display = 'flex';
           }
       }
   });
 
-  // 5. Функция входа (привязана к кнопке "Войти")
+  // Логин (кнопка в окне)
   window.loginFirebase = function() {
       const email = document.getElementById('admin-email').value;
       const pass = document.getElementById('admin-password').value;
@@ -965,53 +1108,37 @@
       const btn = document.getElementById('btn-global-login');
       
       if(!email || !pass) {
-          errBox.innerText = "Введите Email и пароль!";
-          errBox.style.display = 'block';
-          return;
+          errBox.innerText = "Введите Email и пароль!"; errBox.style.display = 'block'; return;
       }
       
-      btn.innerText = "Загрузка...";
-      errBox.style.display = 'none';
+      btn.innerText = "Загрузка..."; errBox.style.display = 'none';
 
       signInWithEmailAndPassword(auth, email, pass)
-          .then((userCredential) => {
-              // Успешный вход! onAuthStateChanged сработает автоматически и скроет окно
-              btn.innerText = "Войти";
-          })
+          .then((userCredential) => { btn.innerText = "Войти"; })
           .catch((error) => {
               btn.innerText = "Войти";
-              errBox.innerText = "Ошибка: неверный логин или пароль";
-              errBox.style.display = 'block';
+              errBox.innerText = "Ошибка: неверный логин или пароль"; errBox.style.display = 'block';
               if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-              console.error("Ошибка авторизации:", error.code, error.message);
+              console.error(error);
           });
   };
 
-  // 6. Отправка данных в облако (сработает только если есть права)
+  // Запись в облако (сработает только если есть права)
   window.sendToCloud = async function(data) {
-      if (!auth.currentUser) {
-          console.warn("⚠️ Попытка записи без авторизации заблокирована приложением.");
-          return;
-      }
+      if (!auth.currentUser) return; // Защита от записи без авторизации
       try {
           await setDoc(myDataRef, data);
           console.log("✅ Синхронизировано с Firebase");
-      } catch (e) {
-          console.error("Ошибка сохранения в Firebase: ", e);
-      }
+      } catch (e) { console.error("Ошибка сохранения в Firebase: ", e); }
   };
 
-  // 7. Чтение из облака (по правилам read: true, работает для всех, включая монитор)
+  // Чтение из облака (для всех)
   onSnapshot(myDataRef, (docSnap) => {
       if (docSnap.exists()) {
           console.log("📥 Получены новые данные из Firebase!");
           const cloudData = docSnap.data();
-          if (window.updateGlobalDB) {
-              window.updateGlobalDB(cloudData);
-          }
-      } else {
-          console.log("База данных в облаке пуста.");
-      }
+          if (window.updateGlobalDB) { window.updateGlobalDB(cloudData); }
+      } else { console.log("База данных в облаке пуста."); }
   });
 
 </script>
