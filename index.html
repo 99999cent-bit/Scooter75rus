@@ -1,24 +1,9 @@
-
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body {
-                  background-color: white; /* Ensure the iframe has a white background */
-                }
-
-                
-              </style>
-                        </head>
-                        <body>
-                            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>RentMaster — Авторизация</title>
+    <title>RentMaster Keyboard Fix</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -36,18 +21,32 @@
             overflow: hidden; user-select: none; 
             -webkit-tap-highlight-color: transparent; 
         }
+        
+        /* HEADER */
         header { background: var(--surface); padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; z-index: 20; }
         .nav-btn { background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; color: #475569; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: 0.2s; font-size: 0.9rem; }
         .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(59,130,246,0.4); }
         .badge { background: #ef4444; color: white; border-radius: 12px; padding: 2px 6px; font-size: 0.75rem; margin-left: 4px; }
-        main { flex: 1; padding: 10px; padding-bottom: 300px; overflow-y: auto; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; scroll-behavior: smooth; }
+
+        /* MAIN */
+        main { 
+            flex: 1; padding: 10px; 
+            padding-bottom: 300px; 
+            overflow-y: auto; 
+            max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; 
+            scroll-behavior: smooth; 
+        }
         .view { display: none; }
         .view.active { display: block; animation: fadeIn 0.2s; }
         @keyframes fadeIn { from {opacity:0; transform:translateY(4px);} to {opacity:1; transform:translateY(0);} }
+
+        /* COMPONENTS */
         .card { background: var(--surface); padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e2e8f0; }
         h2 { margin: 0 0 12px 0; font-size: 1.15rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; color: #334155; }
+        
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.2s; background: #fff; }
         input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+
         .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 1rem; transition: 0.1s; }
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: var(--primary); }
@@ -55,9 +54,11 @@
         .btn-success { background: var(--success); }
         .btn-secondary { background: #e2e8f0; color: #475569; }
         .btn-sm { width: auto; padding: 8px 16px; font-size: 0.9rem; }
+
+        /* --- ACTIVE RENTAL ROW --- */
         .active-row { background: var(--dark-card); color: var(--text-on-dark); border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); height: 85px; position: relative; transition: background-color 0.5s; }
-        @keyframes blinkYellow { 0% { background-color: var(--dark-card); } 50% { background-color: #854d0e; } 100% { background-color: var(--dark-card); } }
-        @keyframes blinkRed { 0% { background-color: var(--dark-card); } 50% { background-color: #7f1d1d; } 100% { background-color: var(--dark-card); } }
+        @keyframes blinkYellow { 0% { background-color: var(--dark-card); color: white; } 50% { background-color: #854d0e; color: white; } 100% { background-color: var(--dark-card); color: white; } }
+        @keyframes blinkRed { 0% { background-color: var(--dark-card); color: white; } 50% { background-color: #7f1d1d; color: white; } 100% { background-color: var(--dark-card); color: white; } }
         .active-row.warning-mode { animation: blinkYellow 3s infinite ease-in-out; } 
         .active-row.danger-mode { animation: blinkRed 1.5s infinite ease-in-out; }
         .ar-color { width: 10px; height: 100%; flex-shrink: 0; }
@@ -77,6 +78,8 @@
         .ar-btn-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; }
         .ar-dbl { font-size: 0.5rem; opacity: 0.6; }
         .active-row.paused { background: #3f3f2a; }
+
+        /* --- PARK CARD --- */
         .item-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; }
         .item-card.repair { background: var(--repair-bg); border-color: var(--repair-border); }
         .item-name { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
@@ -85,15 +88,20 @@
         .gear-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; transition: 0.2s; }
         .gear-btn.has-note { color: var(--danger); border-color: var(--danger); background: #fef2f2; animation: pulseRed 2s infinite; }
         @keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);} 70% {box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);} 100% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);} }
+
+        /* --- HISTORY --- */
         .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .history-table th { background: #f8fafc; text-align: left; padding: 12px 8px; border-bottom: 2px solid #e2e8f0; color: #64748b; position: sticky; top: 0; white-space: nowrap; }
         .history-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
         .tr-deleted td { text-decoration: line-through !important; color: var(--deleted-text) !important; }
         .tr-deleted td button { text-decoration: none !important; opacity: 1 !important; }
         .tr-short { background-color: #fef9c3 !important; }
+
+        /* --- OTHERS --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; animation: popUp 0.15s ease-out; margin-bottom: 10vh; }
         @keyframes popUp { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+        
         .fleet-category-block { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
         .fleet-cat-title { font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: #334155; }
         .fleet-items-container { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -101,6 +109,7 @@
         .fleet-check-label:hover { border-color: var(--primary); background: #eff6ff; }
         .fleet-check-input { width: 20px; height: 20px; margin: 0 10px 0 0; flex-shrink: 0; accent-color: var(--primary); }
         .fleet-check-text { font-size: 1rem; font-weight: 700; display: flex; align-items: center; color: #334155; }
+
         .device-filter-container { position: relative; flex: 1; }
         .device-filter-btn { background: #fff; border: 1px solid #cbd5e1; color: #334155; justify-content: space-between; }
         .device-dropdown { position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 50; display: none; max-height: 350px; overflow-y: auto; padding: 5px; }
@@ -134,25 +143,33 @@
         .suggestions-box { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 50; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
         .suggestion-item { padding: 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 0.9rem; }
         .cat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        
+        /* TOAST */
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: #1e293b; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; font-weight: bold; animation: slideDown 0.3s ease-out; pointer-events: auto; }
         .toast.warning { border-left: 6px solid var(--warning); }
         .toast.danger { border-left: 6px solid var(--danger); background: #7f1d1d; }
-        .toast.success { border-left: 6px solid var(--success); background: #166534; }
         @keyframes slideDown { from { transform: translateY(-20px) translateX(-50%); opacity: 0; } to { transform: translateY(0) translateX(-50%); opacity: 1; } }
+        
+        /* WAKE LOCK STATUS */
         #wakelock-status { font-size: 0.7rem; color: #64748b; text-align: center; margin-top: 5px; }
-        /* AUTH FORM */
-        .auth-form input { text-align: left; margin-bottom: 10px; }
-        .auth-form .link { color: var(--primary); font-size: 0.85rem; text-decoration: none; }
-        .auth-form .link:hover { text-decoration: underline; }
-        .auth-form details { font-size: 0.9rem; margin-top: 10px; }
-        .auth-form summary { cursor: pointer; color: var(--danger); font-weight: bold; }
-        .auth-form .master-box { margin-top: 10px; padding: 10px; background: #fef2f2; border-radius: 8px; }
     </style>
 </head>
 <body>
 
+<div id="global-login" class="modal-overlay" style="z-index: 100000; background: #0f172a; display: flex; flex-direction: column;">
+    <div class="modal-content" style="text-align:center; max-width: 320px;">
+        <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+        <h2 style="margin-top:0; color: #1e293b;">Prokat Erofei</h2>
+        <p style="color:#64748b; margin-bottom: 20px;">Режим администратора</p>
+        <input type="password" id="admin-firebase-pass" placeholder="Ключ доступа" style="text-align:center; font-size:1.2rem; letter-spacing: 2px; width: 100%; box-sizing: border-box;">
+        <button class="btn btn-primary" onclick="verifyGlobalAdmin()" style="margin-top:15px; padding: 15px; width: 100%;">Войти в систему</button>
+        <p id="global-login-error" style="color:var(--danger); display:none; margin-top:10px; font-size:0.9rem; font-weight:bold;">Неверный ключ доступа!</p>
+    </div>
+</div>
+
 <div id="toast-container"></div>
+
 <header>
     <button class="nav-btn active" onclick="switchView('active')"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
     <button class="nav-btn" onclick="switchView('new')"><i class="fas fa-plus"></i> Новая</button>
@@ -164,332 +181,851 @@
 </header>
 
 <main>
-    <div id="view-new" class="view"><div class="card"><h2>📝 Оформление</h2>
-        <div class="input-row">
-            <div class="input-wrapper"><input type="tel" id="rent-phone" placeholder="Телефон" oninput="handleInput('phone', this.value)" autocomplete="off"><div id="suggest-phone" class="suggestions-box"></div></div>
-            <div class="input-wrapper"><input type="text" id="rent-name" placeholder="Имя" oninput="handleInput('name', this.value)" autocomplete="off"><div id="suggest-name" class="suggestions-box"></div></div>
+    <div id="view-new" class="view">
+        <div class="card">
+            <h2>📝 Оформление</h2>
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <input type="tel" id="rent-phone" placeholder="Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
+                    <div id="suggest-phone" class="suggestions-box"></div>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="rent-name" placeholder="Имя" oninput="handleInput('name', this.value)" autocomplete="off">
+                    <div id="suggest-name" class="suggestions-box"></div>
+                </div>
+            </div>
+            <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
+            <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
+            <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
+            <div id="fleet-selector"></div>
+            <div id="tariff-block" style="display:none; margin-top:20px;">
+                <p style="margin:5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБОР ТАРИФА:</p>
+                <div id="tariff-buttons" class="tariff-grid"></div>
+            </div>
         </div>
-        <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
-        <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
-        <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
-        <div id="fleet-selector"></div>
-        <div id="tariff-block" style="display:none; margin-top:20px;"><p style="margin:5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБОР ТАРИФА:</p><div id="tariff-buttons" class="tariff-grid"></div></div>
-    </div></div>
+    </div>
 
-    <div id="view-active" class="view active"><div style="margin-bottom:10px;"><input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()"></div><div id="active-list"></div><div id="no-active-msg" style="text-align:center; color:#94a3b8; margin-top:50px;">Нет активных поездок</div></div>
+    <div id="view-active" class="view active">
+        <div style="margin-bottom:10px;">
+            <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
+        </div>
+        <div id="active-list"></div>
+        <div id="no-active-msg" style="text-align:center; color:#94a3b8; margin-top:50px;">Нет активных поездок</div>
+    </div>
 
-    <div id="view-fleet" class="view"><div class="card"><h2>Парк устройств</h2><select id="new-fleet-cat"></select><div style="display:flex; gap:8px;"><input type="text" id="new-fleet-name" placeholder="Номер/Имя"><input type="color" id="new-fleet-color" value="#3b82f6" style="width:50px; padding:2px; height:46px;"></div><button class="btn btn-primary" onclick="addVehicle()">Добавить</button></div><div id="fleet-list"></div></div>
+    <div id="view-fleet" class="view">
+        <div class="card">
+            <h2>Парк устройств</h2>
+            <select id="new-fleet-cat"></select>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="new-fleet-name" placeholder="Номер/Имя">
+                <input type="color" id="new-fleet-color" value="#3b82f6" style="width:50px; padding:2px; height:46px;">
+            </div>
+            <button class="btn btn-primary" onclick="addVehicle()">Добавить</button>
+        </div>
+        <div id="fleet-list"></div>
+    </div>
 
-    <div id="view-clients" class="view"><div class="card"><h2>База клиентов</h2><input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()"><div id="clients-list" style="margin-top:10px;"></div></div></div>
+    <div id="view-clients" class="view">
+        <div class="card">
+            <h2>База клиентов</h2>
+            <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()">
+            <div id="clients-list" style="margin-top:10px;"></div>
+        </div>
+    </div>
 
-    <div id="view-surcharge" class="view"><div class="profit-card" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><div style="opacity:0.9; font-size:0.9rem;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div><div style="font-size:2.5rem; font-weight:800;" id="sur-total">0 ₽</div></div><div class="card"><h2>Фильтры доплат</h2><div class="filter-row"><input type="date" id="sur-start" onchange="renderSurcharge()"><input type="date" id="sur-end" onchange="renderSurcharge()"></div><input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()"></div><div class="card" style="padding:0; overflow:hidden;"><div style="overflow-x:auto;"><table class="history-table"><thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead><tbody id="surcharge-rows"></tbody></table></div></div></div>
+    <div id="view-surcharge" class="view">
+        <div class="profit-card" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div style="opacity:0.9; font-size:0.9rem;">СУММА ДОПЛАТ (ПО ФИЛЬТРУ)</div>
+            <div style="font-size:2.5rem; font-weight:800;" id="sur-total">0 ₽</div>
+        </div>
+        <div class="card">
+            <h2>Фильтры доплат</h2>
+            <div class="filter-row">
+                <input type="date" id="sur-start" onchange="renderSurcharge()">
+                <input type="date" id="sur-end" onchange="renderSurcharge()">
+            </div>
+            <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+            <div style="overflow-x:auto;">
+                <table class="history-table">
+                    <thead><tr><th>Устройство</th><th>Клиент</th><th>Время</th><th>Сверх</th><th>К оплате</th></tr></thead>
+                    <tbody id="surcharge-rows"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <div id="view-finance" class="view"><div class="profit-card"><div style="opacity:0.9; font-size:0.9rem;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div><div style="font-size:2.5rem; font-weight:800;" id="history-total">0 ₽</div></div><div class="card"><h2>Фильтры</h2><div class="filter-row"><input type="date" id="hist-start" onchange="renderHistory()"><input type="date" id="hist-end" onchange="renderHistory()"><select id="hist-pay" onchange="renderHistory()"><option value="all">💳 Все оплаты</option><option value="cash">💵 Наличные</option><option value="bank">🏦 Банк/Карта</option></select></div><div class="filter-row"><input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()"><div class="device-filter-container"><button class="btn btn-sm device-filter-btn" onclick="toggleDevDropdown()">📱 Выбор устройств <i class="fas fa-chevron-down"></i></button><div id="dev-dd" class="device-dropdown"><input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)"><div id="dev-dd-list"></div></div></div></div></div><div class="card" style="padding:0; overflow:hidden;"><div style="overflow-x:auto;"><table class="history-table"><thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead><tbody id="history-rows"></tbody></table></div></div></div>
+    <div id="view-finance" class="view">
+        <div class="profit-card">
+            <div style="opacity:0.9; font-size:0.9rem;">ПРИБЫЛЬ ПО ВЫБОРКЕ</div>
+            <div style="font-size:2.5rem; font-weight:800;" id="history-total">0 ₽</div>
+        </div>
+        <div class="card">
+            <h2>Фильтры</h2>
+            <div class="filter-row">
+                <input type="date" id="hist-start" onchange="renderHistory()">
+                <input type="date" id="hist-end" onchange="renderHistory()">
+                <select id="hist-pay" onchange="renderHistory()">
+                    <option value="all">💳 Все оплаты</option>
+                    <option value="cash">💵 Наличные</option>
+                    <option value="bank">🏦 Банк/Карта</option>
+                </select>
+            </div>
+            <div class="filter-row">
+                <input type="text" id="hist-search" placeholder="🔍 Имя, Тел, Устройство" oninput="renderHistory()">
+                <div class="device-filter-container">
+                    <button class="btn btn-sm device-filter-btn" onclick="toggleDevDropdown()">📱 Выбор устройств <i class="fas fa-chevron-down"></i></button>
+                    <div id="dev-dd" class="device-dropdown">
+                        <input type="text" class="dd-search-input" placeholder="Поиск..." oninput="filterDevDropdown(this.value)">
+                        <div id="dev-dd-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+            <div style="overflow-x:auto;">
+                <table class="history-table">
+                    <thead><tr><th>Устр.</th><th>Клиент</th><th>Старт/Конец</th><th>Пауза</th><th>Сверх</th><th>Оплата</th><th>Сумма</th><th></th></tr></thead>
+                    <tbody id="history-rows"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <div id="view-settings" class="view"><div class="card"><h2>Категории</h2><button class="btn btn-primary" onclick="openCatModal()">+ Создать категорию</button><div id="settings-list" style="margin-top:15px;"></div></div><div class="card"><button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:10px; width:100%;">💡 Включить "Не спать" (WakeLock)</button><button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:10px; width:100%;">🔊 Разблокировать аудио</button><div id="wakelock-status">Экран может погаснуть (нажми кнопку)</div></div><div class="card"><button class="btn btn-danger" onclick="fullReset()">⚠ Полный сброс данных</button></div></div>
+    <div id="view-settings" class="view">
+        <div class="card">
+            <h2>Категории</h2>
+            <button class="btn btn-primary" onclick="openCatModal()">+ Создать категорию</button>
+            <div id="settings-list" style="margin-top:15px;"></div>
+        </div>
+        <div class="card">
+            <button class="btn btn-success" onclick="requestWakeLock()" style="margin-bottom:10px; width:100%;">💡 Включить "Не спать" (WakeLock)</button>
+            <button class="btn btn-secondary" onclick="testAudio()" style="margin-bottom:10px; width:100%;">🔊 Разблокировать аудио</button>
+            <div id="wakelock-status">Экран может погаснуть (нажми кнопку)</div>
+        </div>
+        <div class="card"><button class="btn btn-danger" onclick="fullReset()">⚠ Полный сброс данных</button></div>
+    </div>
 </main>
 
-<!-- Modals -->
-<div id="modal-confirm" class="modal-overlay" style="z-index: 200;"><div class="modal-content" style="text-align:center;"><i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i><h3 id="confirm-title">Подтверждение</h3><p id="confirm-text" style="color:#64748b; margin-bottom:20px;">Вы уверены?</p><div class="confirm-actions"><button class="btn btn-danger" id="btn-confirm-no">НЕТ</button><button class="btn btn-success" id="btn-confirm-yes">ДА</button></div></div></div>
-<div id="modal-start-confirm" class="modal-overlay"><div class="modal-content"><h3>💰 Форма оплаты</h3><div style="background:#f8fafc; padding:15px; border-radius:10px; margin:15px 0; text-align:center; border:1px solid #eee;"><div id="confirm-tariff-name" style="font-weight:bold; font-size:1.2rem; color:var(--primary);"></div><div id="confirm-devices" style="margin-top:5px; color:#64748b;"></div><div id="confirm-cost" style="margin-top:10px; font-weight:bold; font-size:1.5rem;"></div></div><p style="text-align:center; color:#64748b; margin-bottom:10px;">Выберите способ оплаты:</p><div style="display:flex; gap:15px; margin-bottom:15px;"><div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')"><i class="fas fa-money-bill-wave" style="font-size:2rem;"></i> Наличные</div><div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')"><i class="fas fa-credit-card" style="font-size:2rem;"></i> Банк/Карта</div></div><button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')">Отмена</button></div></div>
-<div id="modal-final-start" class="modal-overlay" style="z-index: 150;"><div class="modal-content" style="text-align:center"><h3>🚀 Начать поездку?</h3><div style="margin:20px 0; color:#64748b;">Проверьте данные и подтвердите старт.</div><div class="confirm-actions"><button class="btn btn-danger" onclick="closeModal('modal-final-start')">Нет</button><button class="btn btn-success" onclick="realStartRental()">Да, поехали</button></div></div></div>
-<div id="modal-sub" class="modal-overlay"><div class="modal-content"><h3 id="sub-title">Выбор</h3><input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)"><div id="swap-list-container" class="swap-list-container"></div><button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled>Подтвердить выбор</button><button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:10px;">Закрыть</button></div></div>
-<div id="modal-client" class="modal-overlay"><div class="modal-content"><h3>Клиент</h3><input type="hidden" id="edit-cl-id"><input type="text" id="edit-cl-name" placeholder="Имя"><input type="tel" id="edit-cl-phone" placeholder="Телефон"><textarea id="edit-cl-comment" placeholder="Комментарий" rows="3"></textarea><label style="display:flex; align-items:center; gap:10px; margin:10px 0;"><input type="checkbox" id="edit-cl-block" style="width:auto; margin:0;"><span style="color:var(--danger); font-weight:bold;">Черный список</span></label><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-danger" onclick="delClient()">Удалить</button><button class="btn btn-primary" onclick="saveClient()">Сохранить</button></div><button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:10px;">Отмена</button></div></div>
-<div id="modal-vehicle-note" class="modal-overlay"><div class="modal-content"><h3>⚙️ Заметка к устройству</h3><input type="hidden" id="note-v-id"><div id="note-v-name" style="margin-bottom:10px; font-weight:bold;"></div><textarea id="note-v-text" placeholder="Опишите проблему или статус..." rows="5"></textarea><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-danger" onclick="deleteVehicleNote()">Удалить заметку</button><button class="btn btn-primary" onclick="saveVehicleNote()">Сохранить</button></div><button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:10px;">Отмена</button></div></div>
-<div id="modal-cat" class="modal-overlay"><div class="modal-content"><h3>Категория</h3><input type="hidden" id="edit-cat-id"><input type="text" id="edit-cat-name" placeholder="Название"><input type="number" id="edit-cat-rate" placeholder="Цена минуты (сверх тарифа) ₽"><div style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;"><h4>Тарифы</h4><div id="cat-tariffs-list"></div><div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-top:10px;"><select id="nt-type"><option value="fix">Фиксированный</option><option value="std">Поминутный</option></select><input type="text" id="nt-name" placeholder="Имя (напр. 30 мин)"><div style="display:flex; gap:5px;"><input type="number" id="nt-v1" placeholder="Мин / Старт"><input type="number" id="nt-v2" placeholder="Цена / Мин"></div><button class="btn btn-success btn-sm" onclick="addTariffIO()">+ Тариф</button></div></div><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-secondary" onclick="closeModal('modal-cat')">Отмена</button><button class="btn btn-primary" onclick="saveCat()">Сохранить</button></div></div></div>
+<div id="modal-confirm" class="modal-overlay" style="z-index: 200;">
+    <div class="modal-content" style="text-align:center;">
+        <i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+        <h3 id="confirm-title">Подтверждение</h3>
+        <p id="confirm-text" style="color:#64748b; margin-bottom:20px;">Вы уверены?</p>
+        <div class="confirm-actions">
+            <button class="btn btn-danger" id="btn-confirm-no">НЕТ</button>
+            <button class="btn btn-success" id="btn-confirm-yes">ДА</button>
+        </div>
+    </div>
+</div>
 
-<!-- 🔐 AUTH MODAL -->
-<div id="modal-auth" class="modal-overlay" style="z-index: 9999;"><div class="modal-content" style="max-width: 350px;" id="auth-content"></div></div>
+<div id="modal-start-confirm" class="modal-overlay">
+    <div class="modal-content">
+        <h3>💰 Форма оплаты</h3>
+        <div style="background:#f8fafc; padding:15px; border-radius:10px; margin:15px 0; text-align:center; border:1px solid #eee;">
+            <div id="confirm-tariff-name" style="font-weight:bold; font-size:1.2rem; color:var(--primary);"></div>
+            <div id="confirm-devices" style="margin-top:5px; color:#64748b;"></div>
+            <div id="confirm-cost" style="margin-top:10px; font-weight:bold; font-size:1.5rem;"></div>
+        </div>
+        <p style="text-align:center; color:#64748b; margin-bottom:10px;">Выберите способ оплаты:</p>
+        <div style="display:flex; gap:15px; margin-bottom:15px;">
+            <div class="pay-choice-btn pay-choice-cash" onclick="confirmPaymentChoice('cash')">
+                <i class="fas fa-money-bill-wave" style="font-size:2rem;"></i> Наличные
+            </div>
+            <div class="pay-choice-btn pay-choice-bank" onclick="confirmPaymentChoice('bank')">
+                <i class="fas fa-credit-card" style="font-size:2rem;"></i> Банк/Карта
+            </div>
+        </div>
+        <button class="btn btn-secondary" onclick="closeModal('modal-start-confirm')">Отмена</button>
+    </div>
+</div>
+
+<div id="modal-final-start" class="modal-overlay" style="z-index: 150;">
+    <div class="modal-content" style="text-align:center">
+        <h3>🚀 Начать поездку?</h3>
+        <div style="margin:20px 0; color:#64748b;">Проверьте данные и подтвердите старт.</div>
+        <div class="confirm-actions">
+            <button class="btn btn-danger" onclick="closeModal('modal-final-start')">Нет</button>
+            <button class="btn btn-success" onclick="realStartRental()">Да, поехали</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-sub" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="sub-title">Выбор</h3>
+        <input type="text" id="swap-search" class="swap-search" placeholder="Поиск устройства..." oninput="renderSwapList(this.value)">
+        <div id="swap-list-container" class="swap-list-container"></div>
+        <button class="btn btn-primary" id="btn-do-swap" onclick="finalizeSwap()" disabled>Подтвердить выбор</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-sub')" style="margin-top:10px;">Закрыть</button>
+    </div>
+</div>
+
+<div id="modal-client" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Клиент</h3>
+        <input type="hidden" id="edit-cl-id">
+        <input type="text" id="edit-cl-name" placeholder="Имя">
+        <input type="tel" id="edit-cl-phone" placeholder="Телефон">
+        <textarea id="edit-cl-comment" placeholder="Комментарий" rows="3"></textarea>
+        <label style="display:flex; align-items:center; gap:10px; margin:10px 0;"><input type="checkbox" id="edit-cl-block" style="width:auto; margin:0;"><span style="color:var(--danger); font-weight:bold;">Черный список</span></label>
+        <div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-danger" onclick="delClient()">Удалить</button><button class="btn btn-primary" onclick="saveClient()">Сохранить</button></div>
+        <button class="btn btn-secondary" onclick="closeModal('modal-client')" style="margin-top:10px;">Отмена</button>
+    </div>
+</div>
+
+<div id="modal-vehicle-note" class="modal-overlay">
+    <div class="modal-content">
+        <h3>⚙️ Заметка к устройству</h3>
+        <input type="hidden" id="note-v-id">
+        <div id="note-v-name" style="margin-bottom:10px; font-weight:bold;"></div>
+        <textarea id="note-v-text" placeholder="Опишите проблему или статус..." rows="5"></textarea>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn btn-danger" onclick="deleteVehicleNote()">Удалить заметку</button>
+            <button class="btn btn-primary" onclick="saveVehicleNote()">Сохранить</button>
+        </div>
+        <button class="btn btn-secondary" onclick="closeModal('modal-vehicle-note')" style="margin-top:10px;">Отмена</button>
+    </div>
+</div>
+
+<div id="modal-cat" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Категория</h3>
+        <input type="hidden" id="edit-cat-id">
+        <input type="text" id="edit-cat-name" placeholder="Название">
+        <input type="number" id="edit-cat-rate" placeholder="Цена минуты (сверх тарифа) ₽">
+        <div style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
+            <h4>Тарифы</h4><div id="cat-tariffs-list"></div>
+            <div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-top:10px;">
+                <select id="nt-type"><option value="fix">Фиксированный</option><option value="std">Поминутный</option></select>
+                <input type="text" id="nt-name" placeholder="Имя (напр. 30 мин)">
+                <div style="display:flex; gap:5px;">
+                    <input type="number" id="nt-v1" placeholder="Мин / Старт">
+                    <input type="number" id="nt-v2" placeholder="Цена / Мин">
+                </div>
+                <button class="btn btn-success btn-sm" onclick="addTariffIO()">+ Тариф</button>
+            </div>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Отмена</button>
+            <button class="btn btn-primary" onclick="saveCat()">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-auth" class="modal-overlay" style="z-index: 9999;">
+    <div class="modal-content" style="max-width: 300px; text-align: center;">
+        <h3 style="margin-top:0;">🔐 Введите пароль</h3>
+        
+        <input type="password" id="auth-pass-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing: 5px;">
+        
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn btn-secondary" onclick="closeModal('modal-auth')">Отмена</button>
+            <button class="btn btn-success" onclick="submitAuth()">OK</button>
+        </div>
+
+        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+        
+        <button class="btn btn-sm btn-danger" style="width:100%; background: #fee2e2; color: #b91c1c; border:none;" onclick="resetPassBtnAction()">
+            <i class="fas fa-key"></i> Сброс пароля
+        </button>
+    </div>
+</div>
+
 
 <script>
-// === GLOBAL STATE ===
-let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
-let isMonitorMode = false, tempStartData = null, currentSwapRentalId = null, wakeLock = null, pendingAuthCallback = null, currentUser = null, firebaseReady = false;
+    const FIREBASE_ADMIN_KEY = "6sflAa12dpTgQd5Gf8aFhhGjnS23";
 
-// === AUDIO ===
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function unlockAudio() { if(audioCtx.state === 'suspended') audioCtx.resume(); }
-document.addEventListener('click', unlockAudio, {once:true});
-document.addEventListener('touchstart', unlockAudio, {once:true});
-function playAlarm(isCritical) {
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    const t = audioCtx.currentTime, osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination); osc.type = 'square';
-    if (isCritical) { osc.frequency.setValueAtTime(800, t); osc.frequency.linearRampToValueAtTime(1200, t+1); gain.gain.setValueAtTime(0.5, t); gain.gain.linearRampToValueAtTime(0, t+3); osc.start(t); osc.stop(t+3); }
-    else { osc.frequency.setValueAtTime(600, t); gain.gain.setValueAtTime(0.3, t); gain.gain.linearRampToValueAtTime(0, t+0.6); osc.start(t); osc.stop(t+0.6); }
-}
-
-// === TOAST ===
-function showToast(message, type = 'info') {
-    let container = document.getElementById('toast-container');
-    if (!container) { container = document.createElement('div'); container.id = 'toast-container'; container.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;width:90%;max-width:400px;pointer-events:none;'; document.body.appendChild(container); }
-    const toast = document.createElement('div');
-    toast.className = 'toast ' + type;
-    toast.style.cssText = 'background:' + (type==='danger'?'#7f1d1d':type==='success'?'#166534':'#1e293b') + ';color:white;padding:15px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;align-items:center;gap:10px;font-weight:bold;animation:slideDown 0.3s ease-out;pointer-events:auto;border-left:6px solid ' + (type==='danger'?'#ef4444':type==='success'?'#22c55e':'#facc15') + ';';
-    toast.innerHTML = '<i class="fas fa-' + (type==='danger'?'exclamation-circle':type==='success'?'check-circle':'info-circle') + '"></i> ' + message;
-    container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; setTimeout(() => toast.remove(), 300); }, 3000);
-}
-
-// === AUTH UI ===
-function showAuthForm() {
-    const content = document.getElementById('auth-content');
-    if (!content) return;
-    content.innerHTML = '<h3 style="margin:0 0 15px 0;text-align:center;">🔐 RentMaster</h3>' +
-        '<form id="email-login-form" class="auth-form" onsubmit="event.preventDefault(); handleEmailLogin();">' +
-        '<input type="email" id="auth-email" placeholder="📧 Email" required autocomplete="email">' +
-        '<input type="password" id="auth-pass-input" placeholder="🔑 Пароль" required autocomplete="current-password">' +
-        '<div style="text-align:right;margin:5px 0 15px 0;"><a href="#" class="link" onclick="showForgotPassword();return false;">Забыли пароль?</a></div>' +
-        '<button type="submit" class="btn btn-success" style="width:100%;margin-bottom:10px;"><i class="fas fa-sign-in-alt"></i> Войти</button></form>' +
-        '<hr style="margin:10px 0;border:0;border-top:1px solid #eee;">' +
-        '<details class="auth-form"><summary>⚙️ Администратор</summary><div class="master-box">' +
-        '<input type="password" id="master-pass-input" placeholder="Мастер-пароль" style="text-align:center;margin-bottom:10px;">' +
-        '<button class="btn btn-danger btn-sm" onclick="handleMasterLogin()" style="width:100%;"><i class="fas fa-key"></i> Войти как админ</button>' +
-        '<div style="margin-top:8px;font-size:0.8rem;color:#666;text-align:center;">Или <a href="#" class="link" onclick="showRegisterForm();return false;">зарегистрировать</a></div></div></details>';
-}
-function showRegisterForm() {
-    document.getElementById('auth-content').innerHTML = '<h3 style="margin:0 0 15px 0;text-align:center;">👤 Регистрация</h3>' +
-        '<form id="register-form" class="auth-form" onsubmit="event.preventDefault(); handleRegister();">' +
-        '<input type="text" id="reg-name" placeholder="👤 Имя (опционально)">' +
-        '<input type="email" id="reg-email" placeholder="📧 Email" required autocomplete="email">' +
-        '<input type="password" id="reg-pass" placeholder="🔑 Пароль (мин. 6 символов)" required autocomplete="new-password">' +
-        '<input type="password" id="reg-master" placeholder="🔐 Мастер-пароль" required style="border-color:var(--danger);">' +
-        '<button type="submit" class="btn btn-primary" style="width:100%;margin:15px 0;"><i class="fas fa-user-plus"></i> Зарегистрировать</button></form>' +
-        '<button class="btn btn-secondary" onclick="showAuthForm()" style="width:100%;">← Назад</button>';
-}
-function showForgotPassword() {
-    document.getElementById('auth-content').innerHTML = '<h3 style="margin:0 0 15px 0;text-align:center;">🔑 Сброс пароля</h3>' +
-        '<p style="color:#64748b;text-align:center;margin-bottom:20px;">Введите email для получения инструкции</p>' +
-        '<form id="reset-form" class="auth-form" onsubmit="event.preventDefault(); handleReset();">' +
-        '<input type="email" id="reset-email" placeholder="📧 Ваш email" required autocomplete="email">' +
-        '<button type="submit" class="btn btn-primary" style="width:100%;margin:15px 0;"><i class="fas fa-paper-plane"></i> Отправить</button></form>' +
-        '<button class="btn btn-secondary" onclick="showAuthForm()" style="width:100%;">← Назад</button>';
-}
-
-// === AUTH HANDLERS ===
-window.handleEmailLogin = function() {
-    const email = document.getElementById('auth-email')?.value.trim();
-    const password = document.getElementById('auth-pass-input')?.value;
-    if (!email || !password) { showToast("Заполните email и пароль", "warning"); return; }
-    if (window.loginWithEmail) { window.loginWithEmail(email, password).then(function(ok){ if(ok) closeModal('modal-auth'); }); }
-    else { showToast("Система загружается...", "warning"); }
-};
-window.handleMasterLogin = function() {
-    const master = document.getElementById('master-pass-input')?.value;
-    if (master === '89144892253') {
-        currentUser = { email: 'admin@local', displayName: 'Администратор', isMaster: true };
-        updateAuthUI(true, currentUser);
-        showToast("👑 Вход как администратор", "success");
-    } else { showToast("❌ Неверный мастер-пароль", "danger"); navigator.vibrate?.([100,50,100]); }
-};
-window.handleRegister = function() {
-    const name = document.getElementById('reg-name')?.value.trim() || '', email = document.getElementById('reg-email')?.value.trim(), password = document.getElementById('reg-pass')?.value, master = document.getElementById('reg-master')?.value;
-    if (master !== '89144892253') { showToast("❌ Неверный мастер-пароль", "danger"); return; }
-    if (password.length < 6) { showToast("Пароль должен содержать минимум 6 символов", "warning"); return; }
-    if (window.registerUser) { window.registerUser(email, password, name).then(function(ok){ if(ok) showAuthForm(); }); }
-    else { showToast("Система загружается...", "warning"); }
-};
-window.handleReset = function() {
-    const email = document.getElementById('reset-email')?.value.trim();
-    if (email && window.resetPasswordEmail) { window.resetPasswordEmail(email); }
-};
-window.logoutUser = function() {
-    if (window.firebaseLogout) { window.firebaseLogout().then(function(){ currentUser = null; updateAuthUI(false, null); }); }
-    else { currentUser = null; updateAuthUI(false, null); showToast("Вы вышли", "warning"); }
-};
-
-function updateAuthUI(isAuthed, user) {
-    const authModal = document.getElementById('modal-auth'), header = document.querySelector('header'), main = document.querySelector('main');
-    if (isAuthed && user) {
-        if(authModal) authModal.style.display = 'none';
-        if(header) header.style.display = 'flex';
-        if(main) main.style.display = 'block';
-        const settingsList = document.getElementById('settings-list');
-        if (settingsList && !document.getElementById('auth-user-info')) {
-            const userInfo = document.createElement('div'); userInfo.id = 'auth-user-info'; userInfo.className = 'card';
-            userInfo.style.cssText = 'background:#eff6ff;border:1px solid #3b82f6;margin-bottom:15px;';
-            userInfo.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>👤 ' + (user.displayName || user.email) + '</strong><br><small style="color:#64748b">' + user.email + '</small></div><button class="btn btn-danger btn-sm" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Выйти</button></div>';
-            settingsList.insertBefore(userInfo, settingsList.firstChild);
+    function verifyGlobalAdmin() {
+        const input = document.getElementById('admin-firebase-pass').value;
+        if (input === FIREBASE_ADMIN_KEY) {
+            document.getElementById('global-login').style.display = 'none';
+            sessionStorage.setItem('app_unlocked', 'true');
+        } else {
+            const err = document.getElementById('global-login-error');
+            err.style.display = 'block';
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            setTimeout(() => err.style.display = 'none', 2000);
         }
+    }
+
+    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
+    let isMonitorMode = false;
+    let tempStartData = null;
+    let currentSwapRentalId = null;
+    let wakeLock = null;
+    let pendingAuthCallback = null;
+
+    // --- AUDIO ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function unlockAudio() { if(audioCtx.state === 'suspended') audioCtx.resume(); }
+    document.addEventListener('click', unlockAudio, {once:true});
+    document.addEventListener('touchstart', unlockAudio, {once:true});
+
+    function playAlarm(isCritical) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'square';
+        if (isCritical) {
+            osc.frequency.setValueAtTime(800, t); osc.frequency.linearRampToValueAtTime(1200, t+1);
+            gain.gain.setValueAtTime(0.5, t); gain.gain.linearRampToValueAtTime(0, t+3);
+            osc.start(t); osc.stop(t+3);
+        } else {
+            osc.frequency.setValueAtTime(600, t); osc.frequency.setValueAtTime(600, t+0.4);
+            gain.gain.setValueAtTime(0.3, t); gain.gain.linearRampToValueAtTime(0, t+0.6);
+            osc.start(t); osc.stop(t+0.6);
+        }
+    }
+
+    // --- INIT ---
+    function init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // ПРОВЕРКА ГЛОБАЛЬНОГО ДОСТУПА
+        if (sessionStorage.getItem('app_unlocked') === 'true' || urlParams.get('mode') === 'monitor') {
+            document.getElementById('global-login').style.display = 'none';
+        } else {
+            document.getElementById('global-login').style.display = 'flex';
+        }
+
+        if (urlParams.get('mode') === 'monitor') {
+            isMonitorMode = true;
+            createMonitorStyles();
+            loadDB();
+            setTimeout(() => switchView('active'), 100);
+            setInterval(tick, 1000);
+            return; 
+        }
+
+        if ("Notification" in window) Notification.requestPermission();
+        loadDB();
+        
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('hist-start').value = today;
+        document.getElementById('hist-end').value = today;
+        document.getElementById('sur-start').value = today;
+        document.getElementById('sur-end').value = today;
+
         updateUI();
-    } else {
-        if(authModal) { authModal.style.display = 'flex'; authModal.style.zIndex = '9999'; showAuthForm(); }
-        if(header) header.style.display = 'none';
-        if(main) main.style.display = 'none';
+        setInterval(tick, 1000);
+        window.onclick = function(e) { if(e.target.matches('.modal-overlay')) e.target.style.display='none'; if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) document.getElementById('dev-dd').style.display='none'; }
+        requestWakeLock();
     }
-}
 
-// === FIREBASE LOADER ===
-(function loadFirebase() {
-    const script = document.createElement('script');
-    script.type = 'module';
-    script.textContent = 'import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";' +
-    'import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";' +
-    'import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";' +
-    'import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";' +
-    'const firebaseConfig = { apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U", authDomain: "skuter75rus-3d55d.firebaseapp.com", projectId: "skuter75rus-3d55d", storageBucket: "skuter75rus-3d55d.firebasestorage.app", messagingSenderId: "1054204994225", appId: "1:1054204994225:web:692c298038a0d3bbc2f890", measurementId: "G-J47C67V554" };' +
-    'const app = initializeApp(firebaseConfig); const analytics = getAnalytics(app); const dbCloud = getFirestore(app); const auth = getAuth(app);' +
-    'window.firebaseAuth = auth; window.firebaseDb = dbCloud; const myDataRef = doc(dbCloud, "rent_app", "base");' +
-    'window.loginWithEmail = async function(email, password) { try { const cred = await signInWithEmailAndPassword(auth, email, password); console.log("✅ Вход:", cred.user.email); showToast("🎉 Добро пожаловать!", "success"); return true; } catch (error) { console.error("❌ Ошибка:", error.code); let msg = "Ошибка входа"; if (error.code === "auth/wrong-password") msg = "Неверный пароль"; if (error.code === "auth/user-not-found") msg = "Пользователь не найден"; if (error.code === "auth/invalid-email") msg = "Некорректный email"; if (error.code === "auth/too-many-requests") msg = "Слишком много попыток"; showToast(msg, "danger"); return false; } };' +
-    'window.registerUser = async function(email, password, displayName) { displayName = displayName || ""; const master = prompt("🔐 Введите мастер-пароль:"); if (master !== "89144892253") { alert("⛔ Доступ запрещён!"); return false; } try { const cred = await createUserWithEmailAndPassword(auth, email, password); await cred.user.updateProfile({ displayName: displayName }); console.log("✅ Создан:", email); showToast("👤 Пользователь зарегистрирован", "success"); return true; } catch (error) { console.error("❌ Ошибка:", error.code); let msg = "Ошибка регистрации"; if (error.code === "auth/email-already-in-use") msg = "Email уже занят"; if (error.code === "auth/weak-password") msg = "Пароль слишком слабый"; showToast(msg, "danger"); return false; } };' +
-    'window.firebaseLogout = async function() { try { await signOut(auth); console.log("🚪 Выход"); showToast("Вы вышли из системы", "warning"); return true; } catch (e) { console.error(e); return false; } };' +
-    'window.resetPasswordEmail = async function(email) { try { await sendPasswordResetEmail(auth, email); showToast("✉️ Инструкция отправлена на " + email, "success"); return true; } catch (error) { showToast("Ошибка: " + (error.message || error.code), "danger"); return false; } };' +
-    'onAuthStateChanged(auth, function(user) { window.firebaseReady = true; if (user) { console.log("👤 Авторизован:", user.email); window.currentUser = { email: user.email, displayName: user.displayName || user.email }; updateAuthUI(true, window.currentUser); } else { console.log("🔒 Не авторизован"); window.currentUser = null; updateAuthUI(false, null); } });' +
-    'window.sendToCloud = async function(data) { if (!window.currentUser && !data?.password) { console.log("⚠️ Не авторизован"); return; } try { const safeData = Object.assign({}, data); if (safeData.password) delete safeData.password; await setDoc(myDataRef, safeData); console.log("✅ Синхронизация"); } catch (e) { console.error("❌ Ошибка:", e); if (e.code === "permission-denied") showToast("⛔ Нет прав на запись", "danger"); } };' +
-    'onSnapshot(myDataRef, function(docSnap) { if (docSnap.exists()) { console.log("📥 Обновление из облака"); const cloudData = docSnap.data(); if (window.db?.password) cloudData.password = window.db.password; if (window.updateGlobalDB) window.updateGlobalDB(cloudData); } });';
-    document.head.appendChild(script);
-})();
-
-// === INIT ===
-function init() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'monitor') {
-        isMonitorMode = true; createMonitorStyles(); loadDB();
-        setTimeout(function(){ switchView('active'); }, 100);
-        setInterval(tick, 1000); return; 
+    function createMonitorStyles() {
+        const style = document.createElement('style');
+        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ ТОЛЬКО ПРОСМОТР";position:fixed;top:0;left:0;width:100%;background:#1e293b;color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3)}`;
+        document.head.appendChild(style);
     }
-    if ("Notification" in window) Notification.requestPermission();
-    loadDB();
-    const today = new Date().toISOString().split('T')[0];
-    const ids = ['hist-start','hist-end','sur-start','sur-end'];
-    ids.forEach(function(id){ const el = document.getElementById(id); if(el) el.value = today; });
-    setInterval(tick, 1000);
-    window.onclick = function(e) { 
-        if(e.target.matches('.modal-overlay') && e.target.id !== 'modal-auth') { e.target.style.display='none'; }
-        if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) { const dd = document.getElementById('dev-dd'); if(dd) dd.style.display='none'; }
-    };
-    requestWakeLock();
-    // 🔐 ПОКАЗАТЬ ОКНО ВХОДА СРАЗУ
-    updateAuthUI(false, null);
-}
 
-function createMonitorStyles() {
-    const style = document.createElement('style');
-    style.innerHTML = 'header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ ТОЛЬКО ПРОСМОТР";position:fixed;top:0;left:0;width:100%;background:#1e293b;color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3)}';
-    document.head.appendChild(style);
-}
-
-function loadDB() {
-    const local = localStorage.getItem('rm_final_keyboard_fix');
-    if(local) { db = JSON.parse(local); if(!db.password) db.password = '4892'; }
-    else { db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}]; db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}]; db.password = '4892'; }
-}
-
-// === CORE FUNCTIONS ===
-function authWrapper(actionCallback) {
-    if (currentUser) { if (typeof actionCallback === 'function') actionCallback(); return; }
-    pendingAuthCallback = actionCallback;
-    const authModal = document.getElementById('modal-auth');
-    if (authModal) { authModal.style.display = 'flex'; authModal.style.zIndex = '9999'; showAuthForm(); }
-}
-function closeModal(id) { const modal = document.getElementById(id); if(modal) modal.style.display='none'; }
-async function requestWakeLock() {
-    if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); const status = document.getElementById('wakelock-status'); if(status) { status.innerText = "💡 Экран активен (WakeLock вкл)"; status.style.color = "green"; } wakeLock.addEventListener('release', function() { const status = document.getElementById('wakelock-status'); if(status) { status.innerText = "Экран может погаснуть"; status.style.color = "gray"; } }); } catch (err) {} }
-}
-function save() { localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); if (window.sendToCloud) window.sendToCloud(db); }
-window.updateGlobalDB = function(newData) { if (!newData) return; if ((!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0)) { const cHist = newData.history ? newData.history.length : 0, lHist = db.history ? db.history.length : 0; if (cHist <= lHist) { console.log("🛑 Blocked empty sync"); return; } } db = Object.assign({}, newData, { password: newData.password || db.password || '4892' }); updateUI(); };
-
-function switchView(id) {
-    const protectedViews = ['settings', 'finance', 'surcharge', 'fleet', 'clients'];
-    if (protectedViews.includes(id) && !currentUser) {
-        if (!currentUser?.isMaster) { showToast("🔐 Требуется авторизация", "warning"); const authModal = document.getElementById('modal-auth'); if (authModal) { authModal.style.display = 'flex'; authModal.style.zIndex = '9999'; showAuthForm(); } return; }
+    function loadDB() {
+        const local = localStorage.getItem('rm_final_keyboard_fix');
+        if(local) {
+            db = JSON.parse(local);
+            if(!db.password) db.password = '4892';
+        } else {
+            db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300},{id:11, type:'std', name:'Старт', start:50, min:10}]}];
+            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6'}, {id:2, name:'S-2', catId:1, status:'free', color:'#ec4899'}];
+            db.password = '4892';
+        }
     }
-    if (id === 'settings') { authWrapper(function(){ doSwitchView(id); }); return; }
-    doSwitchView(id);
-}
-function doSwitchView(id) {
-    document.querySelectorAll('.view').forEach(function(e){ e.classList.remove('active'); });
-    const view = document.getElementById('view-'+id); if(view) view.classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(function(e){ e.classList.remove('active'); });
-    if(event?.currentTarget) event.currentTarget.classList.add('active');
-    if(id === 'active') renderActiveRentals(); if(id === 'new') renderNewRent(); if(id === 'clients') renderClients(); if(id === 'fleet') renderFleet(); if(id === 'finance') { initDeviceFilter(); renderHistory(); } if(id === 'surcharge') renderSurcharge(); if(id === 'settings') renderSettingsList(); unlockAudio();
-}
-function openConfirm(msg, yesCallback) {
-    document.getElementById('confirm-text').innerText = msg; document.getElementById('modal-confirm').style.display = 'flex';
-    const yesBtn = document.getElementById('btn-confirm-yes'), noBtn = document.getElementById('btn-confirm-no');
-    const newYes = yesBtn.cloneNode(true), newNo = noBtn.cloneNode(true);
-    yesBtn.parentNode.replaceChild(newYes, yesBtn); noBtn.parentNode.replaceChild(newNo, noBtn);
-    newYes.onclick = function(){ document.getElementById('modal-confirm').style.display = 'none'; yesCallback(); };
-    newNo.onclick = function(){ document.getElementById('modal-confirm').style.display = 'none'; };
-}
-function sendNotify(title, body, isCritical) {
-    if ("Notification" in window && Notification.permission === "granted") { try { new Notification(title, { body: body }); } catch (e) {} }
-    if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]); playAlarm(isCritical);
-}
 
-// === RENTAL LOGIC (сокращено для краткости - остальное как в оригинале) ===
-function askStartRental(tariff) { unlockAudio(); const checks = document.querySelectorAll('.fleet-check-input:checked'), phone = document.getElementById('rent-phone')?.value, name = document.getElementById('rent-name')?.value; if(!phone || checks.length === 0) return alert('Заполните данные'); let devices = []; checks.forEach(function(c){ const v = db.fleet.find(function(f){ return f.id == c.value; }); if(v) devices.push(v.name); }); const costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин"; document.getElementById('confirm-tariff-name').innerText = tariff.name; document.getElementById('confirm-devices').innerText = devices.join(', '); document.getElementById('confirm-cost').innerText = costLabel; tempStartData = { tariff, phone, name, checks }; document.getElementById('modal-start-confirm').style.display = 'flex'; }
-function confirmPaymentChoice(method) { tempStartData.payMethod = method; closeModal('modal-start-confirm'); document.getElementById('modal-final-start').style.display = 'flex'; }
-function realStartRental() { const tariff = tempStartData.tariff, phone = tempStartData.phone, name = tempStartData.name, checks = tempStartData.checks, payMethod = tempStartData.payMethod; let c = db.clients.find(function(x){ return x.phone === phone; }); if(!c) { c = {id:Date.now(), name: name||'Гость', phone: phone, blocked:false, comment:''}; db.clients.push(c); } if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); } const now = Date.now(); checks.forEach(function(chk){ const vId = parseInt(chk.value), v = db.fleet.find(function(x){ return x.id === vId; }); if(v) v.status = 'busy'; const cat = db.categories.find(function(ca){ return ca.id == v.catId; }), baseRate = cat ? (cat.baseRate || 0) : 0; db.rentals.push({ id: Math.floor(Math.random()*10000000), vId: vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone, startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)), tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate, notified5: false, notified2: false }); }); const phoneInput = document.getElementById('rent-phone'), nameInput = document.getElementById('rent-name'); if(phoneInput) phoneInput.value = ''; if(nameInput) nameInput.value = ''; save(); closeModal('modal-final-start'); switchView('active'); }
-function finishRental(id) { openConfirm('Завершить поездку?', function(){ const idx = db.rentals.findIndex(function(x){ return x.id === id; }), r = db.rentals[idx], v = db.fleet.find(function(f){ return f.id === r.vId; }); if(v) v.status = 'free'; const now = Date.now(), pauseMs = r.totalPause, pauseMin = Math.round(pauseMs / 60000), activeDurationMs = now - r.startTs - pauseMs, activeDurationMin = Math.ceil(activeDurationMs / 60000); let overdueMin = 0; if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; } const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName; db.history.unshift({ id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone, cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0, tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash' }); db.rentals.splice(idx, 1); save(); renderActiveRentals(); }); }
+    function authWrapper(actionCallback) {
+        pendingAuthCallback = actionCallback;
+        document.getElementById('auth-pass-input').value = '';
+        document.getElementById('modal-auth').style.display = 'flex';
+        setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
+    }
 
-// === RENDERERS (ключевые функции) ===
-function renderNewRent() { const c = document.getElementById('fleet-selector'); if(!c) return; c.innerHTML=''; const searchQ = (document.getElementById('new-fleet-search')?.value || '').toLowerCase(); db.categories.forEach(function(cat){ const inCat = db.fleet.filter(function(v){ return v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ); }); if(inCat.length) { c.innerHTML += '<div class="fleet-category-block"><div class="fleet-cat-title">'+cat.name+'</div><div class="fleet-items-container"></div></div>'; const container = c.lastElementChild?.querySelector('.fleet-items-container'); if(container) { inCat.forEach(function(v){ container.innerHTML += '<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="'+v.id+'" data-cat="'+cat.id+'" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:'+v.color+';margin-right:8px; display:inline-block;"></span>'+v.name+'</span></label>'; }); } } }); }
-function showTariffs() { const chk = document.querySelectorAll('.fleet-check-input:checked'), blk = document.getElementById('tariff-block'), box = document.getElementById('tariff-buttons'); if(!blk || !box) return; if(!chk.length) { blk.style.display='none'; return; } const catId = chk[0]?.getAttribute('data-cat'), cat = db.categories.find(function(c){ return c.id == catId; }); box.innerHTML = ''; if(cat && cat.tariffs) { cat.tariffs.forEach(function(t){ const info = t.type==='fix' ? t.dur+' мин' : 'Старт '+t.start+'₽'; box.innerHTML += '<div class="tariff-card" onclick="askStartRental({id:'+t.id+',type:\''+t.type+'\',name:\''+t.name+'\',dur:\''+t.dur+'\',price:\''+t.price+'\',start:\''+t.start+'\'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">'+t.name+'</span><span style="font-size:0.95rem;color:#64748b;">'+info+' · '+t.price+'₽</span></div>'; }); blk.style.display = 'block'; } }
-function renderFleet() { const l = document.getElementById('fleet-list'); if(!l) return; l.innerHTML=''; const sel = document.getElementById('new-fleet-cat'); if(sel) { sel.innerHTML=''; db.categories.forEach(function(c){ sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'; }); } const sorted = [...db.fleet].sort(function(a,b){ return a.name.localeCompare(b.name, undefined, {numeric: true}); }); sorted.forEach(function(f){ const isRep = f.status === 'repair', repBtn = isRep ? '<button class="btn btn-success btn-sm" onclick="toggleRepair('+f.id+')"><i class="fas fa-check"></i></button>' : '<button class="btn btn-warning btn-sm" onclick="toggleRepair('+f.id+')"><i class="fas fa-wrench"></i></button>', delBtn = '<button class="btn btn-danger btn-sm" onclick="authWrapper(function(){ openConfirm(\'Удалить?\', function(){db.fleet=db.fleet.filter(function(x){return x.id!=='+f.id+'});save();renderFleet();}); })"><i class="fas fa-trash"></i></button>'; l.innerHTML += '<div class="item-card '+(isRep?'repair':'')+'" style="border-left-color:'+f.color+'"><div><div class="item-name">'+f.name+'</div><div class="item-sub">'+(isRep?'В РЕМОНТЕ':'Готов к работе')+'</div></div><div class="item-actions"><button class="gear-btn '+(f.notes?'has-note':'')+'" onclick="openVehicleNote('+f.id+')"><i class="fas fa-cog"></i></button>'+repBtn+delBtn+'</div></div>'; }); }
-function renderClients() { const searchEl = document.getElementById('client-search'), q = searchEl ? searchEl.value.toLowerCase() : '', list = document.getElementById('clients-list'); if(!list) return; list.innerHTML = db.clients.filter(function(c){ return c.name.toLowerCase().includes(q)||c.phone.includes(q); }).map(function(c){ return '<div class="item-card" style="border-left: 5px solid '+(c.blocked ? '#ef4444' : '#22c55e')+'"><div><div class="item-name">'+c.name+' '+(c.blocked ? '(BAN)' : '')+'</div><div class="item-sub">'+c.phone+'</div>'+(c.comment ? '<div style="font-size:0.8rem;color:#666;margin-top:2px;">'+c.comment+'</div>' : '')+'</div> <button class="btn btn-sm btn-secondary" onclick="openClientModal('+c.id+')"><i class="fas fa-pen"></i></button></div>'; }).join(''); }
-function renderSettingsList() { const d = document.getElementById('settings-list'); if(!d) return; d.innerHTML=''; d.innerHTML += '<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить пароль администратора</button></div>'; d.innerHTML += '<div class="card" style="border: 2px solid #22c55e; background: #f0fdf4;"><h3 style="color:#15803d; margin-top:0;">☁️ Восстановить Облако</h3><p style="font-size:0.85rem; color:#555; margin-bottom:10px;">Нажмите, если на других устройствах пусто, а ЗДЕСЬ данные есть.</p><button class="btn btn-success" onclick="authWrapper(function(){ forceUploadToCloud(); })"><i class="fas fa-cloud-upload-alt"></i> Отправить ЭТИ данные на сервер</button></div>'; db.categories.forEach(function(c){ d.innerHTML += '<div class="item-card"><div><div class="item-name">'+c.name+'</div><div class="item-sub">Тарифов: '+(c.tariffs?c.tariffs.length:0)+'</div></div><div class="item-actions"><button class="btn btn-sm btn-secondary" onclick="editCat('+c.id+')"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger" onclick="delCat('+c.id+')"><i class="fas fa-trash"></i></button></div></div>'; }); }
-function renderActiveRentals() { const list = document.getElementById('active-list'); if(!list) return; list.innerHTML = ''; const searchEl = document.getElementById('active-search'), q = searchEl ? searchEl.value.toLowerCase() : '', isMonitor = window.location.search.includes('mode=monitor'); let filtered = db.rentals.filter(function(r){ return r.cName.toLowerCase().includes(q) || r.cPhone.includes(q) || r.vName.toLowerCase().includes(q); }); filtered.sort(function(a, b){ return getTimeLeft(a) - getTimeLeft(b); }); const badge = document.getElementById('badge-cnt'); if(badge) { badge.innerText = filtered.length; badge.style.display = filtered.length ? 'inline-block' : 'none'; } const noMsg = document.getElementById('no-active-msg'); if(noMsg) noMsg.style.display = filtered.length ? 'none' : 'block'; filtered.forEach(function(r){ const left = getTimeLeft(r); let rowClass = 'active-row' + (r.paused ? ' paused' : '') + (r.limit > 0 && left < 0 ? ' overdue' : (r.limit > 0 && left < 120000 ? ' danger-mode' : (r.limit > 0 && left < 300000 ? ' warning-mode' : ''))); let clientHtml = isMonitor ? '<div class="ar-client-row"><i class="fas fa-user"></i> '+r.cName+' <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">'+(r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****')+'</span></div>' : '<div class="ar-client-row"><i class="fas fa-user"></i> '+r.cName+' <a href="tel:'+r.cPhone+'" class="ar-phone-link">'+r.cPhone+'</a></div>'; const div = document.createElement('div'); div.className = rowClass; div.innerHTML = '<div class="ar-color" style="background:'+r.vColor+'"></div><div class="ar-info-block" ondblclick="openSwapModal('+r.id+')" title="2x клик для замены"><div class="ar-device">'+r.vName+' <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>'+clientHtml+'</div><div class="ar-timer-container"><span class="ar-timer" id="t-'+r.id+'">--:--</span></div><div class="ar-actions"><button class="ar-btn pause" ondblclick="togglePause('+r.id+')"><i class="fas '+(r.paused ? 'fa-play':'fa-pause')+'"></i><span class="ar-btn-label">'+(r.paused?'СТАРТ':'ПАУЗА')+'</span><div class="ar-dbl">2x</div></button><button class="ar-btn extend" ondblclick="openExtendModal('+r.id+')"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><div class="ar-dbl">2x</div></button><button class="ar-btn finish" ondblclick="finishRental('+r.id+')"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><div class="ar-dbl">2x</div></button></div>'; list.appendChild(div); }); tick(); }
-function getTimeLeft(r) { if(r.limit === 0) return 999999999; const now = Date.now(), pauseNow = r.paused ? (now - r.pauseStart) : 0; return (r.limit * 60000) - (now - r.startTs - r.totalPause - pauseNow); }
-function tick() { const now = Date.now(); db.rentals.forEach(function(r){ const el = document.getElementById('t-'+r.id); if(!el) return; if(r.paused) { el.innerText = "ПАУЗА"; el.className = "ar-timer"; return; } const elapsed = now - r.startTs - r.totalPause; let display = ""; if(r.limit > 0) { const left = (r.limit * 60000) - elapsed, abs = Math.abs(left); display = (left < 0 ? "-" : "") + Math.floor(abs/60000) + ':' + Math.floor((abs%60000)/1000).toString().padStart(2,'0'); if (left > 0) { if (left < 300000 && !r.notified5) { sendNotify("⏳ Внимание!", "У "+r.vName+" осталось < 5 мин!", false); r.notified5 = true; save(); renderActiveRentals(); } if (left < 120000 && !r.notified2) { sendNotify("⚠️ Срочно!", "У "+r.vName+" осталось < 2 мин!", true); r.notified2 = true; save(); renderActiveRentals(); } } } else { display = Math.floor(elapsed/60000) + ':' + Math.floor((elapsed%60000)/1000).toString().padStart(2,'0'); el.className = "ar-timer"; } el.innerText = display; }); }
+    function submitAuth() {
+        const input = document.getElementById('auth-pass-input').value;
+        const correct = db.password || '4892';
 
-// === UTILS ===
-function toggleDevDropdown() { const dd = document.getElementById('dev-dd'); if(dd) dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }
-function filterDevDropdown(val) { document.querySelectorAll('.dd-item.dev-item').forEach(function(item){ item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; }); }
-function initDeviceFilter() { const list = document.getElementById('dev-dd-list'); if(!list) return; list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)"><b><input type="checkbox" id="dev-all" checked> Выбрать все</b></div>'; let names = new Set(); db.fleet.forEach(function(f){ names.add(f.name); }); db.history.forEach(function(h){ names.add(h.vName.split(' ➜ ')[0]); }); Array.from(names).sort(function(a,b){ return a.localeCompare(b, undefined, {numeric: true}); }).forEach(function(n){ list.innerHTML += '<div class="dd-item dev-item"><input type="checkbox" class="dev-chk" value="'+n+'" checked> <label>'+n+'</label></div>'; }); document.querySelectorAll('.dd-item.dev-item').forEach(function(item){ item.onclick = function(e){ if (e.target.tagName !== 'INPUT') { const chk = this.querySelector('input'); if(chk) chk.checked = !chk.checked; } renderHistory(); }; }); const allChk = document.getElementById('dev-all'); if(allChk) allChk.onclick = function(e){ e.stopPropagation(); const checked = this.checked; document.querySelectorAll('.dev-chk').forEach(function(c){ c.checked = checked; }); renderHistory(); }; }
-function toggleAllDev(el) { const chk = el?.querySelector('input'); if(event?.target?.tagName !== 'INPUT' && chk) { chk.checked = !chk.checked; if(chk.onclick) chk.onclick({stopPropagation:function(){}}); } }
-function openSwapModal(id) { currentSwapRentalId = id; const search = document.getElementById('swap-search'); if(search) { search.value = ''; search.style.display = 'block'; } const btn = document.getElementById('btn-do-swap'); if(btn) { btn.disabled = true; btn.style.display = 'block'; } renderSwapList(''); document.getElementById('modal-sub').style.display = 'flex'; document.getElementById('sub-title').innerText = '🔄 Замена устройства'; }
-function renderSwapList(query) { const container = document.getElementById('swap-list-container'); if(!container) return; container.innerHTML = ''; const q = query.toLowerCase(), free = db.fleet.filter(function(f){ return f.status === 'free' && f.name.toLowerCase().includes(q); }); if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">Нет свободных устройств</div>'; return; } free.forEach(function(f){ container.innerHTML += '<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="'+f.id+'" onchange="document.getElementById(\'btn-do-swap\').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:'+f.color+'">'+f.name+'</div><small style="color:#666">Свободен</small></div></label>'; }); }
-function finalizeSwap() { const selected = document.querySelector('input[name="swap-radio"]:checked'); if (!selected) return; openConfirm('Подтвердить замену устройства?', function(){ const newVId = parseInt(selected.value), r = db.rentals.find(function(x){ return x.id === currentSwapRentalId; }), oldV = db.fleet.find(function(f){ return f.id === r.vId; }); if(oldV) oldV.status = 'free'; const newV = db.fleet.find(function(f){ return f.id === newVId; }); if(newV) newV.status = 'busy'; r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId; if(!r.swapHistory) r.swapHistory = [oldV?.name]; r.swapHistory.push(newV.name); save(); closeModal('modal-sub'); renderActiveRentals(); }); }
-function togglePause(id) { const r = db.rentals.find(function(x){ return x.id === id; }); if(!r) return; if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
-function openExtendModal(id) { const search = document.getElementById('swap-search'); if(search) search.style.display = 'none'; const btn = document.getElementById('btn-do-swap'); if(btn) btn.style.display = 'none'; const container = document.getElementById('swap-list-container'); if(container) container.innerHTML = ''; const title = document.querySelector('#modal-sub h3'); if(title) title.innerText = 'Продлить время'; const r = db.rentals.find(function(x){ return x.id === id; }); if(!r) return; const cat = db.categories.find(function(c){ return c.id == r.catId; }); if(!cat || !cat.tariffs) return; cat.tariffs.forEach(function(t){ if(container) container.innerHTML += '<div class="list-opt" onclick="applyExt('+id+', '+t.id+')"><b>'+t.name+'</b> <span>'+t.price+'₽ ('+(t.type==='fix'?'+'+t.dur+'м':'Помин.')+')</span></div>'; }); document.getElementById('modal-sub').style.display = 'flex'; }
-function applyExt(rId, tId) { openConfirm('Продлить время?', function(){ const r = db.rentals.find(function(x){ return x.id === rId; }); if(!r) return; const cat = db.categories.find(function(c){ return c.id == r.catId; }); if(!cat) return; const t = cat.tariffs.find(function(x){ return x.id === tId; }); if(!t) return; if(t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); } else { r.limit = 0; r.cost += parseInt(t.start || 0); } save(); closeModal('modal-sub'); renderActiveRentals(); }); }
-function toggleHistoryStatus(id) { authWrapper(function(){ openConfirm('Изменить статус записи?', function(){ const h = db.history.find(function(x){ return x.id === id; }); if(h) h.deleted = !h.deleted; save(); renderHistory(); }); }); }
-function toggleRepair(id) { openConfirm('Изменить статус ремонта?', function(){ const v = db.fleet.find(function(f){ return f.id === id; }); if(v) { v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new')?.classList.contains('active')) renderNewRent(); } }); }
-function saveClient() { openConfirm('Сохранить клиента?', function(){ const id = parseInt(document.getElementById('edit-cl-id')?.value), c = db.clients.find(function(x){ return x.id === id; }); if(!c) return; c.name = document.getElementById('edit-cl-name')?.value; c.phone = document.getElementById('edit-cl-phone')?.value; c.comment = document.getElementById('edit-cl-comment')?.value; c.blocked = document.getElementById('edit-cl-block')?.checked; save(); closeModal('modal-client'); renderClients(); }); }
-function delClient() { authWrapper(function(){ openConfirm('Удалить клиента?', function(){ const id = parseInt(document.getElementById('edit-cl-id')?.value); db.clients = db.clients.filter(function(x){ return x.id !== id; }); save(); closeModal('modal-client'); renderClients(); }); }); }
-function openClientModal(id) { const c = db.clients.find(function(x){ return x.id === id; }); if(!c) return; document.getElementById('edit-cl-id').value = c.id; document.getElementById('edit-cl-name').value = c.name; document.getElementById('edit-cl-phone').value = c.phone; document.getElementById('edit-cl-comment').value = c.comment || ''; document.getElementById('edit-cl-block').checked = c.blocked; document.getElementById('modal-client').style.display = 'flex'; }
-function handleInput(type, val) { const box = document.getElementById('suggest-'+type); if(!box) return; if(val.length < 2) { box.style.display='none'; return; } const matches = db.clients.filter(function(c){ return c[type]?.toLowerCase().includes(val.toLowerCase()); }); if(matches.length > 0) { box.innerHTML = matches.map(function(c){ return '<div class="suggestion-item" onclick="fillClient(\''+c.phone+'\', \''+c.name+'\')"><div><strong>'+c.phone+'</strong></div><div>'+c.name+'</div></div>'; }).join(''); box.style.display = 'block'; } else { box.style.display = 'none'; } const exact = db.clients.find(function(c){ return c.phone === val; }), alert = document.getElementById('blacklist-alert'); if(alert) alert.style.display = (exact && exact.blocked) ? 'block' : 'none'; }
-function fillClient(ph, nm) { const phoneInput = document.getElementById('rent-phone'), nameInput = document.getElementById('rent-name'); if(phoneInput) phoneInput.value = ph; if(nameInput) nameInput.value = nm; document.querySelectorAll('.suggestions-box').forEach(function(b){ b.style.display='none'; }); const exact = db.clients.find(function(c){ return c.phone === ph; }), alert = document.getElementById('blacklist-alert'); if(alert) alert.style.display = (exact && exact.blocked) ? 'block' : 'none'; }
-function addVehicle() { openConfirm('Добавить устройство?', function(){ const n = document.getElementById('new-fleet-name')?.value, c = document.getElementById('new-fleet-color')?.value, cat = document.getElementById('new-fleet-cat')?.value; if(n) { db.fleet.push({id:Date.now(), name:n, color:c, catId:cat, status:'free'}); save(); renderFleet(); } }); }
-function openVehicleNote(id) { const v = db.fleet.find(function(f){ return f.id === id; }); if(!v) return; document.getElementById('note-v-id').value = v.id; document.getElementById('note-v-name').innerText = 'Заметка для: '+v.name; document.getElementById('note-v-text').value = v.notes || ''; document.getElementById('modal-vehicle-note').style.display = 'flex'; }
-function saveVehicleNote() { const id = parseInt(document.getElementById('note-v-id')?.value), v = db.fleet.find(function(f){ return f.id === id; }); if(v) { v.notes = document.getElementById('note-v-text')?.value; save(); closeModal('modal-vehicle-note'); renderFleet(); } }
-function deleteVehicleNote() { authWrapper(function(){ const id = parseInt(document.getElementById('note-v-id')?.value), v = db.fleet.find(function(f){ return f.id === id; }); if(v) { v.notes = ''; save(); closeModal('modal-vehicle-note'); renderFleet(); } }); }
-function delCat(id) { authWrapper(function(){ openConfirm('Удалить категорию?', function(){ db.categories=db.categories.filter(function(c){return c.id!==id;}); db.fleet=db.fleet.filter(function(f){return f.catId!=id;}); save(); renderSettingsList(); }); }); }
-function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
-function editCat(id) { const c=db.categories.find(function(x){return x.id==id;}); if(!c) return; document.getElementById('edit-cat-id').value=c.id; document.getElementById('edit-cat-name').value=c.name; document.getElementById('edit-cat-rate').value=c.baseRate||''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs(c.tariffs||[]); }
-function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); if(!d) return; d.innerHTML=''; if(tariffs) tariffs.forEach(function(t,i){ d.innerHTML+='<div class="list-opt">'+t.name+' <i class="fas fa-trash" style="color:red;" onclick="authWrapper(function(){ delTariff('+i+'); })"></i></div>'; }); }
-function addTariffIO() { openConfirm('Добавить тариф?', function(){ const id=document.getElementById('edit-cat-id')?.value, name=document.getElementById('nt-name')?.value, v1=document.getElementById('nt-v1')?.value, v2=document.getElementById('nt-v2')?.value, type=document.getElementById('nt-type')?.value; if(name && v1 && v2 && id) { const c=db.categories.find(function(x){return x.id==id;}); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type:type, name:name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); const ntName = document.getElementById('nt-name'); if(ntName) ntName.value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
-function delTariff(i) { const id=document.getElementById('edit-cat-id')?.value; if(id){ const c=db.categories.find(function(x){return x.id==id;}); if(c?.tariffs) c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
-function saveCat() { openConfirm('Сохранить категорию?', function(){ const id=document.getElementById('edit-cat-id')?.value, name=document.getElementById('edit-cat-name')?.value, rate=document.getElementById('edit-cat-rate')?.value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(function(x){return x.id==id;}); if(c) { c.name=name; c.baseRate=rate; } } else { db.categories.push({id:Date.now(), name:name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
-function fullReset() { authWrapper(function(){ openConfirm('СБРОСИТЬ ВСЁ?', function(){ localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); }); }); }
-function forceUploadToCloud() { if(confirm('Вы уверены? Это перезапишет облако!')) { if(window.sendToCloud) { window.sendToCloud(db); alert('Отправлено!'); } else alert('Нет связи'); } }
-function testAudio() { unlockAudio(); playAlarm(false); showToast("🔊 Аудио разблокировано", "success"); }
-function changePassUI() { const newP = prompt("Введите НОВЫЙ пароль:"); if(newP) { db.password = newP; save(); alert("✅ Пароль изменён на: " + newP); } }
-function renderSurcharge() { const tbody = document.getElementById('surcharge-rows'); if(!tbody) return; tbody.innerHTML = ''; const startVal = document.getElementById('sur-start')?.value, endVal = document.getElementById('sur-end')?.value, searchEl = document.getElementById('sur-search'), searchVal = searchEl ? searchEl.value.toLowerCase() : '', startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0, endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999; let totalSur = 0, hasData = false; db.history.forEach(function(h){ if(h.overDur > 0 && !h.deleted) { if(h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)))) { hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay; const tr = document.createElement('tr'); tr.className = 'surcharge-row'; tr.innerHTML = '<td>'+h.vName.replace(/➜/g, '->')+'</td><td>'+h.cName+'<br><a href="tel:'+h.cPhone+'">'+h.cPhone+'</a></td><td>'+new Date(h.ts).toLocaleTimeString()+' - '+new Date(h.endTs).toLocaleTimeString()+'</td><td>'+h.overDur+'</td><td class="surcharge-highlight">'+extraPay+' ₽</td>'; tbody.appendChild(tr); } } }); const totalEl = document.getElementById('sur-total'); if(totalEl) totalEl.innerText = totalSur + ' ₽'; }
-function renderHistory() { const startVal = document.getElementById('hist-start')?.value, endVal = document.getElementById('hist-end')?.value, searchEl = document.getElementById('hist-search'), searchVal = searchEl ? searchEl.value.toLowerCase() : '', payFilter = document.getElementById('hist-pay')?.value, allDevChecked = document.getElementById('dev-all')?.checked, checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')||[]).map(function(c){ return c.value; }), tbody = document.getElementById('history-rows'); if(!tbody) return; tbody.innerHTML = ''; const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0, endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999; let total = 0; db.history.forEach(function(h){ const matchesTime = h.ts >= startTs && h.ts <= endTs, matchesSearch = !searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)), matchesPay = (payFilter === 'all') || (h.payMethod === payFilter); let matchesDev = allDevChecked ? true : checkedDevs.some(function(dev){ return h.vName.includes(dev); }); if (matchesTime && matchesSearch && matchesDev && matchesPay) { if(!h.deleted) total += parseInt(h.cost); const tr = document.createElement('tr'); if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>'; tr.innerHTML = '<td><b>'+h.vName.replace(/➜/g, '->')+'</b>'+(h.vName.includes('➜') ? '<span class="swap-chain">(замена)</span>' : '')+'</td><td>'+h.cName+' <br> <a href="tel:'+h.cPhone+'" class="history-phone">'+h.cPhone+'</a></td><td style="font-size:0.75rem; color:#666;">'+new Date(h.ts).toLocaleTimeString()+' - '+new Date(h.endTs).toLocaleTimeString()+'<br>'+h.duration+' мин</td><td>'+(h.pauseDur||0)+' мин</td><td style="color:'+(h.overDur>0?'red':'inherit')+'">'+(h.overDur||0)+' мин</td><td>'+payBadge+'</td><td><b>'+h.cost+' ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus('+h.id+')"><i class="fas '+(h.deleted ? 'fa-undo' : 'fa-trash')+'"></i></button></td>'; tbody.appendChild(tr); } }); const totalEl = document.getElementById('history-total'); if(totalEl) totalEl.innerText = total + ' ₽'; }
-function updateUI() { renderSettingsList(); renderFleet(); if(document.getElementById('view-active')?.classList.contains('active')) renderActiveRentals(); if(document.getElementById('view-finance')?.classList.contains('active')) { initDeviceFilter(); renderHistory(); } if(document.getElementById('view-surcharge')?.classList.contains('active')) renderSurcharge(); }
+        if (input === '89144892253') {
+            alert("👑 Мастер-пароль! Сброс на 0000.");
+            db.password = '0000'; save();
+            closeModal('modal-auth');
+            if(pendingAuthCallback) pendingAuthCallback();
+            return;
+        }
 
-// Запуск
-init();
+        if (input === correct) {
+            closeModal('modal-auth');
+            if(pendingAuthCallback) pendingAuthCallback();
+        } else {
+            const inp = document.getElementById('auth-pass-input');
+            inp.style.border = "2px solid red";
+            navigator.vibrate([100,50,100]);
+            setTimeout(()=> inp.style.border = "1px solid #ccc", 1000);
+        }
+    }
+
+    function resetPassBtnAction() {
+        const master = prompt("📞 Введите Мастер-Пароль (8914...):");
+        if(master === '89144892253') {
+            db.password = '0000'; save();
+            alert("✅ Пароль сброшен на: 0000");
+            document.getElementById('auth-pass-input').value = '0000';
+        } else {
+            alert("⛔ Ошибка!");
+        }
+    }
+
+    function changePassUI() {
+        const newP = prompt("Введите НОВЫЙ пароль:");
+        if(newP) {
+            db.password = newP; save();
+            alert("✅ Пароль изменен на: " + newP);
+        }
+    }
+
+    async function requestWakeLock() {
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                document.getElementById('wakelock-status').innerText = "💡 Экран активен (WakeLock вкл)";
+                document.getElementById('wakelock-status').style.color = "green";
+                wakeLock.addEventListener('release', () => {
+                    document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
+                    document.getElementById('wakelock-status').style.color = "gray";
+                });
+            } catch (err) {}
+        }
+    }
+
+    function save() { 
+        localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
+        if (window.sendToCloud) window.sendToCloud(db);
+    }
+
+    window.updateGlobalDB = function(newData) {
+        if (!newData) return;
+        if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
+            const cHist = newData.history ? newData.history.length : 0;
+            const lHist = db.history ? db.history.length : 0;
+            if (cHist <= lHist) {
+                console.log("🛑 Blocked empty sync");
+                return; 
+            }
+        }
+        db = { ...newData, password: newData.password || db.password || '4892' };
+        updateUI();   
+    }
+
+    function switchView(id) {
+        if (id === 'settings') {
+            authWrapper(() => {
+                 doSwitchView(id);
+            });
+            return;
+        }
+        doSwitchView(id);
+    }
+
+    function doSwitchView(id) {
+        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+        document.getElementById('view-'+id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+        if(event && event.currentTarget) event.currentTarget.classList.add('active');
+        if(id === 'active') renderActiveRentals(); 
+        if(id === 'new') renderNewRent();
+        if(id === 'clients') renderClients();
+        if(id === 'fleet') renderFleet();
+        if(id === 'finance') { initDeviceFilter(); renderHistory(); }
+        if(id === 'surcharge') renderSurcharge();
+        if(id === 'settings') renderSettingsList();
+        unlockAudio();
+    }
+
+    function openConfirm(msg, yesCallback) {
+        document.getElementById('confirm-text').innerText = msg;
+        document.getElementById('modal-confirm').style.display = 'flex';
+        const yesBtn = document.getElementById('btn-confirm-yes');
+        const noBtn = document.getElementById('btn-confirm-no');
+        const newYes = yesBtn.cloneNode(true); const newNo = noBtn.cloneNode(true);
+        yesBtn.parentNode.replaceChild(newYes, yesBtn); noBtn.parentNode.replaceChild(newNo, noBtn);
+        newYes.onclick = () => { document.getElementById('modal-confirm').style.display = 'none'; yesCallback(); };
+        newNo.onclick = () => { document.getElementById('modal-confirm').style.display = 'none'; };
+    }
+
+    function sendNotify(title, body, isCritical) {
+        if ("Notification" in window && Notification.permission === "granted") {
+            try { new Notification(title, { body: body }); } catch (e) {}
+        }
+        if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
+        playAlarm(isCritical);
+    }
+
+    function askStartRental(tariff) {
+        unlockAudio(); 
+        const checks = document.querySelectorAll('.fleet-check-input:checked');
+        const phone = document.getElementById('rent-phone').value;
+        const name = document.getElementById('rent-name').value;
+        if(!phone || checks.length === 0) return alert('Заполните данные');
+        let devices = [];
+        checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
+        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
+        document.getElementById('confirm-tariff-name').innerText = tariff.name;
+        document.getElementById('confirm-devices').innerText = devices.join(', ');
+        document.getElementById('confirm-cost').innerText = costLabel;
+        tempStartData = { tariff, phone, name, checks };
+        document.getElementById('modal-start-confirm').style.display = 'flex';
+    }
+    function confirmPaymentChoice(method) {
+        tempStartData.payMethod = method;
+        closeModal('modal-start-confirm');
+        document.getElementById('modal-final-start').style.display = 'flex';
+    }
+    function realStartRental() {
+        const { tariff, phone, name, checks, payMethod } = tempStartData;
+        let c = db.clients.find(x => x.phone === phone);
+        if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
+        if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
+        const now = Date.now();
+        checks.forEach(chk => {
+            const vId = parseInt(chk.value);
+            const v = db.fleet.find(x => x.id === vId);
+            v.status = 'busy';
+            const cat = db.categories.find(ca => ca.id == v.catId);
+            const baseRate = cat ? (cat.baseRate || 0) : 0;
+            db.rentals.push({
+                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
+                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
+                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate,
+                notified5: false, notified2: false 
+            });
+        });
+        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
+        save(); closeModal('modal-final-start'); switchView('active');
+    }
+    function finishRental(id) {
+        openConfirm('Завершить поездку?', () => {
+            const idx = db.rentals.findIndex(x => x.id === id);
+            const r = db.rentals[idx];
+            const v = db.fleet.find(f => f.id === r.vId);
+            if(v) v.status = 'free';
+            const now = Date.now();
+            const pauseMs = r.totalPause;
+            const pauseMin = Math.round(pauseMs / 60000);
+            const activeDurationMs = now - r.startTs - pauseMs;
+            const activeDurationMin = Math.ceil(activeDurationMs / 60000);
+            let overdueMin = 0;
+            if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
+            const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
+            db.history.unshift({
+                id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone,
+                cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0,
+                tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash'
+            });
+            db.rentals.splice(idx, 1);
+            save(); renderActiveRentals();
+        });
+    }
+
+    // --- RENDERERS ---
+    function renderNewRent() {
+        const c = document.getElementById('fleet-selector'); c.innerHTML='';
+        const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
+        db.categories.forEach(cat => {
+            const inCat = db.fleet.filter(v => v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ));
+            if(inCat.length) {
+                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title">${cat.name}</div><div class="fleet-items-container"></div></div>`;
+                const container = c.lastElementChild.querySelector('.fleet-items-container');
+                inCat.forEach(v => {
+                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
+                });
+            }
+        });
+    }
+    function showTariffs() {
+        const chk = document.querySelectorAll('.fleet-check-input:checked');
+        const blk = document.getElementById('tariff-block'); const box = document.getElementById('tariff-buttons');
+        if(!chk.length) { blk.style.display='none'; return; }
+        const catId = chk[0].getAttribute('data-cat'); const cat = db.categories.find(c => c.id == catId);
+        box.innerHTML = '';
+        if(cat && cat.tariffs) {
+            cat.tariffs.forEach(t => {
+                const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
+                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">${t.name}</span><span style="font-size:0.95rem;color:#64748b;">${info} · ${t.price}₽</span></div>`;
+            });
+            blk.style.display = 'block';
+        }
+    }
+    function renderFleet() {
+        const l = document.getElementById('fleet-list'); l.innerHTML='';
+        const sel = document.getElementById('new-fleet-cat'); sel.innerHTML='';
+        db.categories.forEach(c => sel.innerHTML+=`<option value="${c.id}">${c.name}</option>`);
+        const sorted = [...db.fleet].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+        sorted.forEach(f => {
+            const isRep = f.status === 'repair';
+            const repBtn = isRep 
+                ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-check"></i></button>`
+                : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-wrench"></i></button>`;
+            
+            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))"><i class="fas fa-trash"></i></button>`;
+
+            l.innerHTML += `
+            <div class="item-card ${isRep?'repair':''}" style="border-left-color:${f.color}">
+                <div><div class="item-name">${f.name}</div><div class="item-sub">${isRep?'В РЕМОНТЕ':'Готов к работе'}</div></div>
+                <div class="item-actions">
+                    <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})"><i class="fas fa-cog"></i></button>
+                    ${repBtn}
+                    ${delBtn}
+                </div>
+            </div>`;
+        });
+    }
+
+    function renderClients() {
+        const q=document.getElementById('client-search').value.toLowerCase();
+        document.getElementById('clients-list').innerHTML = db.clients.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q)).map(c=>`
+            <div class="item-card" style="border-left: 5px solid ${c.blocked ? '#ef4444' : '#22c55e'}">
+                <div><div class="item-name">${c.name} ${c.blocked ? '(BAN)' : ''}</div><div class="item-sub">${c.phone}</div>${c.comment ? `<div style="font-size:0.8rem;color:#666;margin-top:2px;">${c.comment}</div>` : ''}</div> 
+                <button class="btn btn-sm btn-secondary" onclick="openClientModal(${c.id})"><i class="fas fa-pen"></i></button>
+            </div>`).join('');
+    }
+
+    function renderSettingsList() {
+        const d = document.getElementById('settings-list'); d.innerHTML='';
+        d.innerHTML += `<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить пароль администратора</button></div>`;
+        d.innerHTML += `<div class="card" style="border: 2px solid #22c55e; background: #f0fdf4;"><h3 style="color:#15803d; margin-top:0;">☁️ Восстановить Облако</h3><p style="font-size:0.85rem; color:#555; margin-bottom:10px;">Нажмите, если на других устройствах пусто, а ЗДЕСЬ данные есть.</p><button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())"><i class="fas fa-cloud-upload-alt"></i> Отправить ЭТИ данные на сервер</button></div>`;
+        db.categories.forEach(c => {
+            d.innerHTML += `
+            <div class="item-card">
+                <div><div class="item-name">${c.name}</div><div class="item-sub">Тарифов: ${c.tariffs?c.tariffs.length:0}</div></div>
+                <div class="item-actions"><button class="btn btn-sm btn-secondary" onclick="editCat(${c.id})"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger" onclick="delCat(${c.id})"><i class="fas fa-trash"></i></button></div>
+            </div>`;
+        });
+    }
+
+    // --- RENDER ACTIVE RENTALS ---
+    function renderActiveRentals() {
+        const list = document.getElementById('active-list'); list.innerHTML = '';
+        const q = document.getElementById('active-search').value.toLowerCase();
+        const isMonitor = window.location.search.includes('mode=monitor');
+        let filtered = db.rentals.filter(r => r.cName.toLowerCase().includes(q) || r.cPhone.includes(q) || r.vName.toLowerCase().includes(q));
+        filtered.sort((a, b) => getTimeLeft(a) - getTimeLeft(b));
+        
+        const badge = document.getElementById('badge-cnt');
+        if(badge) { badge.innerText = filtered.length; badge.style.display = filtered.length ? 'inline-block' : 'none'; }
+        const noMsg = document.getElementById('no-active-msg');
+        if(noMsg) noMsg.style.display = filtered.length ? 'none' : 'block';
+        
+        filtered.forEach(r => {
+            const left = getTimeLeft(r);
+            let rowClass = 'active-row' + (r.paused ? ' paused' : '') + (r.limit > 0 && left < 0 ? ' overdue' : (r.limit > 0 && left < 120000 ? ' danger-mode' : (r.limit > 0 && left < 300000 ? ' warning-mode' : '')));
+            let clientHtml = isMonitor 
+                ? `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <span class="ar-phone-link" style="border:none;cursor:default;margin-left:5px;">${r.cPhone.length>4?'****'+r.cPhone.slice(-4):'****'}</span></div>`
+                : `<div class="ar-client-row"><i class="fas fa-user"></i> ${r.cName} <a href="tel:${r.cPhone}" class="ar-phone-link">${r.cPhone}</a></div>`;
+
+            const div = document.createElement('div'); div.className = rowClass;
+            div.innerHTML = `
+                <div class="ar-color" style="background:${r.vColor}"></div>
+                <div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены">
+                    <div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>
+                    ${clientHtml}
+                </div>
+                <div class="ar-timer-container"><span class="ar-timer" id="t-${r.id}">--:--</span></div>
+                <div class="ar-actions">
+                    <button class="ar-btn pause" ondblclick="togglePause(${r.id})"><i class="fas ${r.paused ? 'fa-play':'fa-pause'}"></i><span class="ar-btn-label">${r.paused?'СТАРТ':'ПАУЗА'}</span><div class="ar-dbl">2x</div></button>
+                    <button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><div class="ar-dbl">2x</div></button>
+                    <button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><div class="ar-dbl">2x</div></button>
+                </div>`;
+            list.appendChild(div);
+        });
+        tick();
+    }
+    
+    function getTimeLeft(r) { if(r.limit === 0) return 999999999; const now = Date.now(); const pauseNow = r.paused ? (now - r.pauseStart) : 0; return (r.limit * 60000) - (now - r.startTs - r.totalPause - pauseNow); }
+    function tick() {
+        const now = Date.now();
+        db.rentals.forEach(r => {
+            const el = document.getElementById(`t-${r.id}`); if(!el) return;
+            if(r.paused) { el.innerText = "ПАУЗА"; el.className = "ar-timer"; return; }
+            const elapsed = now - r.startTs - r.totalPause;
+            let display = "";
+            if(r.limit > 0) {
+                const left = (r.limit * 60000) - elapsed; 
+                const abs = Math.abs(left);
+                display = (left < 0 ? "-" : "") + `${Math.floor(abs/60000)}:${Math.floor((abs%60000)/1000).toString().padStart(2,'0')}`;
+                if (left > 0) {
+                    if (left < 300000 && !r.notified5) { sendNotify("⏳ Внимание!", `У ${r.vName} осталось < 5 мин!`, false); r.notified5 = true; save(); renderActiveRentals(); }
+                    if (left < 120000 && !r.notified2) { sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); r.notified2 = true; save(); renderActiveRentals(); }
+                }
+            } else { 
+                display = `${Math.floor(elapsed/60000)}:${Math.floor((elapsed%60000)/1000).toString().padStart(2,'0')}`;
+                el.className = "ar-timer";
+            }
+            el.innerText = display;
+        });
+    }
+
+    function renderSurcharge() {
+        const tbody = document.getElementById('surcharge-rows'); tbody.innerHTML = ''; 
+        const startVal = document.getElementById('sur-start').value; const endVal = document.getElementById('sur-end').value; const searchVal = document.getElementById('sur-search').value.toLowerCase();
+        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        let totalSur = 0; let hasData = false;
+        db.history.forEach(h => {
+            if(h.overDur > 0 && !h.deleted) {
+                if(h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)))) {
+                    hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay;
+                    const tr = document.createElement('tr'); tr.className = 'surcharge-row';
+                    tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td>${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td>`;
+                    tbody.appendChild(tr);
+                }
+            }
+        });
+        document.getElementById('sur-total').innerText = totalSur + ' ₽';
+        document.getElementById('no-surcharge-msg') ? document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block' : null;
+    }
+
+    function renderHistory() {
+        const startVal = document.getElementById('hist-start').value; const endVal = document.getElementById('hist-end').value; const searchVal = document.getElementById('hist-search').value.toLowerCase(); const payFilter = document.getElementById('hist-pay').value;
+        const allDevChecked = document.getElementById('dev-all')?.checked; const checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')).map(c => c.value);
+        const tbody = document.getElementById('history-rows'); tbody.innerHTML = '';
+        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        let total = 0;
+        db.history.forEach(h => {
+            const matchesTime = h.ts >= startTs && h.ts <= endTs; const matchesSearch = !searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)); const matchesPay = (payFilter === 'all') || (h.payMethod === payFilter);
+            let matchesDev = allDevChecked ? true : checkedDevs.some(dev => h.vName.includes(dev));
+            if (matchesTime && matchesSearch && matchesDev && matchesPay) {
+                if(!h.deleted) total += parseInt(h.cost);
+                const tr = document.createElement('tr'); 
+                if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; 
+                let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
+                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span class="swap-chain">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#666;">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'red':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
+                tbody.appendChild(tr);
+            }
+        });
+        document.getElementById('history-total').innerText = total + ' ₽';
+    }
+
+    // --- UTILS ---
+    function toggleDevDropdown() { const dd = document.getElementById('dev-dd'); dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }
+    function filterDevDropdown(val) { document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; }); }
+    function initDeviceFilter() {
+        const list = document.getElementById('dev-dd-list'); list.innerHTML = '<div class="dd-item" onclick="toggleAllDev(this)"><b><input type="checkbox" id="dev-all" checked> Выбрать все</b></div>';
+        let names = new Set(); db.fleet.forEach(f => names.add(f.name)); db.history.forEach(h => names.add(h.vName.split(' ➜ ')[0])); 
+        Array.from(names).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(n => { list.innerHTML += `<div class="dd-item dev-item"><input type="checkbox" class="dev-chk" value="${n}" checked> <label>${n}</label></div>`; });
+        document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.onclick = function(e) { if (e.target.tagName !== 'INPUT') { const chk = this.querySelector('input'); chk.checked = !chk.checked; } renderHistory(); } });
+        document.getElementById('dev-all').onclick = function(e) { e.stopPropagation(); const checked = this.checked; document.querySelectorAll('.dev-chk').forEach(c => c.checked = checked); renderHistory(); };
+    }
+    function toggleAllDev(el) { const chk = el.querySelector('input'); if(event.target.tagName !== 'INPUT') { chk.checked = !chk.checked; chk.onclick({stopPropagation:()=>{}}); } }
+    
+    function openSwapModal(id) { currentSwapRentalId = id; document.getElementById('swap-search').value = ''; document.getElementById('btn-do-swap').disabled = true; renderSwapList(''); document.getElementById('modal-sub').style.display = 'flex'; }
+    function renderSwapList(query) {
+        const container = document.getElementById('swap-list-container'); container.innerHTML = '';
+        const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q));
+        if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">Нет свободных устройств</div>'; return; }
+        free.forEach(f => {
+            container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:#666">Свободен</small></div></label>`;
+        });
+    }
+    function finalizeSwap() {
+        const selected = document.querySelector('input[name="swap-radio"]:checked'); if (!selected) return;
+        openConfirm('Подтвердить замену устройства?', () => {
+            const newVId = parseInt(selected.value); const r = db.rentals.find(x => x.id === currentSwapRentalId); const oldV = db.fleet.find(f => f.id === r.vId); if(oldV) oldV.status = 'free'; const newV = db.fleet.find(f => f.id === newVId); newV.status = 'busy';
+            r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId; if(!r.swapHistory) r.swapHistory = [oldV.name]; r.swapHistory.push(newV.name);
+            save(); closeModal('modal-sub'); renderActiveRentals();
+        });
+    }
+    
+    function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
+    function openExtendModal(id) { document.getElementById('swap-search').style.display = 'none'; document.getElementById('btn-do-swap').style.display = 'none'; const container = document.getElementById('swap-list-container'); container.innerHTML = ''; document.querySelector('#modal-sub h3').innerText = 'Продлить время'; const r = db.rentals.find(x => x.id === id); const cat = db.categories.find(c => c.id == r.catId); cat.tariffs.forEach(t => { container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; }); document.getElementById('modal-sub').style.display = 'flex'; }
+    function applyExt(rId, tId) { openConfirm('Продлить время?', () => { const r = db.rentals.find(x => x.id === rId); const cat = db.categories.find(c => c.id == r.catId); const t = cat.tariffs.find(x => x.id === tId); if(t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); } else { r.limit = 0; r.cost += parseInt(t.start || 0); } save(); closeModal('modal-sub'); renderActiveRentals(); }); }
+    
+    // WRAPPED SECURITY ACTIONS
+    function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) h.deleted = !h.deleted; save(); renderHistory(); })); }
+    function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
+    function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; save(); closeModal('modal-client'); renderClients(); }); }
+    function delClient() { authWrapper(() => openConfirm('Удалить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); db.clients = db.clients.filter(x => x.id !== id); save(); closeModal('modal-client'); renderClients(); })); }
+    
+    function openClientModal(id) { const c = db.clients.find(x => x.id === id); document.getElementById('edit-cl-id').value = c.id; document.getElementById('edit-cl-name').value = c.name; document.getElementById('edit-cl-phone').value = c.phone; document.getElementById('edit-cl-comment').value = c.comment || ''; document.getElementById('edit-cl-block').checked = c.blocked; document.getElementById('modal-client').style.display = 'flex'; }
+    function handleInput(type, val) { const box = document.getElementById('suggest-'+type); if(val.length < 2) { box.style.display='none'; return; } const matches = db.clients.filter(c => c[type].toLowerCase().includes(val.toLowerCase())); if(matches.length > 0) { box.innerHTML = matches.map(c => `<div class="suggestion-item" onclick="fillClient('${c.phone}', '${c.name}')"><div><strong>${c.phone}</strong></div><div>${c.name}</div></div>`).join(''); box.style.display = 'block'; } else { box.style.display = 'none'; } const exact = db.clients.find(c => c.phone === val); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
+    function fillClient(ph, nm) { document.getElementById('rent-phone').value = ph; document.getElementById('rent-name').value = nm; document.querySelectorAll('.suggestions-box').forEach(b => b.style.display='none'); const exact = db.clients.find(c => c.phone === ph); document.getElementById('blacklist-alert').style.display = (exact && exact.blocked) ? 'block' : 'none'; }
+    function addVehicle() { openConfirm('Добавить устройство?', () => { const n = document.getElementById('new-fleet-name').value; const c = document.getElementById('new-fleet-color').value; const cat = document.getElementById('new-fleet-cat').value; if(n) { db.fleet.push({id:Date.now(), name:n, color:c, catId:cat, status:'free'}); save(); renderFleet(); } }); }
+    
+    function openVehicleNote(id) { const v = db.fleet.find(f => f.id === id); document.getElementById('note-v-id').value = v.id; document.getElementById('note-v-name').innerText = `Заметка для: ${v.name}`; document.getElementById('note-v-text').value = v.notes || ''; document.getElementById('modal-vehicle-note').style.display = 'flex'; }
+    function saveVehicleNote() { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = document.getElementById('note-v-text').value; save(); closeModal('modal-vehicle-note'); renderFleet(); }
+    function deleteVehicleNote() { authWrapper(() => { const id = parseInt(document.getElementById('note-v-id').value); const v = db.fleet.find(f => f.id === id); v.notes = ''; save(); closeModal('modal-vehicle-note'); renderFleet(); }); }
+
+    function delCat(id) { authWrapper(() => openConfirm('Удалить категорию?', () => { db.categories=db.categories.filter(c=>c.id!==id); db.fleet=db.fleet.filter(f=>f.catId!=id); save(); renderSettingsList(); })); }
+    function openCatModal() { document.getElementById('edit-cat-id').value=''; document.getElementById('edit-cat-name').value=''; document.getElementById('edit-cat-rate').value=''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs([]); }
+    function editCat(id) { const c=db.categories.find(x=>x.id==id); document.getElementById('edit-cat-id').value=c.id; document.getElementById('edit-cat-name').value=c.name; document.getElementById('edit-cat-rate').value=c.baseRate||''; document.getElementById('modal-cat').style.display='flex'; renderCatTariffs(c.tariffs||[]); }
+    function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:red;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
+    function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
+    
+    function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
+    function saveCat() { openConfirm('Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
+    function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
+    
+    function fullReset() { authWrapper(() => openConfirm('СБРОСИТЬ ВСЁ?', () => { localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); })); }
+    function forceUploadToCloud() { if(confirm('Вы уверены? Это перезапишет облако!')) { if(window.sendToCloud) { window.sendToCloud(db); alert('Отправлено!'); } else alert('Нет связи'); } }
+
+    function updateUI() { 
+        renderSettingsList(); 
+        renderFleet(); 
+        if(document.getElementById('view-active').classList.contains('active')) renderActiveRentals(); 
+        if(document.getElementById('view-finance').classList.contains('active')) { initDeviceFilter(); renderHistory(); } 
+        if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
+    }
+
+    init();
 </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
+    authDomain: "skuter75rus-3d55d.firebaseapp.com",
+    projectId: "skuter75rus-3d55d",
+    storageBucket: "skuter75rus-3d55d.firebasestorage.app",
+    messagingSenderId: "1054204994225",
+    appId: "1:1054204994225:web:692c298038a0d3bbc2f890",
+    measurementId: "G-J47C67V554"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const dbCloud = getFirestore(app);
+
+  console.log("🔥 Облако подключено!");
+
+  const myDataRef = doc(dbCloud, "rent_app", "base");
+
+  window.sendToCloud = async function(data) {
+      try {
+          await setDoc(myDataRef, data);
+          console.log("✅ Данные улетели в облако");
+      } catch (e) {
+          console.error("Ошибка сохранения в Firebase: ", e);
+      }
+  }
+
+  onSnapshot(myDataRef, (docSnap) => {
+      if (docSnap.exists()) {
+          console.log("📥 Пришли новые данные из облака!");
+          const cloudData = docSnap.data();
+          
+          if (window.updateGlobalDB) {
+              window.updateGlobalDB(cloudData);
+          }
+      } else {
+          console.log("База пуста, начинаем с нуля.");
+      }
+  });
+
+</script>
+
 </body>
 </html>
-
-
-
-              <script>
-                              rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /rent_app/{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-
-
-              </script>
-                        </body>
-                        </html>
-                    
