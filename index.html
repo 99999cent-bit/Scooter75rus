@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>RentMaster Keyboard Fix</title>
+    <title>Prokat Erofei - Admin</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -161,10 +161,11 @@
     <div class="modal-content" style="text-align:center; max-width: 320px;">
         <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
         <h2 style="margin-top:0; color: #1e293b;">Prokat Erofei</h2>
-        <p style="color:#64748b; margin-bottom: 20px;">Режим администратора</p>
-        <input type="password" id="admin-firebase-pass" placeholder="Ключ доступа" style="text-align:center; font-size:1.2rem; letter-spacing: 2px; width: 100%; box-sizing: border-box;">
-        <button class="btn btn-primary" onclick="verifyGlobalAdmin()" style="margin-top:15px; padding: 15px; width: 100%;">Войти в систему</button>
-        <p id="global-login-error" style="color:var(--danger); display:none; margin-top:10px; font-size:0.9rem; font-weight:bold;">Неверный ключ доступа!</p>
+        <p style="color:#64748b; margin-bottom: 20px;">Вход в систему</p>
+        <input type="email" id="admin-email" placeholder="Email администратора" style="text-align:center; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
+        <input type="password" id="admin-password" placeholder="Пароль" style="text-align:center; font-size:1.2rem; letter-spacing: 2px; width: 100%; box-sizing: border-box;">
+        <button class="btn btn-primary" id="btn-global-login" onclick="window.loginFirebase()" style="margin-top:15px; padding: 15px; width: 100%;">Войти</button>
+        <p id="global-login-error" style="color:var(--danger); display:none; margin-top:10px; font-size:0.9rem; font-weight:bold;">Ошибка входа!</p>
     </div>
 </div>
 
@@ -418,40 +419,20 @@
 
 <div id="modal-auth" class="modal-overlay" style="z-index: 9999;">
     <div class="modal-content" style="max-width: 300px; text-align: center;">
-        <h3 style="margin-top:0;">🔐 Введите пароль</h3>
-        
+        <h3 style="margin-top:0;">🔐 Введите PIN</h3>
         <input type="password" id="auth-pass-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing: 5px;">
-        
         <div style="display:flex; gap:10px; margin-top:15px;">
             <button class="btn btn-secondary" onclick="closeModal('modal-auth')">Отмена</button>
             <button class="btn btn-success" onclick="submitAuth()">OK</button>
         </div>
-
         <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-        
         <button class="btn btn-sm btn-danger" style="width:100%; background: #fee2e2; color: #b91c1c; border:none;" onclick="resetPassBtnAction()">
-            <i class="fas fa-key"></i> Сброс пароля
+            <i class="fas fa-key"></i> Сброс PIN
         </button>
     </div>
 </div>
 
-
 <script>
-    const FIREBASE_ADMIN_KEY = "6sflAa12dpTgQd5Gf8aFhhGjnS23";
-
-    function verifyGlobalAdmin() {
-        const input = document.getElementById('admin-firebase-pass').value;
-        if (input === FIREBASE_ADMIN_KEY) {
-            document.getElementById('global-login').style.display = 'none';
-            sessionStorage.setItem('app_unlocked', 'true');
-        } else {
-            const err = document.getElementById('global-login-error');
-            err.style.display = 'block';
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            setTimeout(() => err.style.display = 'none', 2000);
-        }
-    }
-
     let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892' };
     let isMonitorMode = false;
     let tempStartData = null;
@@ -459,7 +440,6 @@
     let wakeLock = null;
     let pendingAuthCallback = null;
 
-    // --- AUDIO ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function unlockAudio() { if(audioCtx.state === 'suspended') audioCtx.resume(); }
     document.addEventListener('click', unlockAudio, {once:true});
@@ -484,19 +464,13 @@
         }
     }
 
-    // --- INIT ---
     function init() {
         const urlParams = new URLSearchParams(window.location.search);
         
-        // ПРОВЕРКА ГЛОБАЛЬНОГО ДОСТУПА
-        if (sessionStorage.getItem('app_unlocked') === 'true' || urlParams.get('mode') === 'monitor') {
-            document.getElementById('global-login').style.display = 'none';
-        } else {
-            document.getElementById('global-login').style.display = 'flex';
-        }
-
+        // В режиме монитора мы не показываем экран входа (Firebase Auth решит этот вопрос сам через правила read: true)
         if (urlParams.get('mode') === 'monitor') {
             isMonitorMode = true;
+            document.getElementById('global-login').style.display = 'none';
             createMonitorStyles();
             loadDB();
             setTimeout(() => switchView('active'), 100);
@@ -537,6 +511,7 @@
         }
     }
 
+    // Вспомогательный ПИН-код (не Firebase, а локальный ПИН)
     function authWrapper(actionCallback) {
         pendingAuthCallback = actionCallback;
         document.getElementById('auth-pass-input').value = '';
@@ -547,7 +522,6 @@
     function submitAuth() {
         const input = document.getElementById('auth-pass-input').value;
         const correct = db.password || '4892';
-
         if (input === '89144892253') {
             alert("👑 Мастер-пароль! Сброс на 0000.");
             db.password = '0000'; save();
@@ -555,7 +529,6 @@
             if(pendingAuthCallback) pendingAuthCallback();
             return;
         }
-
         if (input === correct) {
             closeModal('modal-auth');
             if(pendingAuthCallback) pendingAuthCallback();
@@ -579,11 +552,8 @@
     }
 
     function changePassUI() {
-        const newP = prompt("Введите НОВЫЙ пароль:");
-        if(newP) {
-            db.password = newP; save();
-            alert("✅ Пароль изменен на: " + newP);
-        }
+        const newP = prompt("Введите НОВЫЙ PIN-код:");
+        if(newP) { db.password = newP; save(); alert("✅ PIN изменен на: " + newP); }
     }
 
     async function requestWakeLock() {
@@ -592,10 +562,7 @@
                 wakeLock = await navigator.wakeLock.request('screen');
                 document.getElementById('wakelock-status').innerText = "💡 Экран активен (WakeLock вкл)";
                 document.getElementById('wakelock-status').style.color = "green";
-                wakeLock.addEventListener('release', () => {
-                    document.getElementById('wakelock-status').innerText = "Экран может погаснуть";
-                    document.getElementById('wakelock-status').style.color = "gray";
-                });
+                wakeLock.addEventListener('release', () => { document.getElementById('wakelock-status').innerText = "Экран может погаснуть"; document.getElementById('wakelock-status').style.color = "gray"; });
             } catch (err) {}
         }
     }
@@ -610,22 +577,14 @@
         if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
             const cHist = newData.history ? newData.history.length : 0;
             const lHist = db.history ? db.history.length : 0;
-            if (cHist <= lHist) {
-                console.log("🛑 Blocked empty sync");
-                return; 
-            }
+            if (cHist <= lHist) { return; }
         }
         db = { ...newData, password: newData.password || db.password || '4892' };
         updateUI();   
     }
 
     function switchView(id) {
-        if (id === 'settings') {
-            authWrapper(() => {
-                 doSwitchView(id);
-            });
-            return;
-        }
+        if (id === 'settings') { authWrapper(() => { doSwitchView(id); }); return; }
         doSwitchView(id);
     }
 
@@ -656,9 +615,7 @@
     }
 
     function sendNotify(title, body, isCritical) {
-        if ("Notification" in window && Notification.permission === "granted") {
-            try { new Notification(title, { body: body }); } catch (e) {}
-        }
+        if ("Notification" in window && Notification.permission === "granted") { try { new Notification(title, { body: body }); } catch (e) {} }
         if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]);
         playAlarm(isCritical);
     }
@@ -678,11 +635,7 @@
         tempStartData = { tariff, phone, name, checks };
         document.getElementById('modal-start-confirm').style.display = 'flex';
     }
-    function confirmPaymentChoice(method) {
-        tempStartData.payMethod = method;
-        closeModal('modal-start-confirm');
-        document.getElementById('modal-final-start').style.display = 'flex';
-    }
+    function confirmPaymentChoice(method) { tempStartData.payMethod = method; closeModal('modal-start-confirm'); document.getElementById('modal-final-start').style.display = 'flex'; }
     function realStartRental() {
         const { tariff, phone, name, checks, payMethod } = tempStartData;
         let c = db.clients.find(x => x.phone === phone);
@@ -695,37 +648,19 @@
             v.status = 'busy';
             const cat = db.categories.find(ca => ca.id == v.catId);
             const baseRate = cat ? (cat.baseRate || 0) : 0;
-            db.rentals.push({
-                id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone,
-                startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)),
-                tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate,
-                notified5: false, notified2: false 
-            });
+            db.rentals.push({ id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone, startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)), tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate, notified5: false, notified2: false });
         });
         document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = '';
         save(); closeModal('modal-final-start'); switchView('active');
     }
     function finishRental(id) {
         openConfirm('Завершить поездку?', () => {
-            const idx = db.rentals.findIndex(x => x.id === id);
-            const r = db.rentals[idx];
-            const v = db.fleet.find(f => f.id === r.vId);
-            if(v) v.status = 'free';
-            const now = Date.now();
-            const pauseMs = r.totalPause;
-            const pauseMin = Math.round(pauseMs / 60000);
-            const activeDurationMs = now - r.startTs - pauseMs;
-            const activeDurationMin = Math.ceil(activeDurationMs / 60000);
-            let overdueMin = 0;
-            if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
+            const idx = db.rentals.findIndex(x => x.id === id); const r = db.rentals[idx]; const v = db.fleet.find(f => f.id === r.vId); if(v) v.status = 'free';
+            const now = Date.now(); const pauseMs = r.totalPause; const pauseMin = Math.round(pauseMs / 60000); const activeDurationMs = now - r.startTs - pauseMs; const activeDurationMin = Math.ceil(activeDurationMs / 60000);
+            let overdueMin = 0; if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
             const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
-            db.history.unshift({
-                id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone,
-                cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0,
-                tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash'
-            });
-            db.rentals.splice(idx, 1);
-            save(); renderActiveRentals();
+            db.history.unshift({ id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone, cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0, tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash' });
+            db.rentals.splice(idx, 1); save(); renderActiveRentals();
         });
     }
 
@@ -794,7 +729,7 @@
 
     function renderSettingsList() {
         const d = document.getElementById('settings-list'); d.innerHTML='';
-        d.innerHTML += `<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить пароль администратора</button></div>`;
+        d.innerHTML += `<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить локальный PIN-код</button></div>`;
         d.innerHTML += `<div class="card" style="border: 2px solid #22c55e; background: #f0fdf4;"><h3 style="color:#15803d; margin-top:0;">☁️ Восстановить Облако</h3><p style="font-size:0.85rem; color:#555; margin-bottom:10px;">Нажмите, если на других устройствах пусто, а ЗДЕСЬ данные есть.</p><button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())"><i class="fas fa-cloud-upload-alt"></i> Отправить ЭТИ данные на сервер</button></div>`;
         db.categories.forEach(c => {
             d.innerHTML += `
@@ -805,7 +740,6 @@
         });
     }
 
-    // --- RENDER ACTIVE RENTALS ---
     function renderActiveRentals() {
         const list = document.getElementById('active-list'); list.innerHTML = '';
         const q = document.getElementById('active-search').value.toLowerCase();
@@ -941,7 +875,6 @@
     function openExtendModal(id) { document.getElementById('swap-search').style.display = 'none'; document.getElementById('btn-do-swap').style.display = 'none'; const container = document.getElementById('swap-list-container'); container.innerHTML = ''; document.querySelector('#modal-sub h3').innerText = 'Продлить время'; const r = db.rentals.find(x => x.id === id); const cat = db.categories.find(c => c.id == r.catId); cat.tariffs.forEach(t => { container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; }); document.getElementById('modal-sub').style.display = 'flex'; }
     function applyExt(rId, tId) { openConfirm('Продлить время?', () => { const r = db.rentals.find(x => x.id === rId); const cat = db.categories.find(c => c.id == r.catId); const t = cat.tariffs.find(x => x.id === tId); if(t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); } else { r.limit = 0; r.cost += parseInt(t.start || 0); } save(); closeModal('modal-sub'); renderActiveRentals(); }); }
     
-    // WRAPPED SECURITY ACTIONS
     function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) h.deleted = !h.deleted; save(); renderHistory(); })); }
     function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
     function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; save(); closeModal('modal-client'); renderClients(); }); }
@@ -977,14 +910,17 @@
         if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
     }
 
+    // Запускаем инициализацию UI
     init();
 </script>
 
 <script type="module">
+  // 1. Импортируем нужные пакеты из Firebase v10.7.1
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+  // 2. Ваш конфиг (остался прежним)
   const firebaseConfig = {
     apiKey: "AIzaSyCOh3RXnyOpa81Tpla8F44rTFteP4zoc3U",
     authDomain: "skuter75rus-3d55d.firebaseapp.com",
@@ -995,37 +931,89 @@
     measurementId: "G-J47C67V554"
   };
 
+  // 3. Инициализация
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
   const dbCloud = getFirestore(app);
 
-  console.log("🔥 Облако подключено!");
+  console.log("🔥 Firebase и Авторизация подключены!");
 
   const myDataRef = doc(dbCloud, "rent_app", "base");
 
+  // 4. Отслеживание статуса пользователя
+  onAuthStateChanged(auth, (user) => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isMonitor = urlParams.get('mode') === 'monitor';
+      
+      if (user) {
+          console.log("✅ Успешная авторизация в Firebase:", user.email);
+          document.getElementById('global-login').style.display = 'none';
+      } else {
+          console.log("⚠️ Нет активной сессии Firebase");
+          // Если это не режим монитора, показываем окно входа
+          if (!isMonitor) {
+              document.getElementById('global-login').style.display = 'flex';
+          }
+      }
+  });
+
+  // 5. Функция входа (привязана к кнопке "Войти")
+  window.loginFirebase = function() {
+      const email = document.getElementById('admin-email').value;
+      const pass = document.getElementById('admin-password').value;
+      const errBox = document.getElementById('global-login-error');
+      const btn = document.getElementById('btn-global-login');
+      
+      if(!email || !pass) {
+          errBox.innerText = "Введите Email и пароль!";
+          errBox.style.display = 'block';
+          return;
+      }
+      
+      btn.innerText = "Загрузка...";
+      errBox.style.display = 'none';
+
+      signInWithEmailAndPassword(auth, email, pass)
+          .then((userCredential) => {
+              // Успешный вход! onAuthStateChanged сработает автоматически и скроет окно
+              btn.innerText = "Войти";
+          })
+          .catch((error) => {
+              btn.innerText = "Войти";
+              errBox.innerText = "Ошибка: неверный логин или пароль";
+              errBox.style.display = 'block';
+              if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+              console.error("Ошибка авторизации:", error.code, error.message);
+          });
+  };
+
+  // 6. Отправка данных в облако (сработает только если есть права)
   window.sendToCloud = async function(data) {
+      if (!auth.currentUser) {
+          console.warn("⚠️ Попытка записи без авторизации заблокирована приложением.");
+          return;
+      }
       try {
           await setDoc(myDataRef, data);
-          console.log("✅ Данные улетели в облако");
+          console.log("✅ Синхронизировано с Firebase");
       } catch (e) {
           console.error("Ошибка сохранения в Firebase: ", e);
       }
-  }
+  };
 
+  // 7. Чтение из облака (по правилам read: true, работает для всех, включая монитор)
   onSnapshot(myDataRef, (docSnap) => {
       if (docSnap.exists()) {
-          console.log("📥 Пришли новые данные из облака!");
+          console.log("📥 Получены новые данные из Firebase!");
           const cloudData = docSnap.data();
-          
           if (window.updateGlobalDB) {
               window.updateGlobalDB(cloudData);
           }
       } else {
-          console.log("База пуста, начинаем с нуля.");
+          console.log("База данных в облаке пуста.");
       }
   });
 
 </script>
-
 </body>
 </html>
