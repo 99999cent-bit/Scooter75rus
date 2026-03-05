@@ -202,7 +202,6 @@
         <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
         <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
         <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
-        <!-- Кнопка настроек с ID для индикатора сети -->
         <button class="nav-btn" id="nav-btn-settings" onclick="switchView('settings')"><i class="fas fa-cog"></i></button>
     </header>
 
@@ -236,7 +235,6 @@
                 <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
             </div>
             
-            <!-- БЛОК СВОДКИ АКТИВНЫХ УСТРОЙСТВ -->
             <div id="active-summary-wrapper" ondblclick="toggleActiveSummary()">
                 <div id="active-summary-title">
                     <span><i class="fas fa-layer-group"></i> Активные устройства: <span id="summary-total-count">0</span></span>
@@ -367,7 +365,6 @@
         </div>
     </main>
 
-    <!-- Модальные окна остаются без изменений -->
     <div id="modal-confirm" class="modal-overlay" style="z-index: 200;">
         <div class="modal-content" style="text-align:center;">
             <i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
@@ -519,7 +516,7 @@
     let currentSwapRentalId = null;
     let wakeLock = null;
     let pendingAuthCallback = null;
-    let summaryExpanded = false; // Состояние для окна сводки
+    let summaryExpanded = false;
 
     // --- AUDIO ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -544,16 +541,16 @@
         }
     }
 
-    // --- ИНДИКАТОР СЕТИ НА КНОПКЕ НАСТРОЕК ---
+    // --- ИНДИКАТОР СЕТИ ---
     function updateNetworkStatusIndicator() {
         const btn = document.getElementById('nav-btn-settings');
         if(!btn) return;
         if(navigator.onLine) {
             btn.style.color = 'var(--success)';
-            btn.style.backgroundColor = '#dcfce7'; // светло-зеленый фон
+            btn.style.backgroundColor = '#dcfce7'; 
         } else {
             btn.style.color = 'var(--danger)';
-            btn.style.backgroundColor = '#fee2e2'; // светло-красный фон
+            btn.style.backgroundColor = '#fee2e2'; 
         }
     }
     window.addEventListener('online', updateNetworkStatusIndicator);
@@ -635,15 +632,15 @@
 
     function save() { 
         localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        if (window.sendToCloud) window.sendToCloud(db); // Отправка в Firebase (или ожидание сети)
+        if (window.sendToCloud) window.sendToCloud(db); 
     }
 
+    // ИСПРАВЛЕНО: Убрана агрессивная защита, которая блокировала обновление, если список rentals очищался
     window.updateGlobalDB = function(newData) {
-        if (!newData) return;
-        if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
-            const cHist = newData.history ? newData.history.length : 0; const lHist = db.history ? db.history.length : 0;
-            if (cHist <= lHist) return; 
-        }
+        if (!newData || typeof newData !== 'object') return;
+        // Защита: принимаем данные только если это действительно база приложения (есть категории и парк)
+        if (!newData.categories || !newData.fleet) return;
+        
         db = { ...newData, password: newData.password || db.password || '4892', scale: newData.scale || db.scale || 1.0 };
         updateUI(); applyScale(); 
     }
@@ -669,7 +666,6 @@
         if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]); playAlarm(isCritical);
     }
 
-    // --- RENTAL LOGIC ---
     function askStartRental(tariff) {
         unlockAudio(); const checks = document.querySelectorAll('.fleet-check-input:checked'); const phone = document.getElementById('rent-phone').value; const name = document.getElementById('rent-name').value;
         if(!phone || checks.length === 0) return alert('Заполните данные');
@@ -714,7 +710,6 @@
         const smsUrl = `sms:${v.sim}${separator}body=${encodeURIComponent(cmd)}`; window.location.href = smsUrl; closeModal('modal-relay');
     }
 
-    // --- ФУНКЦИИ EXCEL (SHEETJS) ---
     function doExcelExport(dataArray, filename) {
         if(dataArray.length === 0) { alert('Нет данных для выгрузки!'); return; }
         const ws = XLSX.utils.json_to_sheet(dataArray);
@@ -724,118 +719,64 @@
     }
 
     function exportFleetExcel() {
-        const data = db.fleet.map(f => ({
-            "ID": f.id,
-            "Название устройства": f.name,
-            "Категория": db.categories.find(c => c.id == f.catId)?.name || "Неизвестно",
-            "Статус": f.status === 'free' ? 'Свободен' : (f.status === 'busy' ? 'Занят' : 'Ремонт'),
-            "Телефон (SIM)": f.sim || "",
-            "Заметки": f.notes || ""
-        }));
+        const data = db.fleet.map(f => ({ "ID": f.id, "Название устройства": f.name, "Категория": db.categories.find(c => c.id == f.catId)?.name || "Неизвестно", "Статус": f.status === 'free' ? 'Свободен' : (f.status === 'busy' ? 'Занят' : 'Ремонт'), "Телефон (SIM)": f.sim || "", "Заметки": f.notes || "" }));
         doExcelExport(data, `Парк_Ерофей_${new Date().toLocaleDateString('ru-RU')}`);
     }
 
     function importFleetExcel(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+        const file = event.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const rows = XLSX.utils.sheet_to_json(firstSheet);
+            const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json(firstSheet);
             let updatedCount = 0;
-            
             rows.forEach(row => {
                 const nameKey = Object.keys(row).find(k => k.toLowerCase().includes('назван') || k.toLowerCase().includes('устройств'));
                 const phoneKey = Object.keys(row).find(k => k.toLowerCase().includes('телефон') || k.toLowerCase().includes('номер') || k.toLowerCase().includes('sim'));
-                
                 if (nameKey && phoneKey) {
-                    const vName = String(row[nameKey]).trim();
-                    const vPhone = String(row[phoneKey]).trim();
+                    const vName = String(row[nameKey]).trim(); const vPhone = String(row[phoneKey]).trim();
                     const vehicle = db.fleet.find(f => f.name.toLowerCase() === vName.toLowerCase());
-                    if (vehicle) {
-                        vehicle.sim = vPhone;
-                        updatedCount++;
-                    }
+                    if (vehicle) { vehicle.sim = vPhone; updatedCount++; }
                 }
             });
-
-            if (updatedCount > 0) {
-                save(); renderFleet();
-                alert(`✅ Успешно обновлено номеров: ${updatedCount}`);
-            } else {
-                alert('⚠️ Совпадений не найдено. Убедитесь, что в файле есть колонки со словами "Название" и "Телефон".');
-            }
-            event.target.value = ''; // сброс инпута
+            if (updatedCount > 0) { save(); renderFleet(); alert(`✅ Успешно обновлено номеров: ${updatedCount}`); } 
+            else { alert('⚠️ Совпадений не найдено. Убедитесь, что в файле есть колонки со словами "Название" и "Телефон".'); }
+            event.target.value = ''; 
         };
         reader.readAsArrayBuffer(file);
     }
 
     function exportClientsExcel() {
-        const data = db.clients.map(c => ({
-            "Имя": c.name,
-            "Телефон": c.phone,
-            "Статус": c.blocked ? "Заблокирован" : "Активен",
-            "Комментарий": c.comment || ""
-        }));
+        const data = db.clients.map(c => ({ "Имя": c.name, "Телефон": c.phone, "Статус": c.blocked ? "Заблокирован" : "Активен", "Комментарий": c.comment || "" }));
         doExcelExport(data, `Клиенты_Ерофей_${new Date().toLocaleDateString('ru-RU')}`);
     }
 
     function exportSurchargeExcel() {
-        const startVal = document.getElementById('sur-start').value; 
-        const endVal = document.getElementById('sur-end').value;
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; 
-        const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
-        
+        const startVal = document.getElementById('sur-start').value; const endVal = document.getElementById('sur-end').value;
+        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
         let data = [];
         db.history.forEach(h => {
             if(h.overDur > 0 && !h.deleted && h.ts >= startTs && h.ts <= endTs) {
-                data.push({
-                    "Дата": new Date(h.ts).toLocaleDateString('ru-RU'),
-                    "Время": `${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}`,
-                    "Устройство": h.vName,
-                    "Клиент": h.cName,
-                    "Телефон": h.cPhone,
-                    "Минут Сверх": h.overDur,
-                    "Сумма Доплаты (₽)": h.overDur * (h.baseRate || 0)
-                });
+                data.push({ "Дата": new Date(h.ts).toLocaleDateString('ru-RU'), "Время": `${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}`, "Устройство": h.vName, "Клиент": h.cName, "Телефон": h.cPhone, "Минут Сверх": h.overDur, "Сумма Доплаты (₽)": h.overDur * (h.baseRate || 0) });
             }
         });
         doExcelExport(data, `Доплаты_Ерофей_${startVal}_${endVal}`);
     }
 
     function exportHistoryExcel() {
-        const startVal = document.getElementById('hist-start').value; 
-        const endVal = document.getElementById('hist-end').value;
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; 
-        const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        const startVal = document.getElementById('hist-start').value; const endVal = document.getElementById('hist-end').value;
+        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
         const payFilter = document.getElementById('hist-pay').value;
-        
         let data = [];
         db.history.forEach(h => {
             const matchesPay = (payFilter === 'all') || (h.payMethod === payFilter);
             if(h.ts >= startTs && h.ts <= endTs && matchesPay) {
-                data.push({
-                    "Дата": new Date(h.ts).toLocaleDateString('ru-RU'),
-                    "Старт/Конец": `${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}`,
-                    "Устройство": h.vName,
-                    "Клиент": h.cName,
-                    "Телефон": h.cPhone,
-                    "Тариф": h.tName || "",
-                    "Длительность (мин)": h.duration,
-                    "Пауза (мин)": h.pauseDur || 0,
-                    "Сверх (мин)": h.overDur || 0,
-                    "Оплата": h.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные',
-                    "Сумма (₽)": h.cost,
-                    "Статус": h.deleted ? 'Удалено/Отмена' : 'Успешно'
-                });
+                data.push({ "Дата": new Date(h.ts).toLocaleDateString('ru-RU'), "Старт/Конец": `${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}`, "Устройство": h.vName, "Клиент": h.cName, "Телефон": h.cPhone, "Тариф": h.tName || "", "Длительность (мин)": h.duration, "Пауза (мин)": h.pauseDur || 0, "Сверх (мин)": h.overDur || 0, "Оплата": h.payMethod === 'bank' ? 'Банк/Карта' : 'Наличные', "Сумма (₽)": h.cost, "Статус": h.deleted ? 'Удалено/Отмена' : 'Успешно' });
             }
         });
         doExcelExport(data, `История_Ерофей_${startVal}_${endVal}`);
     }
 
-    // --- RENDERERS ---
     function renderNewRent() {
         const c = document.getElementById('fleet-selector'); c.innerHTML='';
         const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
@@ -844,9 +785,7 @@
             if(inCat.length) {
                 c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title">${cat.name}</div><div class="fleet-items-container"></div></div>`;
                 const container = c.lastElementChild.querySelector('.fleet-items-container');
-                inCat.forEach(v => {
-                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
-                });
+                inCat.forEach(v => { container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`; });
             }
         });
     }
@@ -917,28 +856,17 @@
         });
     }
 
-    // --- ЛОГИКА СВОДКИ АКТИВНЫХ УСТРОЙСТВ ---
-    function toggleActiveSummary() {
-        summaryExpanded = !summaryExpanded;
-        renderActiveSummary();
-    }
-
+    function toggleActiveSummary() { summaryExpanded = !summaryExpanded; renderActiveSummary(); }
     function renderActiveSummary() {
         const container = document.getElementById('active-summary-content');
         const countSpan = document.getElementById('summary-total-count');
         if(!container || !countSpan) return;
 
         countSpan.innerText = db.rentals.length;
-
-        if (!summaryExpanded) {
-            container.style.display = 'none';
-            return;
-        }
+        if (!summaryExpanded) { container.style.display = 'none'; return; }
 
         container.style.display = 'block';
         let html = '';
-        
-        // Группировка
         const byCat = {};
         db.rentals.forEach(r => {
             if(!byCat[r.catId]) byCat[r.catId] = { name: db.categories.find(c=>c.id==r.catId)?.name || 'Прочие', colors: {} };
@@ -946,26 +874,17 @@
             byCat[r.catId].colors[r.vColor].push(r.vName);
         });
 
-        // Отрисовка
         for(let catId in byCat) {
             html += `<div style="margin-bottom: 12px;">`;
             html += `<div style="font-size:0.9rem; font-weight:700; color:#334155; margin-bottom:6px;">${byCat[catId].name}</div>`;
             html += `<div style="display: flex; gap: 8px; flex-wrap: wrap;">`;
-            
             for(let color in byCat[catId].colors) {
                 const devs = byCat[catId].colors[color];
-                html += `
-                <div style="background: ${color}; color: #fff; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.95rem; text-shadow: 0px 1px 2px rgba(0,0,0,0.5); border: 1px solid rgba(0,0,0,0.1);" title="${devs.join(', ')}">
-                    ${devs.length} шт.
-                </div>`;
+                html += `<div style="background: ${color}; color: #fff; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.95rem; text-shadow: 0px 1px 2px rgba(0,0,0,0.5); border: 1px solid rgba(0,0,0,0.1);" title="${devs.join(', ')}">${devs.length} шт.</div>`;
             }
             html += `</div></div>`;
         }
-
-        if(db.rentals.length === 0) {
-            html = '<div style="color:#94a3b8; font-size:0.85rem;">Все устройства свободны</div>';
-        }
-        
+        if(db.rentals.length === 0) { html = '<div style="color:#94a3b8; font-size:0.85rem;">Все устройства свободны</div>'; }
         container.innerHTML = html;
     }
 
@@ -978,11 +897,9 @@
 
         const badge = document.getElementById('badge-cnt');
         if(badge) { badge.innerText = filtered.length; badge.style.display = filtered.length ? 'inline-block' : 'none'; }
-        
         const noMsg = document.getElementById('no-active-msg');
         if(noMsg) noMsg.style.display = filtered.length ? 'none' : 'block';
 
-        // Обновляем сводку
         renderActiveSummary();
 
         filtered.forEach(r => {
@@ -1080,7 +997,6 @@
         document.getElementById('history-total').innerText = total + ' ₽';
     }
 
-    // --- UTILS ---
     function toggleDevDropdown() { const dd = document.getElementById('dev-dd'); dd.style.display = dd.style.display === 'block' ? 'none' : 'block'; }
     function filterDevDropdown(val) { document.querySelectorAll('.dd-item.dev-item').forEach(item => { item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; }); }
     function initDeviceFilter() {
@@ -1153,7 +1069,7 @@
         t.className = 'toast ' + type;
         t.innerHTML = msg;
         c.appendChild(t);
-        setTimeout(() => t.remove(), 4000);
+        setTimeout(() => t.remove(), 4000); // 4 секунды
     }
 
     window.addEventListener('online', () => showToastMsg("🌐 Соединение восстановлено. Данные синхронизируются.", "success"));
@@ -1183,9 +1099,6 @@
   const app = initializeApp(firebaseConfig);
   const dbCloud = getFirestore(app);
 
-  // ВАЖНО: Включение ОФЛАЙН КЕШИРОВАНИЯ
-  // Firestore гарантирует, что ЕСЛИ ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН (любая учетка),
-  // данные при потере интернета сохранятся в локальный кэш и улетят при подключении.
   enableIndexedDbPersistence(dbCloud)
     .catch((err) => {
         if (err.code == 'failed-precondition') {
@@ -1200,7 +1113,6 @@
 
   const myDataRef = doc(dbCloud, "rent_app", "base");
 
-  // Отслеживание статуса авторизации в Firebase
   onAuthStateChanged(auth, (user) => {
       const urlParams = new URLSearchParams(window.location.search);
       const isMonitor = urlParams.get('mode') === 'monitor';
@@ -1216,7 +1128,6 @@
       }
   });
 
-  // Логин (кнопка в окне)
   window.loginFirebase = function() {
       const email = document.getElementById('admin-email').value;
       const pass = document.getElementById('admin-password').value;
@@ -1236,18 +1147,25 @@
           });
   };
 
-  // Запись в облако
-  // Функция сработает для любой авторизованной учетки (условие auth.currentUser пропускает всех вошедших).
-  // Благодаря IndexedDbPersistence данные станут в офлайн-очередь автоматически.
+  // ИЗМЕНЕНИЕ: Добавлен вывод красного окна-предупреждения, если в Firebase заблокированы права на запись.
   window.sendToCloud = async function(data) {
       if (!auth.currentUser) return; 
       try {
           await setDoc(myDataRef, data);
           console.log("✅ Синхронизировано/Поставлено в очередь Firebase");
-      } catch (e) { console.error("Ошибка сохранения: ", e); }
+      } catch (e) { 
+          console.error("Ошибка сохранения: ", e); 
+          // Если Firebase блокирует запись другому пользователю:
+          if(e.code === 'permission-denied') {
+              showToastMsg("⛔ ОШИБКА ПРАВ FIREBASE!<br>Вы видите данные, но не можете их менять.<br>Зайдите в Firebase -> Firestore -> Rules и разрешите запись.", "danger");
+              // На всякий случай дублируем стандартным alert
+              alert("Ошибка прав! Firebase блокирует сохранение для этого пользователя.\nЗайдите в Firebase Console -> Firestore -> Rules и разрешите запись:\n\nallow read, write: if request.auth != null;");
+          } else {
+              showToastMsg("⚠️ Ошибка синхронизации: " + e.message, "danger");
+          }
+      }
   };
 
-  // Чтение из облака
   onSnapshot(myDataRef, { includeMetadataChanges: true }, (docSnap) => {
       if (docSnap.exists()) {
           const source = docSnap.metadata.fromCache ? "ЛОКАЛЬНОГО КЭША" : "СЕРВЕРА";
@@ -1260,4 +1178,5 @@
 </script>
 </body>
 </html>
+
 
