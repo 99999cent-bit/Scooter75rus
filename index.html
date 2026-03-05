@@ -118,12 +118,27 @@
         .gear-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; transition: 0.2s; }
         .gear-btn.has-note { color: var(--danger); border-color: var(--danger); background: #fef2f2; animation: pulseRed 2s infinite; }
         @keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);} 70% {box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);} 100% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);} }
+        
         .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .history-table th { background: #f8fafc; text-align: left; padding: 12px 8px; border-bottom: 2px solid #e2e8f0; color: #64748b; position: sticky; top: 0; white-space: nowrap; }
         .history-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        .history-table tbody tr { cursor: pointer; transition: background-color 0.2s; }
+        .history-table tbody tr:hover { background-color: #f1f5f9; }
         .tr-deleted td { text-decoration: line-through !important; color: var(--deleted-text) !important; }
         .tr-deleted td button { text-decoration: none !important; opacity: 1 !important; }
         .tr-short { background-color: #fef9c3 !important; }
+
+        /* Полоски для истории (Админ / Юзер) */
+        .history-row-admin td:first-child { border-left: 5px solid var(--danger) !important; }
+        .history-row-user td:first-child { border-left: 5px solid var(--success) !important; }
+        
+        /* Элементы лога действий */
+        .log-item { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; }
+        .log-item:last-child { border-bottom: none; }
+        .log-item-time { color: #64748b; font-size: 0.75rem; margin-bottom: 4px; }
+        .log-item-user { font-weight: bold; }
+        .log-item-action { font-weight: 800; color: var(--text); }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; animation: popUp 0.15s ease-out; margin-bottom: 10vh; }
         @keyframes popUp { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
@@ -151,7 +166,6 @@
         .swap-radio-item:hover { background: #f8fafc; }
         .swap-radio-input { width: 24px; height: 24px; margin-right: 15px; accent-color: var(--primary); }
         .surcharge-highlight { color: var(--danger); font-weight: 700; }
-        .surcharge-row { background-color: #fff1f2; }
         .new-rent-search { margin-bottom: 10px; }
         .pay-icon { font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; display: inline-block; margin-top: 2px; }
         .pay-cash { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
@@ -173,6 +187,22 @@
         .toast.success { border-left: 6px solid var(--success); }
         @keyframes slideDown { from { transform: translateY(-20px) translateX(-50%); opacity: 0; } to { transform: translateY(0) translateX(-50%); opacity: 1; } }
         #wakelock-status { font-size: 0.7rem; color: #64748b; text-align: center; margin-top: 5px; }
+
+        /* Стили для кнопки тарифов в режиме монитора */
+        #monitor-tariffs-btn {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            color: white; text-align: center; padding: 18px; font-weight: 900;
+            font-size: 1.1rem; z-index: 9999; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4);
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            animation: pulseTariff 2s infinite;
+        }
+        @keyframes pulseTariff { 
+            0% {box-shadow: 0 0 0 0 rgba(234,88,12, 0.6);} 
+            70% {box-shadow: 0 0 0 10px rgba(234,88,12, 0);} 
+            100% {box-shadow: 0 0 0 0 rgba(234,88,12, 0);} 
+        }
     </style>
 </head>
 <body>
@@ -181,6 +211,11 @@
 <!-- ======================= ЧАСТЬ 1: HTML СТРУКТУРА ========================= -->
 <!-- ========================================================================= -->
 <div id="app-wrapper">
+    <!-- Кнопка Тарифов для режима монитора (Скрыта по умолчанию) -->
+    <div id="monitor-tariffs-btn" onclick="openMonitorTariffs()">
+        <i class="fas fa-tags"></i> ПРАЙС-ЛИСТ ТАРИФОВ (НАЖМИТЕ ЗДЕСЬ)
+    </div>
+
     <div id="global-login" class="modal-overlay" style="z-index: 100000; background: #0f172a; display: flex; flex-direction: column;">
         <div class="modal-content" style="text-align:center; max-width: 320px;">
             <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
@@ -202,7 +237,6 @@
         <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
         <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
         <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
-        <!-- Кнопка настроек с ID для индикатора сети -->
         <button class="nav-btn" id="nav-btn-settings" onclick="switchView('settings')"><i class="fas fa-cog"></i></button>
     </header>
 
@@ -221,7 +255,7 @@
                     </div>
                 </div>
                 <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
-                <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
+                <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ (С одинаковым тарифом):</p>
                 <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
                 <div id="fleet-selector"></div>
                 <div id="tariff-block" style="display:none; margin-top:20px;">
@@ -236,7 +270,6 @@
                 <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
             </div>
             
-            <!-- БЛОК СВОДКИ АКТИВНЫХ УСТРОЙСТВ -->
             <div id="active-summary-wrapper" ondblclick="toggleActiveSummary()">
                 <div id="active-summary-title">
                     <span><i class="fas fa-layer-group"></i> Активные устройства: <span id="summary-total-count">0</span></span>
@@ -287,8 +320,8 @@
             <div class="card">
                 <h2>Фильтры доплат</h2>
                 <div class="filter-row">
-                    <input type="date" id="sur-start" onchange="renderSurcharge()">
-                    <input type="date" id="sur-end" onchange="renderSurcharge()">
+                    <input type="date" id="sur-start" onchange="protectDateChange('sur-start', renderSurcharge)">
+                    <input type="date" id="sur-end" onchange="protectDateChange('sur-end', renderSurcharge)">
                 </div>
                 <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
                 <button class="btn btn-success" style="margin-top: 10px;" onclick="authWrapper(() => exportSurchargeExcel())"><i class="fas fa-file-excel"></i> Выгрузить за период</button>
@@ -312,8 +345,8 @@
             <div class="card">
                 <h2>Фильтры</h2>
                 <div class="filter-row">
-                    <input type="date" id="hist-start" onchange="renderHistory()">
-                    <input type="date" id="hist-end" onchange="renderHistory()">
+                    <input type="date" id="hist-start" onchange="protectDateChange('hist-start', renderHistory)">
+                    <input type="date" id="hist-end" onchange="protectDateChange('hist-end', renderHistory)">
                     <select id="hist-pay" onchange="renderHistory()">
                         <option value="all">💳 Все оплаты</option>
                         <option value="cash">💵 Наличные</option>
@@ -349,6 +382,17 @@
                 <button class="btn btn-danger" onclick="window.logoutFirebase()" style="width:100%;">🚪 Выйти из аккаунта</button>
             </div>
 
+            <!-- Блок для создания тарифов в режим мониторинга -->
+            <div class="card">
+                <h2>📋 Прайс-лист (Для экрана мониторинга)</h2>
+                <div id="settings-display-tariffs-list"></div>
+                <div style="display:flex; gap:5px; margin-top: 10px;">
+                    <input type="text" id="new-dt-name" placeholder="Название (напр. Самокат 1 час)" style="flex:2; margin-bottom:0;">
+                    <input type="text" id="new-dt-price" placeholder="Цена (напр. 500 ₽)" style="flex:1; margin-bottom:0;">
+                </div>
+                <button class="btn btn-success btn-sm" style="margin-top: 10px; width: 100%;" onclick="authWrapper(() => addDisplayTariff())">+ Добавить в прайс</button>
+            </div>
+
             <div class="card">
                 <h2>🔍 Размер интерфейса</h2>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -360,7 +404,7 @@
             </div>
 
             <div class="card">
-                <h2>Категории</h2>
+                <h2>Категории устройств</h2>
                 <button class="btn btn-primary" onclick="openCatModal()">+ Создать категорию</button>
                 <div id="settings-list" style="margin-top:15px;"></div>
             </div>
@@ -386,6 +430,28 @@
         </div>
     </div>
 
+    <!-- Новое модальное окно: Просмотр истории действий -->
+    <div id="modal-action-log" class="modal-overlay" style="z-index: 200;">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color: #1e293b;">📜 История действий</h3>
+            <div id="action-log-container" style="max-height: 400px; overflow-y: auto; text-align: left; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+                <!-- Элементы лога будут здесь -->
+            </div>
+            <button class="btn btn-secondary" onclick="closeModal('modal-action-log')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Новое модальное окно: Просмотр Тарифов для Монитора -->
+    <div id="modal-info-tariffs" class="modal-overlay" style="z-index: 10000;">
+        <div class="modal-content" style="max-width: 350px;">
+            <h2 style="text-align:center; margin-top:0; color:var(--primary);"><i class="fas fa-tags"></i> ПРАЙС-ЛИСТ</h2>
+            <div id="monitor-tariffs-list" style="margin-top: 15px; max-height: 50vh; overflow-y: auto;">
+                <!-- Сюда вставятся тарифы -->
+            </div>
+            <button class="btn btn-secondary" onclick="closeModal('modal-info-tariffs')" style="margin-top: 20px; width: 100%;">Закрыть</button>
+        </div>
+    </div>
+
     <div id="modal-relay" class="modal-overlay" style="z-index: 250;">
         <div class="modal-content" style="text-align:center;">
             <i class="fas fa-power-off" style="font-size:3rem; color:#8b5cf6; margin-bottom:15px;"></i>
@@ -401,7 +467,6 @@
         </div>
     </div>
 
-    <!-- Новое модальное окно: Редактирование устройства -->
     <div id="modal-edit-vehicle" class="modal-overlay">
         <div class="modal-content">
             <h3>Редактировать устройство</h3>
@@ -414,7 +479,6 @@
             <input type="color" id="edit-v-color" style="width:100px; padding:2px; height:46px; margin-bottom:15px;">
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button class="btn btn-secondary" onclick="closeModal('modal-edit-vehicle')">Отмена</button>
-                <!-- Сохранение изменений обернуто в запрос пароля -->
                 <button class="btn btn-primary" onclick="authWrapper(() => saveEditVehicle())">Сохранить</button>
             </div>
         </div>
@@ -522,7 +586,8 @@
             <h3 style="margin-top:0;">🔐 Введите PIN</h3>
             <input type="password" id="auth-pass-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing: 5px;">
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn btn-secondary" onclick="closeModal('modal-auth')">Отмена</button>
+                <!-- Отмена окна авторизации сбросит ожидаемое действие (в т.ч. возврат даты фильтра) -->
+                <button class="btn btn-secondary" onclick="closeAuthModal(false)">Отмена</button>
                 <button class="btn btn-success" onclick="submitAuth()">OK</button>
             </div>
             <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
@@ -538,13 +603,30 @@
 <!-- ======================= ЧАСТЬ 3: ОСНОВНОЙ JAVASCRIPT ==================== -->
 <!-- ========================================================================= -->
 <script>
-    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], password: '4892', scale: 1.0 };
+    let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], displayTariffs: [], password: '4892', scale: 1.0 };
     let isMonitorMode = false;
     let tempStartData = null;
     let currentSwapRentalId = null;
     let wakeLock = null;
     let pendingAuthCallback = null;
-    let summaryExpanded = false; // Состояние для окна сводки
+    let pendingAuthCancel = null;
+    let summaryExpanded = false; 
+    let selectedForRent = new Set(); // Хранит ID устройств, выбранных для новой аренды
+    window.currentUserEmail = 'Неизвестный'; // Глобальная переменная для почты текущего юзера
+
+    // --- ФУНКЦИЯ ДЛЯ ВРЕМЕНИ ЧИТЫ ---
+    function getChitaDateString() {
+        const d = new Date();
+        const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Chita', year: 'numeric', month: '2-digit', day: '2-digit' });
+        return formatter.format(d); 
+    }
+
+    // --- АЛИАСЫ ПОЛЬЗОВАТЕЛЕЙ ---
+    function getUserAlias(email) {
+        if (email === 'Safronov.a.a993@gmail.com') return 'Админ';
+        if (email === '99999cent@gmail.com') return 'Оператор';
+        return email || 'Неизвестный';
+    }
 
     // --- AUDIO ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -575,10 +657,10 @@
         if(!btn) return;
         if(navigator.onLine) {
             btn.style.color = 'var(--success)';
-            btn.style.backgroundColor = '#dcfce7'; // светло-зеленый фон
+            btn.style.backgroundColor = '#dcfce7';
         } else {
             btn.style.color = 'var(--danger)';
-            btn.style.backgroundColor = '#fee2e2'; // светло-красный фон
+            btn.style.backgroundColor = '#fee2e2';
         }
     }
     window.addEventListener('online', updateNetworkStatusIndicator);
@@ -590,6 +672,7 @@
         if (urlParams.get('mode') === 'monitor') {
             isMonitorMode = true;
             document.getElementById('global-login').style.display = 'none';
+            document.getElementById('monitor-tariffs-btn').style.display = 'block';
             createMonitorStyles();
             loadDB(); applyScale(); 
             setTimeout(() => switchView('active'), 100);
@@ -599,16 +682,27 @@
         if ("Notification" in window) Notification.requestPermission();
         loadDB(); applyScale(); updateNetworkStatusIndicator();
 
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('hist-start').value = today; document.getElementById('hist-end').value = today;
-        document.getElementById('sur-start').value = today; document.getElementById('sur-end').value = today;
+        // Установка дат на текущий день по времени Читы
+        const todayChita = getChitaDateString();
+        document.getElementById('hist-start').value = todayChita; 
+        document.getElementById('hist-end').value = todayChita;
+        document.getElementById('sur-start').value = todayChita; 
+        document.getElementById('sur-end').value = todayChita;
+        
+        window.last_hist_start = todayChita;
+        window.last_hist_end = todayChita;
+        window.last_sur_start = todayChita;
+        window.last_sur_end = todayChita;
 
         updateUI(); setInterval(tick, 1000);
         
-        // ОБРАБОТЧИК КЛИКОВ: запрещает закрытие global-login кликом по фону
         window.onclick = function(e) { 
             if(e.target.matches('.modal-overlay') && e.target.id !== 'global-login') {
-                e.target.style.display='none'; 
+                if (e.target.id === 'modal-auth') {
+                    closeAuthModal(false); // Вызывает отмену при клике вне окна
+                } else {
+                    e.target.style.display='none'; 
+                }
             }
             if(!e.target.matches('.device-filter-btn') && !e.target.closest('.device-dropdown')) {
                 const dd = document.getElementById('dev-dd');
@@ -620,17 +714,16 @@
 
     function createMonitorStyles() {
         const style = document.createElement('style');
-        // Добавлено скрытие блока "active-summary-wrapper" для режима просмотра
-        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ ТОЛЬКО ПРОСМОТР";position:fixed;top:0;left:0;width:100%;background:#1e293b;color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3)} #active-summary-wrapper{display:none!important;}`;
+        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:70px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}#active-summary-wrapper{display:none!important;}`;
         document.head.appendChild(style);
     }
 
     function loadDB() {
         const local = localStorage.getItem('rm_final_keyboard_fix');
-        if(local) { db = JSON.parse(local); if(!db.password) db.password = '4892'; if(!db.scale) db.scale = 1.0; } 
+        if(local) { db = JSON.parse(local); if(!db.password) db.password = '4892'; if(!db.scale) db.scale = 1.0; if(!db.displayTariffs) db.displayTariffs = []; } 
         else {
             db.categories = [{id:1, name:'Самокаты', baseRate:10, tariffs:[{id:10, type:'fix', name:'30 мин', dur:30, price:300}]}];
-            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6', sim:''}]; db.password = '4892'; db.scale = 1.0;
+            db.fleet = [{id:1, name:'S-1', catId:1, status:'free', color:'#3b82f6', sim:''}]; db.password = '4892'; db.scale = 1.0; db.displayTariffs = [];
         }
     }
 
@@ -649,17 +742,54 @@
     }
     window.addEventListener('resize', applyScale);
 
-    function authWrapper(actionCallback) {
-        pendingAuthCallback = actionCallback; document.getElementById('auth-pass-input').value = ''; document.getElementById('modal-auth').style.display = 'flex'; setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
+    // Улучшенный AuthWrapper с поддержкой отмены
+    function authWrapper(actionCallback, cancelCallback = null) {
+        pendingAuthCallback = actionCallback;
+        pendingAuthCancel = cancelCallback;
+        document.getElementById('auth-pass-input').value = '';
+        document.getElementById('modal-auth').style.display = 'flex';
+        setTimeout(() => document.getElementById('auth-pass-input').focus(), 100);
     }
+
     function submitAuth() {
         const input = document.getElementById('auth-pass-input').value; const correct = db.password || '4892';
-        if (input === '89144892253') { alert("👑 Мастер-пароль! Сброс на 0000."); db.password = '0000'; save(); closeModal('modal-auth'); if(pendingAuthCallback) pendingAuthCallback(); return; }
-        if (input === correct) { closeModal('modal-auth'); if(pendingAuthCallback) pendingAuthCallback(); } 
+        if (input === '89144892253') { alert("👑 Мастер-пароль! Сброс на 0000."); db.password = '0000'; save(); closeAuthModal(true); return; }
+        if (input === correct) { closeAuthModal(true); } 
         else { const inp = document.getElementById('auth-pass-input'); inp.style.border = "2px solid red"; navigator.vibrate([100,50,100]); setTimeout(()=> inp.style.border = "1px solid #ccc", 1000); }
     }
+
+    function closeAuthModal(success = false) {
+        document.getElementById('modal-auth').style.display = 'none';
+        if (success && pendingAuthCallback) pendingAuthCallback();
+        else if (!success && pendingAuthCancel) pendingAuthCancel();
+        pendingAuthCallback = null;
+        pendingAuthCancel = null;
+    }
+
     function resetPassBtnAction() { const master = prompt("📞 Введите Мастер-Пароль (8914...):"); if(master === '89144892253') { db.password = '0000'; save(); alert("✅ Пароль сброшен на: 0000"); document.getElementById('auth-pass-input').value = '0000'; } else { alert("⛔ Ошибка!"); } }
     function changePassUI() { const newP = prompt("Введите НОВЫЙ PIN-код:"); if(newP) { db.password = newP; save(); alert("✅ PIN изменен на: " + newP); } }
+
+    // Логика защиты изменения дат
+    function protectDateChange(id, renderFn) {
+        const el = document.getElementById(id);
+        const newVal = el.value;
+        const email = window.currentUserEmail;
+
+        // Админу пароль не нужен
+        if (email === 'Safronov.a.a993@gmail.com') {
+            window['last_' + id] = newVal;
+            renderFn();
+            return;
+        }
+
+        // Остальным пользователям требуется подтверждение PIN-кодом
+        authWrapper(() => {
+            window['last_' + id] = newVal;
+            renderFn();
+        }, () => {
+            el.value = window['last_' + id]; // Возвращаем старую дату
+        });
+    }
 
     async function requestWakeLock() {
         if ('wakeLock' in navigator) {
@@ -705,35 +835,217 @@
         if (navigator.vibrate) navigator.vibrate(isCritical ? [1000, 500, 1000] : [300, 100, 300]); playAlarm(isCritical);
     }
 
-    // --- RENTAL LOGIC ---
-    function askStartRental(tariff) {
-        unlockAudio(); const checks = document.querySelectorAll('.fleet-check-input:checked'); const phone = document.getElementById('rent-phone').value; const name = document.getElementById('rent-name').value;
-        if(!phone || checks.length === 0) return alert('Заполните данные');
-        let devices = []; checks.forEach(c => { const v = db.fleet.find(f => f.id == c.value); devices.push(v.name); });
-        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
-        document.getElementById('confirm-tariff-name').innerText = tariff.name; document.getElementById('confirm-devices').innerText = devices.join(', '); document.getElementById('confirm-cost').innerText = costLabel;
-        tempStartData = { tariff, phone, name, checks }; document.getElementById('modal-start-confirm').style.display = 'flex';
+    // --- ЛОГИРОВАНИЕ ДЕЙСТВИЙ (ACTION LOG) ---
+    function logRentalAction(r, action, details) {
+        if(!r.actionLog) r.actionLog = [];
+        const userEmail = window.currentUserEmail || 'Неизвестный';
+        r.actionLog.push({ ts: Date.now(), user: userEmail, action: action, details: details || '' });
+        r.lastUser = userEmail;
     }
+
+    function showActionLog(historyId) {
+        const h = db.history.find(x => x.id === historyId);
+        if(!h) return;
+        const c = document.getElementById('action-log-container');
+        c.innerHTML = '';
+        if(!h.actionLog || h.actionLog.length === 0) {
+            c.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">Нет истории действий для этой записи</div>';
+        } else {
+            h.actionLog.forEach(log => {
+                const dt = new Date(log.ts).toLocaleString('ru-RU', { timeZone: 'Asia/Chita' });
+                const alias = getUserAlias(log.user);
+                const color = log.user === 'Safronov.a.a993@gmail.com' ? 'var(--danger)' : 'var(--success)';
+                c.innerHTML += `
+                    <div class="log-item" style="border-left: 4px solid ${color};">
+                        <div class="log-item-time">${dt}</div>
+                        <div><span class="log-item-user" style="color:${color};">${alias}</span>: <span class="log-item-action">${log.action}</span> <span style="color:#475569">${log.details || ''}</span></div>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('modal-action-log').style.display = 'flex';
+    }
+
+    // --- ФУНКЦИИ ДЛЯ ПРАЙС-ЛИСТА В МОНИТОРЕ ---
+    function addDisplayTariff() {
+        const n = document.getElementById('new-dt-name').value;
+        const p = document.getElementById('new-dt-price').value;
+        if(!n || !p) return alert('Заполните название и цену');
+        if(!db.displayTariffs) db.displayTariffs = [];
+        db.displayTariffs.push({ id: Date.now(), name: n, price: p });
+        save();
+        document.getElementById('new-dt-name').value = '';
+        document.getElementById('new-dt-price').value = '';
+        renderSettingsList();
+    }
+
+    function delDisplayTariff(id) {
+        authWrapper(() => openConfirm('Удалить этот тариф из прайса?', () => {
+            db.displayTariffs = db.displayTariffs.filter(t => t.id !== id);
+            save();
+            renderSettingsList();
+        }));
+    }
+
+    function openMonitorTariffs() {
+        const c = document.getElementById('monitor-tariffs-list');
+        c.innerHTML = '';
+        const list = db.displayTariffs || [];
+        if(list.length === 0) {
+            c.innerHTML = '<p style="text-align:center; color:#64748b;">Прайс-лист в данный момент пуст</p>';
+        } else {
+            list.forEach(t => {
+                c.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 15px 0; border-bottom: 1px dashed #cbd5e1;">
+                    <span style="font-weight:700; color:#334155; font-size:1.1rem;">${t.name}</span>
+                    <span style="font-weight:900; color:#ea580c; font-size:1.3rem;">${t.price}</span>
+                </div>`;
+            });
+        }
+        document.getElementById('modal-info-tariffs').style.display = 'flex';
+    }
+
+    // --- RENTAL LOGIC ---
+
+    // Генерирует уникальную строку-подпись для тарифов категории (чтобы сравнивать их цены и время)
+    function getTariffSignature(cat) {
+        if (!cat || !cat.tariffs || cat.tariffs.length === 0) return 'empty';
+        return cat.tariffs.map(t => `${t.type}_${t.dur||0}_${t.price||0}_${t.start||0}`).sort().join('|');
+    }
+
+    // Умная выборка: при клике на галочку устройства обновляем Set
+    function onDeviceCheck(el) {
+        if(el.checked) {
+            selectedForRent.add(el.value);
+        } else {
+            selectedForRent.delete(el.value);
+        }
+        renderNewRent();
+        showTariffs();
+    }
+
+    function renderNewRent() {
+        const c = document.getElementById('fleet-selector'); c.innerHTML='';
+        const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
+        
+        // Определяем сигнатуру (цены) выбранного тарифа
+        let activeSig = null;
+        if (selectedForRent.size > 0) {
+            const firstId = Array.from(selectedForRent)[0];
+            const v = db.fleet.find(f => f.id == firstId);
+            if (v) {
+                const activeCat = db.categories.find(ca => ca.id == v.catId);
+                activeSig = getTariffSignature(activeCat);
+            }
+        }
+
+        db.categories.forEach(cat => {
+            // Если уже выбрано устройство, скрываем группы с ДРУГИМИ тарифами (ценами)
+            if (activeSig !== null && getTariffSignature(cat) !== activeSig) return;
+
+            const inCat = db.fleet.filter(v => v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ));
+            if(inCat.length) {
+                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title">${cat.name}</div><div class="fleet-items-container"></div></div>`;
+                const container = c.lastElementChild.querySelector('.fleet-items-container');
+                inCat.forEach(v => {
+                    const isChecked = selectedForRent.has(String(v.id)) ? 'checked' : '';
+                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="onDeviceCheck(this)" ${isChecked}><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
+                });
+            }
+        });
+    }
+
+    function showTariffs() {
+        const box = document.getElementById('tariff-buttons');
+        const blk = document.getElementById('tariff-block');
+        
+        if (selectedForRent.size === 0) {
+            blk.style.display = 'none';
+            return;
+        }
+        
+        const firstId = Array.from(selectedForRent)[0];
+        const v = db.fleet.find(f => f.id == firstId);
+        if (!v) return;
+        
+        const cat = db.categories.find(c => c.id == v.catId);
+        
+        box.innerHTML = '';
+        if(cat && cat.tariffs) {
+            cat.tariffs.forEach(t => {
+                const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
+                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">${t.name}</span><span style="font-size:0.95rem;color:#64748b;">${info} · ${t.price}₽</span></div>`;
+            });
+            blk.style.display = 'block';
+        } else {
+            blk.style.display = 'none';
+        }
+    }
+
+    function askStartRental(tariff) {
+        unlockAudio(); 
+        const phone = document.getElementById('rent-phone').value; 
+        const name = document.getElementById('rent-name').value;
+        if(!phone || selectedForRent.size === 0) return alert('Заполните данные и выберите транспорт');
+        
+        let devices = []; 
+        let checks = [];
+        Array.from(selectedForRent).forEach(id => { 
+            const v = db.fleet.find(f => f.id == id); 
+            if(v) {
+                devices.push(v.name);
+                checks.push(id); 
+            }
+        });
+        
+        let costLabel = (tariff.type === 'fix') ? (parseInt(tariff.price) * devices.length) + " ₽" : (parseInt(tariff.start) * devices.length) + " ₽ + мин";
+        document.getElementById('confirm-tariff-name').innerText = tariff.name; 
+        document.getElementById('confirm-devices').innerText = devices.join(', '); 
+        document.getElementById('confirm-cost').innerText = costLabel;
+        
+        tempStartData = { tariff, phone, name, checks }; 
+        document.getElementById('modal-start-confirm').style.display = 'flex';
+    }
+
     function confirmPaymentChoice(method) { tempStartData.payMethod = method; closeModal('modal-start-confirm'); document.getElementById('modal-final-start').style.display = 'flex'; }
+    
     function realStartRental() {
-        const { tariff, phone, name, checks, payMethod } = tempStartData; let c = db.clients.find(x => x.phone === phone);
+        const { tariff, phone, name, checks, payMethod } = tempStartData; 
+        let c = db.clients.find(x => x.phone === phone);
         if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
         if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
         const now = Date.now();
-        checks.forEach(chk => {
-            const vId = parseInt(chk.value); const v = db.fleet.find(x => x.id === vId); v.status = 'busy';
-            const cat = db.categories.find(ca => ca.id == v.catId); const baseRate = cat ? (cat.baseRate || 0) : 0;
-            db.rentals.push({ id: Math.floor(Math.random()*10000000), vId, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone, startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)), tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate, notified5: false, notified2: false });
+        checks.forEach(vId => {
+            const v = db.fleet.find(x => x.id == vId); 
+            v.status = 'busy';
+            const cat = db.categories.find(ca => ca.id == v.catId); 
+            const baseRate = cat ? (cat.baseRate || 0) : 0;
+            
+            let newRental = { id: Math.floor(Math.random()*10000000), vId: v.id, vName: v.name, vColor: v.color, catId: v.catId, cName: c.name, cPhone: c.phone, startTs: now, limit: (tariff.type==='fix' ? parseInt(tariff.dur) : 0), cost: (tariff.type==='fix' ? parseInt(tariff.price) : parseInt(tariff.start)), tName: tariff.name, paused: false, pauseStart: 0, totalPause: 0, swapHistory: [v.name], payMethod: payMethod, baseRate: baseRate, notified5: false, notified2: false, actionLog: [] };
+            
+            logRentalAction(newRental, 'Создание', `${tariff.name} (${newRental.cost}₽)`);
+            db.rentals.push(newRental);
         });
-        document.getElementById('rent-phone').value = ''; document.getElementById('rent-name').value = ''; save(); closeModal('modal-final-start'); switchView('active');
+        
+        document.getElementById('rent-phone').value = ''; 
+        document.getElementById('rent-name').value = ''; 
+        document.getElementById('new-fleet-search').value = '';
+        selectedForRent.clear(); // Сброс выбранных устройств
+        save(); 
+        closeModal('modal-final-start'); 
+        switchView('active');
     }
+
     function finishRental(id) {
         openConfirm('Завершить поездку?', () => {
             const idx = db.rentals.findIndex(x => x.id === id); const r = db.rentals[idx]; const v = db.fleet.find(f => f.id === r.vId); if(v) v.status = 'free';
             const now = Date.now(); const pauseMs = r.totalPause; const pauseMin = Math.round(pauseMs / 60000); const activeDurationMs = now - r.startTs - pauseMs; const activeDurationMin = Math.ceil(activeDurationMs / 60000);
             let overdueMin = 0; if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
             const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
-            db.history.unshift({ id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone, cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0, tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash' });
+            
+            logRentalAction(r, 'Завершение', `Длительность: ${activeDurationMin}м. Сумма: ${r.cost}₽`);
+            
+            db.history.unshift({ id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone, cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0, tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash', actionLog: r.actionLog, lastUser: r.lastUser });
             db.rentals.splice(idx, 1); save(); renderActiveRentals();
         });
     }
@@ -768,7 +1080,7 @@
             "Телефон (SIM)": f.sim || "",
             "Заметки": f.notes || ""
         }));
-        doExcelExport(data, `Парк_Sani75rus_${new Date().toLocaleDateString('ru-RU')}`);
+        doExcelExport(data, `Парк_Sani75rus_${getChitaDateString()}`);
     }
 
     function importFleetExcel(event) {
@@ -815,21 +1127,21 @@
             "Статус": c.blocked ? "Заблокирован" : "Активен",
             "Комментарий": c.comment || ""
         }));
-        doExcelExport(data, `Клиенты_Sani75rus_${new Date().toLocaleDateString('ru-RU')}`);
+        doExcelExport(data, `Клиенты_Sani75rus_${getChitaDateString()}`);
     }
 
     function exportSurchargeExcel() {
         const startVal = document.getElementById('sur-start').value; 
         const endVal = document.getElementById('sur-end').value;
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; 
-        const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        const startTs = startVal ? new Date(`${startVal}T00:00:00+09:00`).getTime() : 0; 
+        const endTs = endVal ? new Date(`${endVal}T23:59:59.999+09:00`).getTime() : 9999999999999;
         
         let data = [];
         db.history.forEach(h => {
             if(h.overDur > 0 && !h.deleted && h.ts >= startTs && h.ts <= endTs) {
                 data.push({
-                    "Дата": new Date(h.ts).toLocaleDateString('ru-RU'),
-                    "Время": `${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}`,
+                    "Дата": new Date(h.ts).toLocaleDateString('ru-RU', { timeZone: 'Asia/Chita' }),
+                    "Время": `${new Date(h.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita' })} - ${new Date(h.endTs).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita' })}`,
                     "Устройство": h.vName,
                     "Клиент": h.cName,
                     "Телефон": h.cPhone,
@@ -844,8 +1156,8 @@
     function exportHistoryExcel() {
         const startVal = document.getElementById('hist-start').value; 
         const endVal = document.getElementById('hist-end').value;
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; 
-        const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        const startTs = startVal ? new Date(`${startVal}T00:00:00+09:00`).getTime() : 0; 
+        const endTs = endVal ? new Date(`${endVal}T23:59:59.999+09:00`).getTime() : 9999999999999;
         const payFilter = document.getElementById('hist-pay').value;
         
         let data = [];
@@ -853,8 +1165,8 @@
             const matchesPay = (payFilter === 'all') || (h.payMethod === payFilter);
             if(h.ts >= startTs && h.ts <= endTs && matchesPay) {
                 data.push({
-                    "Дата": new Date(h.ts).toLocaleDateString('ru-RU'),
-                    "Старт/Конец": `${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}`,
+                    "Дата": new Date(h.ts).toLocaleDateString('ru-RU', { timeZone: 'Asia/Chita' }),
+                    "Старт/Конец": `${new Date(h.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita' })} - ${new Date(h.endTs).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita' })}`,
                     "Устройство": h.vName,
                     "Клиент": h.cName,
                     "Телефон": h.cPhone,
@@ -902,37 +1214,6 @@
         closeModal('modal-edit-vehicle');
     }
 
-    // --- RENDERERS ---
-    function renderNewRent() {
-        const c = document.getElementById('fleet-selector'); c.innerHTML='';
-        const searchQ = document.getElementById('new-fleet-search').value.toLowerCase();
-        db.categories.forEach(cat => {
-            const inCat = db.fleet.filter(v => v.status === 'free' && v.catId == cat.id && v.name.toLowerCase().includes(searchQ));
-            if(inCat.length) {
-                c.innerHTML += `<div class="fleet-category-block"><div class="fleet-cat-title">${cat.name}</div><div class="fleet-items-container"></div></div>`;
-                const container = c.lastElementChild.querySelector('.fleet-items-container');
-                inCat.forEach(v => {
-                    container.innerHTML += `<label class="fleet-check-label"><input type="checkbox" class="fleet-check-input" value="${v.id}" data-cat="${cat.id}" onchange="showTariffs()"><span class="fleet-check-text"><span style="width:14px;height:14px;border-radius:50%;background:${v.color};margin-right:8px; display:inline-block;"></span>${v.name}</span></label>`;
-                });
-            }
-        });
-    }
-
-    function showTariffs() {
-        const chk = document.querySelectorAll('.fleet-check-input:checked');
-        const blk = document.getElementById('tariff-block'); const box = document.getElementById('tariff-buttons');
-        if(!chk.length) { blk.style.display='none'; return; }
-        const catId = chk[0].getAttribute('data-cat'); const cat = db.categories.find(c => c.id == catId);
-        box.innerHTML = '';
-        if(cat && cat.tariffs) {
-            cat.tariffs.forEach(t => {
-                const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
-                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">${t.name}</span><span style="font-size:0.95rem;color:#64748b;">${info} · ${t.price}₽</span></div>`;
-            });
-            blk.style.display = 'block';
-        }
-    }
-
     function renderFleet() {
         const l = document.getElementById('fleet-list'); l.innerHTML='';
         const sel = document.getElementById('new-fleet-cat'); sel.innerHTML='';
@@ -974,6 +1255,23 @@
     }
 
     function renderSettingsList() {
+        const dtList = document.getElementById('settings-display-tariffs-list');
+        dtList.innerHTML = '';
+        if (db.displayTariffs && db.displayTariffs.length > 0) {
+            db.displayTariffs.forEach(t => {
+                dtList.innerHTML += `
+                <div class="item-card" style="border-left: 5px solid var(--warning); padding: 10px;">
+                    <div>
+                        <div class="item-name">${t.name}</div>
+                        <div class="item-sub" style="font-weight:bold; color:var(--primary);">${t.price}</div>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="delDisplayTariff(${t.id})"><i class="fas fa-trash"></i></button>
+                </div>`;
+            });
+        } else {
+            dtList.innerHTML = '<p style="font-size:0.85rem; color:#64748b;">Прайс-лист пуст</p>';
+        }
+
         const d = document.getElementById('settings-list'); d.innerHTML='';
         d.innerHTML += `<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить локальный PIN-код</button></div>`;
         d.innerHTML += `<div class="card" style="border: 2px solid #22c55e; background: #f0fdf4;"><h3 style="color:#15803d; margin-top:0;">☁️ Восстановить Облако</h3><p style="font-size:0.85rem; color:#555; margin-bottom:10px;">Нажмите, если на других устройствах пусто, а ЗДЕСЬ данные есть.</p><button class="btn btn-success" onclick="authWrapper(() => forceUploadToCloud())"><i class="fas fa-cloud-upload-alt"></i> Отправить ЭТИ данные на сервер</button></div>`;
@@ -1112,14 +1410,29 @@
     function renderSurcharge() {
         const tbody = document.getElementById('surcharge-rows'); tbody.innerHTML = ''; 
         const startVal = document.getElementById('sur-start').value; const endVal = document.getElementById('sur-end').value; const searchVal = document.getElementById('sur-search').value.toLowerCase();
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        
+        // Фильтрация с учетом пояса Читы (+09:00)
+        const startTs = startVal ? new Date(`${startVal}T00:00:00+09:00`).getTime() : 0; 
+        const endTs = endVal ? new Date(`${endVal}T23:59:59.999+09:00`).getTime() : 9999999999999;
+        
         let totalSur = 0; let hasData = false;
         db.history.forEach(h => {
             if(h.overDur > 0 && !h.deleted) {
                 if(h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)))) {
                     hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay;
-                    const tr = document.createElement('tr'); tr.className = 'surcharge-row';
-                    tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td>${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td>`;
+                    const tr = document.createElement('tr'); 
+                    
+                    const isAdmin = h.lastUser === 'Safronov.a.a993@gmail.com';
+                    const borderClass = h.lastUser ? (isAdmin ? 'history-row-admin' : 'history-row-user') : '';
+                    
+                    tr.className = `surcharge-row ${borderClass}`;
+                    tr.title = "Двойной клик: История действий";
+                    tr.ondblclick = () => showActionLog(h.id);
+                    
+                    const t1 = new Date(h.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
+                    const t2 = new Date(h.endTs).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
+
+                    tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td>${t1} - ${t2}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td>`;
                     tbody.appendChild(tr);
                 }
             }
@@ -1132,7 +1445,11 @@
         const startVal = document.getElementById('hist-start').value; const endVal = document.getElementById('hist-end').value; const searchVal = document.getElementById('hist-search').value.toLowerCase(); const payFilter = document.getElementById('hist-pay').value;
         const allDevChecked = document.getElementById('dev-all')?.checked; const checkedDevs = Array.from(document.querySelectorAll('.dev-chk:checked')).map(c => c.value);
         const tbody = document.getElementById('history-rows'); tbody.innerHTML = '';
-        const startTs = startVal ? new Date(startVal).setHours(0,0,0,0) : 0; const endTs = endVal ? new Date(endVal).setHours(23,59,59,999) : 9999999999999;
+        
+        // Фильтрация с учетом пояса Читы (+09:00)
+        const startTs = startVal ? new Date(`${startVal}T00:00:00+09:00`).getTime() : 0; 
+        const endTs = endVal ? new Date(`${endVal}T23:59:59.999+09:00`).getTime() : 9999999999999;
+        
         let total = 0;
         db.history.forEach(h => {
             const matchesTime = h.ts >= startTs && h.ts <= endTs; const matchesSearch = !searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal)); const matchesPay = (payFilter === 'all') || (h.payMethod === payFilter);
@@ -1140,9 +1457,21 @@
             if (matchesTime && matchesSearch && matchesDev && matchesPay) {
                 if(!h.deleted) total += parseInt(h.cost);
                 const tr = document.createElement('tr'); 
-                if(h.deleted) tr.className = 'tr-deleted'; else if (h.duration < 5) tr.className = 'tr-short'; 
+                
+                const isAdmin = h.lastUser === 'Safronov.a.a993@gmail.com';
+                const borderClass = h.lastUser ? (isAdmin ? 'history-row-admin' : 'history-row-user') : '';
+                tr.className = borderClass;
+                
+                if(h.deleted) tr.className += ' tr-deleted'; else if (h.duration < 5) tr.className += ' tr-short'; 
                 let payBadge = h.payMethod === 'bank' ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>' : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
-                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span class="swap-chain">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#666;">${new Date(h.ts).toLocaleTimeString()} - ${new Date(h.endTs).toLocaleTimeString()}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'red':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="toggleHistoryStatus(${h.id})"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
+                
+                tr.title = "Двойной клик: История действий";
+                tr.ondblclick = () => showActionLog(h.id);
+                
+                const t1 = new Date(h.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
+                const t2 = new Date(h.endTs).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
+
+                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span class="swap-chain">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#666;">${t1} - ${t2}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'red':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td><b>${h.cost} ₽</b></td><td><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); toggleHistoryStatus(${h.id})"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
                 tbody.appendChild(tr);
             }
         });
@@ -1175,15 +1504,57 @@
         openConfirm('Подтвердить замену устройства?', () => {
             const newVId = parseInt(selected.value); const r = db.rentals.find(x => x.id === currentSwapRentalId); const oldV = db.fleet.find(f => f.id === r.vId); if(oldV) oldV.status = 'free'; const newV = db.fleet.find(f => f.id === newVId); newV.status = 'busy';
             r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId; if(!r.swapHistory) r.swapHistory = [oldV.name]; r.swapHistory.push(newV.name);
+            
+            logRentalAction(r, 'Замена', `${oldV.name} ➜ ${newV.name}`);
+            
             save(); closeModal('modal-sub'); renderActiveRentals();
         });
     }
 
-    function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; } else { r.pauseStart = Date.now(); r.paused = true; } save(); renderActiveRentals(); }
+    function togglePause(id) { 
+        const r = db.rentals.find(x => x.id === id); 
+        if(r.paused) { 
+            r.totalPause += (Date.now() - r.pauseStart); 
+            r.paused = false; 
+            logRentalAction(r, 'Снятие с паузы', '');
+        } else { 
+            r.pauseStart = Date.now(); 
+            r.paused = true; 
+            logRentalAction(r, 'Постановка на паузу', '');
+        } 
+        save(); renderActiveRentals(); 
+    }
+    
     function openExtendModal(id) { document.getElementById('swap-search').style.display = 'none'; document.getElementById('btn-do-swap').style.display = 'none'; const container = document.getElementById('swap-list-container'); container.innerHTML = ''; document.querySelector('#modal-sub h3').innerText = 'Продлить время'; const r = db.rentals.find(x => x.id === id); const cat = db.categories.find(c => c.id == r.catId); cat.tariffs.forEach(t => { container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; }); document.getElementById('modal-sub').style.display = 'flex'; }
-    function applyExt(rId, tId) { openConfirm('Продлить время?', () => { const r = db.rentals.find(x => x.id === rId); const cat = db.categories.find(c => c.id == r.catId); const t = cat.tariffs.find(x => x.id === tId); if(t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); } else { r.limit = 0; r.cost += parseInt(t.start || 0); } save(); closeModal('modal-sub'); renderActiveRentals(); }); }
+    function applyExt(rId, tId) { 
+        openConfirm('Продлить время?', () => { 
+            const r = db.rentals.find(x => x.id === rId); 
+            const cat = db.categories.find(c => c.id == r.catId); 
+            const t = cat.tariffs.find(x => x.id === tId); 
+            if(t.type === 'fix') { 
+                r.limit += parseInt(t.dur); r.cost += parseInt(t.price); 
+                logRentalAction(r, 'Продление', `+${t.dur} мин (${t.price}₽)`);
+            } else { 
+                r.limit = 0; r.cost += parseInt(t.start || 0); 
+                logRentalAction(r, 'Продление', `Смена на поминутный`);
+            } 
+            save(); closeModal('modal-sub'); renderActiveRentals(); 
+        }); 
+    }
 
-    function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) h.deleted = !h.deleted; save(); renderHistory(); })); }
+    function toggleHistoryStatus(id) { 
+        authWrapper(() => openConfirm('Изменить статус записи?', () => { 
+            const h = db.history.find(x => x.id === id); 
+            if(h) {
+                h.deleted = !h.deleted; 
+                if(!h.actionLog) h.actionLog = [];
+                h.actionLog.push({ ts: Date.now(), user: window.currentUserEmail || 'Неизвестный', action: h.deleted ? 'Удаление' : 'Восстановление', details: '' });
+                h.lastUser = window.currentUserEmail || 'Неизвестный';
+                save(); renderHistory(); 
+            }
+        })); 
+    }
+    
     function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); v.status = (v.status === 'free' ? 'repair' : 'free'); save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
     function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; save(); closeModal('modal-client'); renderClients(); }); }
     function delClient() { authWrapper(() => openConfirm('Удалить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); db.clients = db.clients.filter(x => x.id !== id); save(); closeModal('modal-client'); renderClients(); })); }
@@ -1275,10 +1646,16 @@
 
       if (user) {
           console.log("✅ Активная сессия пользователя:", user.email);
+          window.currentUserEmail = user.email; // Записываем в глобальную переменную
           document.getElementById('global-login').style.display = 'none';
-          if(currentUserEmailEl) currentUserEmailEl.innerText = "Авторизован: " + user.email;
+          
+          if(currentUserEmailEl) {
+              const roleName = getUserAlias(user.email);
+              currentUserEmailEl.innerText = "Авторизован: " + roleName + " (" + user.email + ")";
+          }
       } else {
           console.log("⚠️ Нет активной сессии");
+          window.currentUserEmail = 'Неизвестный';
           if (!isMonitor) {
               document.getElementById('global-login').style.display = 'flex';
           }
