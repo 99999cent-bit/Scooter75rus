@@ -261,7 +261,7 @@
                 <button class="btn btn-primary" onclick="addVehicle()">Добавить</button>
                 <hr style="margin:15px 0; border:0; border-top:1px solid #e2e8f0;">
                 <h3 style="font-size: 1rem; margin-top: 0;">📊 Данные Excel</h3>
-                <button class="btn btn-success" style="margin-bottom: 10px;" onclick="exportFleetExcel()"><i class="fas fa-file-excel"></i> Выгрузить парк</button>
+                <button class="btn btn-success" style="margin-bottom: 10px;" onclick="authWrapper(() => exportFleetExcel())"><i class="fas fa-file-excel"></i> Выгрузить парк</button>
                 <label style="font-size: 0.8rem; color:#64748b; display:block; margin-bottom:5px;">Загрузить SIM (Шаблон: колонки "Название" и "Телефон")</label>
                 <input type="file" id="import-fleet-excel" accept=".xlsx, .xls" onchange="importFleetExcel(event)" style="padding: 8px; border: 1px dashed #cbd5e1;">
             </div>
@@ -272,7 +272,7 @@
             <div class="card">
                 <h2>База клиентов</h2>
                 <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                    <button class="btn btn-success" onclick="exportClientsExcel()"><i class="fas fa-file-excel"></i> Выгрузить всех</button>
+                    <button class="btn btn-success" onclick="authWrapper(() => exportClientsExcel())"><i class="fas fa-file-excel"></i> Выгрузить всех</button>
                 </div>
                 <input type="text" id="client-search" placeholder="Поиск клиента..." oninput="renderClients()">
                 <div id="clients-list" style="margin-top:10px;"></div>
@@ -291,7 +291,7 @@
                     <input type="date" id="sur-end" onchange="renderSurcharge()">
                 </div>
                 <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
-                <button class="btn btn-success" style="margin-top: 10px;" onclick="exportSurchargeExcel()"><i class="fas fa-file-excel"></i> Выгрузить за период</button>
+                <button class="btn btn-success" style="margin-top: 10px;" onclick="authWrapper(() => exportSurchargeExcel())"><i class="fas fa-file-excel"></i> Выгрузить за период</button>
             </div>
             <div class="card" style="padding:0; overflow:hidden;">
                 <div id="no-surcharge-msg" style="text-align:center; padding: 20px; color:#94a3b8; display:none;">Нет данных</div>
@@ -330,7 +330,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-success" style="margin-top: 10px;" onclick="exportHistoryExcel()"><i class="fas fa-file-excel"></i> Выгрузить историю</button>
+                <button class="btn btn-success" style="margin-top: 10px;" onclick="authWrapper(() => exportHistoryExcel())"><i class="fas fa-file-excel"></i> Выгрузить историю</button>
             </div>
             <div class="card" style="padding:0; overflow:hidden;">
                 <div style="overflow-x:auto;">
@@ -373,7 +373,7 @@
         </div>
     </main>
 
-    <!-- Модальные окна остаются без изменений -->
+    <!-- Модальные окна -->
     <div id="modal-confirm" class="modal-overlay" style="z-index: 200;">
         <div class="modal-content" style="text-align:center;">
             <i class="fas fa-question-circle" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
@@ -397,6 +397,25 @@
                 <button class="btn btn-danger" onclick="sendSmsCommand('OFF')"><i class="fas fa-lock"></i> ЗАГЛУШИТЬ (ВЫКЛ)</button>
                 <button class="btn btn-success" onclick="sendSmsCommand('ON')"><i class="fas fa-unlock"></i> ЗАВЕСТИ (ВКЛ)</button>
                 <button class="btn btn-secondary" onclick="closeModal('modal-relay')" style="margin-top: 10px;">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Новое модальное окно: Редактирование устройства -->
+    <div id="modal-edit-vehicle" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Редактировать устройство</h3>
+            <input type="hidden" id="edit-v-id">
+            <label style="font-size: 0.85rem; color: #64748b; font-weight: bold; margin-bottom: 5px; display: block;">Имя устройства</label>
+            <input type="text" id="edit-v-name" placeholder="Название">
+            <label style="font-size: 0.85rem; color: #64748b; font-weight: bold; margin-bottom: 5px; display: block;">Группа (Категория)</label>
+            <select id="edit-v-cat"></select>
+            <label style="font-size: 0.85rem; color: #64748b; font-weight: bold; margin-bottom: 5px; display: block;">Цвет отображения</label>
+            <input type="color" id="edit-v-color" style="width:100px; padding:2px; height:46px; margin-bottom:15px;">
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-edit-vehicle')">Отмена</button>
+                <!-- Сохранение изменений обернуто в запрос пароля -->
+                <button class="btn btn-primary" onclick="authWrapper(() => saveEditVehicle())">Сохранить</button>
             </div>
         </div>
     </div>
@@ -586,7 +605,7 @@
 
         updateUI(); setInterval(tick, 1000);
         
-        // ОБНОВЛЕННЫЙ ОБРАБОТЧИК КЛИКОВ: запрещает закрытие global-login кликом по фону
+        // ОБРАБОТЧИК КЛИКОВ: запрещает закрытие global-login кликом по фону
         window.onclick = function(e) { 
             if(e.target.matches('.modal-overlay') && e.target.id !== 'global-login') {
                 e.target.style.display='none'; 
@@ -601,7 +620,8 @@
 
     function createMonitorStyles() {
         const style = document.createElement('style');
-        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ ТОЛЬКО ПРОСМОТР";position:fixed;top:0;left:0;width:100%;background:#1e293b;color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3)}`;
+        // Добавлено скрытие блока "active-summary-wrapper" для режима просмотра
+        style.innerHTML = `header{display:none!important}.ar-actions{display:none!important}.active-row{pointer-events:none}#active-search{display:block!important;width:94%!important;margin:55px auto 10px auto!important;padding:10px;font-size:1.1rem;border:2px solid #3b82f6;border-radius:8px}.view{display:none!important}#view-active{display:block!important;padding-top:0}body::before{content:"👁️ ТОЛЬКО ПРОСМОТР";position:fixed;top:0;left:0;width:100%;background:#1e293b;color:#fff;text-align:center;padding:15px;font-weight:bold;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.3)} #active-summary-wrapper{display:none!important;}`;
         document.head.appendChild(style);
     }
 
@@ -651,7 +671,7 @@
 
     function save() { 
         localStorage.setItem('rm_final_keyboard_fix', JSON.stringify(db)); 
-        if (window.sendToCloud) window.sendToCloud(db); // Отправка в Firebase (или ожидание сети)
+        if (window.sendToCloud) window.sendToCloud(db); // Отправка в Firebase
     }
 
     window.updateGlobalDB = function(newData) {
@@ -851,6 +871,37 @@
         doExcelExport(data, `История_Sani75rus_${startVal}_${endVal}`);
     }
 
+    // --- РЕДАКТИРОВАНИЕ УСТРОЙСТВА ---
+    function openEditVehicle(id) {
+        const v = db.fleet.find(f => f.id === id);
+        if(!v) return;
+        document.getElementById('edit-v-id').value = v.id;
+        document.getElementById('edit-v-name').value = v.name;
+        document.getElementById('edit-v-color').value = v.color;
+        
+        const sel = document.getElementById('edit-v-cat');
+        sel.innerHTML = '';
+        db.categories.forEach(c => {
+            sel.innerHTML += `<option value="${c.id}" ${c.id == v.catId ? 'selected' : ''}>${c.name}</option>`;
+        });
+        
+        document.getElementById('modal-edit-vehicle').style.display = 'flex';
+    }
+
+    function saveEditVehicle() {
+        const id = parseInt(document.getElementById('edit-v-id').value);
+        const v = db.fleet.find(f => f.id === id);
+        if(!v) return;
+        
+        v.name = document.getElementById('edit-v-name').value;
+        v.catId = document.getElementById('edit-v-cat').value;
+        v.color = document.getElementById('edit-v-color').value;
+        
+        save();
+        renderFleet();
+        closeModal('modal-edit-vehicle');
+    }
+
     // --- RENDERERS ---
     function renderNewRent() {
         const c = document.getElementById('fleet-selector'); c.innerHTML='';
@@ -889,8 +940,9 @@
         const sorted = [...db.fleet].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
         sorted.forEach(f => {
             const isRep = f.status === 'repair';
-            const repBtn = isRep ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-check"></i></button>` : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})"><i class="fas fa-wrench"></i></button>`;
-            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))"><i class="fas fa-trash"></i></button>`;
+            const repBtn = isRep ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})" title="В ремонт"><i class="fas fa-check"></i></button>` : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})" title="В ремонт"><i class="fas fa-wrench"></i></button>`;
+            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))" title="Удалить"><i class="fas fa-trash"></i></button>`;
+            const editBtn = `<button class="btn btn-secondary btn-sm" onclick="openEditVehicle(${f.id})" title="Редактировать имя, цвет и категорию"><i class="fas fa-pen"></i></button>`;
             const relayBtn = `<button class="btn btn-sm" style="background: #8b5cf6; color: white;" onclick="openRelayModal(${f.id})" title="Вкл/Выкл питание"><i class="fas fa-power-off"></i></button>`;
             let simInfo = f.sim ? `<div style="font-size:0.75rem; color:#8b5cf6; margin-top:2px;"><i class="fas fa-sim-card"></i> ${f.sim}</div>` : `<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Нет SIM-карты</div>`;
 
@@ -903,7 +955,8 @@
                 </div>
                 <div class="item-actions">
                     ${relayBtn}
-                    <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})"><i class="fas fa-cog"></i></button>
+                    <button class="gear-btn ${f.notes?'has-note':''}" onclick="openVehicleNote(${f.id})" title="Настройки трекера / Заметки"><i class="fas fa-cog"></i></button>
+                    ${editBtn}
                     ${repBtn}
                     ${delBtn}
                 </div>
@@ -1258,8 +1311,8 @@
       if(confirm('Вы действительно хотите выйти из аккаунта?')) {
           signOut(auth).then(() => {
               console.log("✅ Успешный выход");
-              document.getElementById('admin-password').value = ''; // очищаем поле пароля на всякий случай
-              if(typeof switchView === 'function') switchView('active'); // переводим интерфейс на главный экран перед показом модалки входа
+              document.getElementById('admin-password').value = ''; 
+              if(typeof switchView === 'function') switchView('active'); 
           }).catch((error) => {
               console.error("Ошибка при выходе: ", error);
               alert("Ошибка при выходе: " + error.message);
