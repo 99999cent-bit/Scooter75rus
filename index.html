@@ -707,9 +707,11 @@
 
     // --- АЛИАСЫ ПОЛЬЗОВАТЕЛЕЙ ---
     function getUserAlias(email) {
-        if (email === 'Safronov.a.a993@gmail.com') return 'Админ';
-        if (email === '99999cent@gmail.com') return 'Оператор';
-        return email || 'Неизвестный';
+        if (!email) return 'Неизвестный';
+        const e = email.toLowerCase();
+        if (e === 'safronov.a.a993@gmail.com') return 'Админ';
+        if (e === '99999cent@gmail.com') return 'Оператор';
+        return email;
     }
 
     // --- AUDIO ---
@@ -855,9 +857,9 @@
     function protectDateChange(id, renderFn) {
         const el = document.getElementById(id);
         const newVal = el.value;
-        const email = window.currentUserEmail;
+        const email = window.currentUserEmail || '';
 
-        if (email === 'Safronov.a.a993@gmail.com') {
+        if (email.toLowerCase() === 'safronov.a.a993@gmail.com') {
             window['last_' + id] = newVal;
             renderFn();
             return;
@@ -942,7 +944,8 @@
             h.actionLog.forEach(log => {
                 const dt = new Date(log.ts).toLocaleString('ru-RU', { timeZone: 'Asia/Chita' });
                 const alias = getUserAlias(log.user);
-                const color = log.user === 'Safronov.a.a993@gmail.com' ? 'var(--danger)' : 'var(--success)';
+                const isAd = log.user && log.user.toLowerCase() === 'safronov.a.a993@gmail.com';
+                const color = isAd ? 'var(--danger)' : 'var(--success)';
                 c.innerHTML += `
                     <div class="log-item" style="border-left: 4px solid ${color};">
                         <div class="log-item-time">${dt}</div>
@@ -1624,8 +1627,8 @@
                     hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay;
                     const tr = document.createElement('tr'); 
                     
-                    const isAdmin = h.lastUser === 'Safronov.a.a993@gmail.com';
-                    const borderClass = h.lastUser ? (isAdmin ? 'history-row-admin' : 'history-row-user') : '';
+                    const isAd = h.lastUser && h.lastUser.toLowerCase() === 'safronov.a.a993@gmail.com';
+                    const borderClass = h.lastUser ? (isAd ? 'history-row-admin' : 'history-row-user') : '';
                     
                     tr.className = `surcharge-row ${borderClass}`;
                     tr.title = "Двойной клик: История действий";
@@ -1660,8 +1663,8 @@
                 if(!h.deleted) total += parseInt(h.cost);
                 const tr = document.createElement('tr'); 
                 
-                const isAdmin = h.lastUser === 'Safronov.a.a993@gmail.com';
-                const borderClass = h.lastUser ? (isAdmin ? 'history-row-admin' : 'history-row-user') : '';
+                const isAd = h.lastUser && h.lastUser.toLowerCase() === 'safronov.a.a993@gmail.com';
+                const borderClass = h.lastUser ? (isAd ? 'history-row-admin' : 'history-row-user') : '';
                 tr.className = borderClass;
                 
                 if(h.deleted) tr.className += ' tr-deleted'; else if (h.duration < 5) tr.className += ' tr-short'; 
