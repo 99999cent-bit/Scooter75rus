@@ -635,11 +635,10 @@
         if (window.sendToCloud) window.sendToCloud(db); 
     }
 
-    // ИСПРАВЛЕНО: Убрана агрессивная защита, которая блокировала обновление, если список rentals очищался
+    // Жесткая проверка структуры данных, чтобы не стереть базу пустым объектом
     window.updateGlobalDB = function(newData) {
         if (!newData || typeof newData !== 'object') return;
-        // Защита: принимаем данные только если это действительно база приложения (есть категории и парк)
-        if (!newData.categories || !newData.fleet) return;
+        if (!newData.categories || !newData.fleet) return; 
         
         db = { ...newData, password: newData.password || db.password || '4892', scale: newData.scale || db.scale || 1.0 };
         updateUI(); applyScale(); 
@@ -1069,7 +1068,7 @@
         t.className = 'toast ' + type;
         t.innerHTML = msg;
         c.appendChild(t);
-        setTimeout(() => t.remove(), 4000); // 4 секунды
+        setTimeout(() => t.remove(), 5000); 
     }
 
     window.addEventListener('online', () => showToastMsg("🌐 Соединение восстановлено. Данные синхронизируются.", "success"));
@@ -1118,7 +1117,8 @@
       const isMonitor = urlParams.get('mode') === 'monitor';
 
       if (user) {
-          console.log("✅ Активная сессия пользователя:", user.email);
+          // ИЗМЕНЕНИЕ: Теперь мы выводим UID в консоль. Это поможет вам найти UID нового сотрудника
+          console.log("✅ Активная сессия. Email:", user.email, "| UID:", user.uid);
           document.getElementById('global-login').style.display = 'none';
       } else {
           console.log("⚠️ Нет активной сессии");
@@ -1147,7 +1147,7 @@
           });
   };
 
-  // ИЗМЕНЕНИЕ: Добавлен вывод красного окна-предупреждения, если в Firebase заблокированы права на запись.
+  // ИЗМЕНЕНИЕ: Улучшенная обработка ошибок безопасности Firebase
   window.sendToCloud = async function(data) {
       if (!auth.currentUser) return; 
       try {
@@ -1155,11 +1155,10 @@
           console.log("✅ Синхронизировано/Поставлено в очередь Firebase");
       } catch (e) { 
           console.error("Ошибка сохранения: ", e); 
-          // Если Firebase блокирует запись другому пользователю:
+          
+          // Жесткий перехват: если в Firebase нет этого UID, выдаем красную тревогу
           if(e.code === 'permission-denied') {
-              showToastMsg("⛔ ОШИБКА ПРАВ FIREBASE!<br>Вы видите данные, но не можете их менять.<br>Зайдите в Firebase -> Firestore -> Rules и разрешите запись.", "danger");
-              // На всякий случай дублируем стандартным alert
-              alert("Ошибка прав! Firebase блокирует сохранение для этого пользователя.\nЗайдите в Firebase Console -> Firestore -> Rules и разрешите запись:\n\nallow read, write: if request.auth != null;");
+              showToastMsg("⛔ ОШИБКА ПРАВ FIREBASE!<br>У этой учетной записи нет прав на изменение данных.", "danger");
           } else {
               showToastMsg("⚠️ Ошибка синхронизации: " + e.message, "danger");
           }
