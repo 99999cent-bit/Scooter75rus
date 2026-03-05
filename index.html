@@ -341,6 +341,15 @@
         </div>
 
         <div id="view-settings" class="view">
+            <!-- ИНФОРМАЦИЯ ОБ АККАУНТЕ (ВЫВОД UID) -->
+            <div class="card" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+                <h3 style="margin-top:0; font-size: 1rem; color: #475569;">👤 Информация об аккаунте</h3>
+                <div id="account-email-display" style="font-weight: bold; margin-bottom: 5px; color: #0f172a;"></div>
+                <div style="font-size: 0.8rem; color: #64748b;">Ваш UID (скопируйте его):<br>
+                    <span id="account-uid-display" style="display:inline-block; margin-top:5px; font-family:monospace; user-select: all; background: #e2e8f0; color: #0f172a; padding: 5px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #cbd5e1;"></span>
+                </div>
+            </div>
+
             <div class="card">
                 <h2>🔍 Размер интерфейса</h2>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -635,7 +644,6 @@
         if (window.sendToCloud) window.sendToCloud(db); 
     }
 
-    // Жесткая проверка структуры данных, чтобы не стереть базу пустым объектом
     window.updateGlobalDB = function(newData) {
         if (!newData || typeof newData !== 'object') return;
         if (!newData.categories || !newData.fleet) return; 
@@ -1117,9 +1125,16 @@
       const isMonitor = urlParams.get('mode') === 'monitor';
 
       if (user) {
-          // ИЗМЕНЕНИЕ: Теперь мы выводим UID в консоль. Это поможет вам найти UID нового сотрудника
+          // ИЗМЕНЕНИЕ: Теперь мы выводим UID в консоль и прямо в интерфейс "Настройки"
           console.log("✅ Активная сессия. Email:", user.email, "| UID:", user.uid);
           document.getElementById('global-login').style.display = 'none';
+          
+          // Вывод данных аккаунта в настройки, чтобы легко скопировать UID
+          const emailDisplay = document.getElementById('account-email-display');
+          const uidDisplay = document.getElementById('account-uid-display');
+          if(emailDisplay) emailDisplay.innerText = user.email;
+          if(uidDisplay) uidDisplay.innerText = user.uid;
+
       } else {
           console.log("⚠️ Нет активной сессии");
           if (!isMonitor) {
@@ -1147,7 +1162,6 @@
           });
   };
 
-  // ИЗМЕНЕНИЕ: Улучшенная обработка ошибок безопасности Firebase
   window.sendToCloud = async function(data) {
       if (!auth.currentUser) return; 
       try {
@@ -1156,7 +1170,6 @@
       } catch (e) { 
           console.error("Ошибка сохранения: ", e); 
           
-          // Жесткий перехват: если в Firebase нет этого UID, выдаем красную тревогу
           if(e.code === 'permission-denied') {
               showToastMsg("⛔ ОШИБКА ПРАВ FIREBASE!<br>У этой учетной записи нет прав на изменение данных.", "danger");
           } else {
