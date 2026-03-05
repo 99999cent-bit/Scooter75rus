@@ -1024,8 +1024,9 @@
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1920;
-                const MAX_HEIGHT = 1080;
+                // Расширены лимиты до 4K для сохранения максимальной детализации
+                const MAX_WIDTH = 3840;
+                const MAX_HEIGHT = 2160;
                 let width = img.width;
                 let height = img.height;
                 
@@ -1036,13 +1037,28 @@
                 }
                 canvas.width = width; canvas.height = height;
                 const ctx = canvas.getContext('2d');
+                
+                // Для улучшения качества при ресайзе сглаживаем картинку
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
                 ctx.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
+                
+                // Качество JPEG увеличено с 0.6 до 0.95 для лучшей картинки
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.95); 
                 
                 if(!db.priceSettings) db.priceSettings = {};
                 db.priceSettings.bgImage = dataUrl;
-                save();
-                alert('Картинка успешно установлена на фон!');
+                
+                try {
+                    save();
+                    alert('Картинка в высоком качестве успешно установлена на фон!');
+                } catch (error) {
+                    console.error("Storage error:", error);
+                    alert('⚠️ Ошибка: Изображение получилось слишком объемным для кэша браузера. Пожалуйста, сожмите картинку в галерее перед загрузкой.');
+                    // Откат изменений если картинка не влезла
+                    db.priceSettings.bgImage = ''; 
+                }
             }
             img.src = e.target.result;
         }
