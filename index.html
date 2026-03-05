@@ -17,6 +17,9 @@
             --danger: #ef4444; --success: #22c55e; --warning: #facc15;
             --repair-bg: #fef08a; --repair-border: #eab308;
             --deleted-text: #94a3b8;
+            --btn-bg-1: #ef4444;
+            --btn-bg-2: #facc15;
+            --btn-speed: 0.8s;
         }
         html { overscroll-behavior: none; }
         body { 
@@ -195,11 +198,11 @@
             text-align: center; padding: 20px; font-weight: 900;
             font-size: 1.3rem; z-index: 9999; cursor: pointer; 
             text-transform: uppercase; letter-spacing: 2px;
-            animation: blinkSuper 0.8s infinite alternate;
+            animation: blinkSuper var(--btn-speed) infinite alternate;
         }
         @keyframes blinkSuper { 
-            0% { background: #ef4444; box-shadow: 0 5px 20px rgba(239,68,68,0.8); color: #fff; text-shadow: 0 0 8px #fff; } 
-            100% { background: #facc15; box-shadow: 0 5px 40px rgba(250,204,21,0.8); color: #b45309; text-shadow: none; } 
+            0% { background: var(--btn-bg-1); box-shadow: 0 5px 20px var(--btn-bg-1); color: #fff; text-shadow: 0 0 8px #fff; } 
+            100% { background: var(--btn-bg-2); box-shadow: 0 5px 40px var(--btn-bg-2); color: #000; text-shadow: none; } 
         }
 
         /* Современный полноэкранный прайс-лист */
@@ -270,7 +273,10 @@
     <main>
         <div id="view-new" class="view">
             <div class="card">
-                <h2>📝 Оформление</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px;">
+                    <h2 style="margin: 0; border: none; padding: 0;">📝 Оформление</h2>
+                    <button class="btn btn-sm" style="background: #f97316; color: white; width: auto; font-weight: bold;" onclick="openMonitorTariffs()"><i class="fas fa-tags"></i> ПРАЙС</button>
+                </div>
                 <div class="input-row">
                     <div class="input-wrapper">
                         <input type="tel" id="rent-phone" placeholder="Телефон" oninput="handleInput('phone', this.value)" autocomplete="off">
@@ -437,6 +443,22 @@
                 <label style="font-size:0.75rem; color:#64748b; display:block; margin-bottom:5px;">Фоновое изображение (заменит цвет заливки)</label>
                 <input type="file" accept="image/*" onchange="handleBgImageUpload(event)" style="padding: 8px; border: 1px dashed #cbd5e1; background: #f8fafc; font-size: 0.8rem; width: 100%; margin-bottom: 5px; box-sizing: border-box;">
                 <button class="btn btn-secondary btn-sm" onclick="clearBgImage()" style="width:100%;">Удалить фоновую картинку</button>
+
+                <h3 style="font-size: 1rem; margin-top:20px; border-top: 1px solid #e2e8f0; padding-top: 15px;">🚀 Настройки кнопки (Монитор)</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div>
+                        <label style="font-size:0.75rem; color:#64748b;">Цвет 1 (Старт)</label>
+                        <input type="color" id="set-btn-c1" onchange="savePriceSettings()" style="height:40px; padding:2px; margin-bottom:0;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:#64748b;">Цвет 2 (Конец)</label>
+                        <input type="color" id="set-btn-c2" onchange="savePriceSettings()" style="height:40px; padding:2px; margin-bottom:0;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:#64748b;">Скорость (сек)</label>
+                        <input type="number" id="set-btn-speed" step="0.1" min="0.1" max="5" onchange="savePriceSettings()" style="height:40px; padding:2px 5px; margin-bottom:0;" placeholder="0.8">
+                    </div>
+                </div>
             </div>
 
             <div class="card">
@@ -756,6 +778,7 @@
         window.last_sur_end = todayChita;
 
         updateUI(); setInterval(tick, 1000);
+        applyPriceSettings();
         
         window.onclick = function(e) { 
             if(e.target.matches('.modal-overlay') && e.target.id !== 'global-login') {
@@ -861,6 +884,14 @@
         if (window.sendToCloud) window.sendToCloud(db); 
     }
 
+    function applyPriceSettings() {
+        const pSet = db.priceSettings || {};
+        const root = document.documentElement;
+        root.style.setProperty('--btn-bg-1', pSet.btnColor1 || '#ef4444');
+        root.style.setProperty('--btn-bg-2', pSet.btnColor2 || '#facc15');
+        root.style.setProperty('--btn-speed', (pSet.btnSpeed || 0.8) + 's');
+    }
+
     window.updateGlobalDB = function(newData) {
         if (!newData) return;
         if ( (!newData.rentals || newData.rentals.length === 0) && (db.rentals && db.rentals.length > 0) ) {
@@ -868,7 +899,7 @@
             if (cHist <= lHist) return; 
         }
         db = { ...newData, password: newData.password || db.password || '4892', scale: newData.scale || db.scale || 1.0 };
-        updateUI(); applyScale(); 
+        updateUI(); applyScale(); applyPriceSettings();
     }
 
     function switchView(id) { if (id === 'settings') { authWrapper(() => { doSwitchView(id); }); return; } doSwitchView(id); }
@@ -969,7 +1000,13 @@
         db.priceSettings.nameColor = document.getElementById('set-p-name').value;
         db.priceSettings.priceColor = document.getElementById('set-p-price').value;
         db.priceSettings.bgColor = document.getElementById('set-p-bg').value;
+        
+        db.priceSettings.btnColor1 = document.getElementById('set-btn-c1').value;
+        db.priceSettings.btnColor2 = document.getElementById('set-btn-c2').value;
+        db.priceSettings.btnSpeed = document.getElementById('set-btn-speed').value;
+        
         save();
+        applyPriceSettings();
     }
 
     function clearBgImage() {
@@ -1412,10 +1449,14 @@
             dtList.innerHTML = '<p style="font-size:0.85rem; color:#64748b;">Прайс-лист пуст</p>';
         }
 
-        const pSet = db.priceSettings || { nameColor: '#ffffff', priceColor: '#22c55e', bgColor: '#0f172a', bgImage: '' };
+        const pSet = db.priceSettings || { nameColor: '#ffffff', priceColor: '#22c55e', bgColor: '#0f172a', bgImage: '', btnColor1: '#ef4444', btnColor2: '#facc15', btnSpeed: '0.8' };
         document.getElementById('set-p-name').value = pSet.nameColor || '#ffffff';
         document.getElementById('set-p-price').value = pSet.priceColor || '#22c55e';
         document.getElementById('set-p-bg').value = pSet.bgColor || '#0f172a';
+        
+        document.getElementById('set-btn-c1').value = pSet.btnColor1 || '#ef4444';
+        document.getElementById('set-btn-c2').value = pSet.btnColor2 || '#facc15';
+        document.getElementById('set-btn-speed').value = pSet.btnSpeed || '0.8';
 
         const d = document.getElementById('settings-list'); d.innerHTML='';
         d.innerHTML += `<div class="card" style="background:#eff6ff; border:1px solid #3b82f6; margin-bottom:15px;"><button class="btn btn-primary" onclick="changePassUI()">🔐 Сменить локальный PIN-код</button></div>`;
