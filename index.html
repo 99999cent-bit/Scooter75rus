@@ -455,6 +455,7 @@
         <button class="nav-btn active" onclick="switchView('active')"><i class="fas fa-bolt"></i> Активные <span id="badge-cnt" class="badge" style="display:none">0</span></button>
         <button class="nav-btn" onclick="switchView('new')"><i class="fas fa-plus"></i> Новая</button>
         <button class="nav-btn" onclick="switchView('fleet')"><i class="fas fa-bicycle"></i> Парк</button>
+
         <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
         <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
         <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
@@ -495,11 +496,13 @@
         </div>
 
         <div id="view-active" class="view active">
-            <div style="margin-bottom:10px;">
-                <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
+            <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+                <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()" style="margin-bottom:0; flex:1;">
+                <button onclick="openBulkRelayModal()"
+                    style="background:#f59e0b;color:#1c1917;font-weight:800;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-size:0.95rem;white-space:nowrap;flex-shrink:0;touch-action:manipulation;">
+                    <i class="fas fa-bolt"></i> РЕЛЕ
+                </button>
             </div>
-            
-            
             
             <div id="active-summary-wrapper" ondblclick="toggleActiveSummary()">
                 <div id="active-summary-title">
@@ -1216,9 +1219,10 @@
             </div>
             <!-- Фильтры -->
             <div style="padding:12px 16px 0; display:flex; gap:8px; flex-wrap:wrap;">
+                <button id="bulk-filter-active" class="btn btn-sm" onclick="setBulkFilter('active')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700; background:#f59e0b; color:#1c1917; border:none;">Активные</button>
+                <button id="bulk-filter-on" class="btn btn-sm btn-secondary" onclick="setBulkFilter('on')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700;">Включённые</button>
+                <button id="bulk-filter-off" class="btn btn-sm btn-secondary" onclick="setBulkFilter('off')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700;">Выключённые</button>
                 <button id="bulk-filter-all" class="btn btn-sm btn-secondary" onclick="setBulkFilter('all')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700;">Все</button>
-                <button id="bulk-filter-rental" class="btn btn-sm" onclick="setBulkFilter('rental')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700; background:#f59e0b; color:#1c1917; border:none;">В аренде</button>
-                <button id="bulk-filter-off" class="btn btn-sm btn-secondary" onclick="setBulkFilter('off')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700;">Выключенные</button>
             </div>
             <!-- Выбрать все -->
             <div style="padding:10px 16px 8px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9;">
@@ -1235,7 +1239,7 @@
                 <button class="btn btn-primary" onclick="openBulkCommandModal()" style="width:100%; padding:13px; font-size:1rem; font-weight:800; border-radius:12px;">
                     Готово <span id="bulk-ready-count" style="font-weight:900;"></span>
                 </button>
-                <button class="btn btn-secondary" onclick="closeModal('modal-bulk-relay')" style="width:100%; padding:11px; border-radius:12px;">Отмена</button>
+                <button class="btn btn-secondary" onclick="stopBulkTimers();closeModal('modal-bulk-relay')" style="width:100%; padding:11px; border-radius:12px;">Отмена</button>
             </div>
         </div>
     </div>
@@ -1309,6 +1313,10 @@
 <!-- ========================================================================= -->
 <script>
     let db = { categories: [], fleet: [], clients: [], rentals: [], history: [], displayTariffs: [], priceSettings: {}, password: '4892', scale: 1.0 };
+    let bulkSelectedDevices = new Set();
+    let bulkCurrentAction = null;
+    let bulkFilter = 'active';
+    let bulkTimerInterval = null;
     let isMonitorMode = false;
     let tempStartData = null;
     let currentSwapRentalId = null;
@@ -2526,7 +2534,7 @@
                 <span style="font-size:0.55rem;color:${checkboxColor};font-weight:700;line-height:1;">АВТО</span>
             </label>` : '';
             
-            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions"><button class="ar-btn relay" ondblclick="openRelayModal(${r.vId})"><i class="fas fa-power-off"></i><span class="ar-btn-label">РЕЛЕ</span><span class="ar-dbl">2x</span></button><button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><span class="ar-dbl">2x</span></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><span class="ar-dbl">2x</span></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><span class="ar-dbl">2x</span></button></div>`;
+            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions"><button class="ar-btn relay" onclick="openRelayModal(${r.vId})"><i class="fas fa-power-off"></i><span class="ar-btn-label">РЕЛЕ</span></button><button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><span class="ar-dbl">2x</span></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><span class="ar-dbl">2x</span></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><span class="ar-dbl">2x</span></button></div>`;
             list.appendChild(div);
         }); 
         // Убеждаемся что таймер запущен
@@ -3727,6 +3735,55 @@
     function setAutoOffOnFinishMethod(m) { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.autoOffOnFinishMethod=m; save(); renderAutoRelayPanel(); }
 
     // Silent command — without modal notification
+    // ===== КОНФИГ 18GPS.NET =====
+    // Привязка имён устройств к GPS-трекерам на платформе 18gps.net
+    const GPS_18GPS_DEVICES = {
+        // --- Аккаунт 1 ---
+        "1":        { gpsId: "e43687e53e944561b8dec5bd47db0551", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "2":        { gpsId: "34ca5ab58e24442dae099c0d0a80356a", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "3":        { gpsId: "4df25d5c0f814303b3a12cdda8b61e94", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "19":       { gpsId: "6bcae5c2dc29422da6ae5d029d804885", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "20":       { gpsId: "1f111e385e3d4495b58b129344f63122", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "21":       { gpsId: "986b57e8987e48ee99e03a8a03c80949", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "22":       { gpsId: "677e500932714d1b9170a828b7d42149", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "23":       { gpsId: "f536e3b53bca4e06adbe228840612e54", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "24":       { gpsId: "b0488ce89e5542c9a6e586a7f17a28bf", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "25":       { gpsId: "c280fea8d50a4ffbbd396dcf8422431d", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "26":       { gpsId: "28f71013c797487f80d841db646c6cd7", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "27":       { gpsId: "b5c70013d6204423acfce29ed1eba228", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "28":       { gpsId: "a31524458d9041429dd3fad87acfb74d", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "29":       { gpsId: "9a146a669b2a41c2b3709560a71f0506", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "30":       { gpsId: "2e625cc6a4c041e5a5796cfeb10536d6", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "31":       { gpsId: "6c5f35541877416582edad144c95c7ef", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        "сломана":  { gpsId: "2b9fd6e7a24e4e1ab99cc4cbe5240b20", enterpriseId: "43232166-a7d1-40a5-d100-5db4383c33ab", mds: "e6e63e54fd1942b7a567142742717742" },
+        // --- Аккаунт 2 ---
+        "4":        { gpsId: "2c3fae3d62a6443995e3b4c7796e78a5", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "5":        { gpsId: "d974bb18f2cf4b62af484f4c812e2a5f", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "6":        { gpsId: "be348986aaa54aa194c838244255619f", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "7":        { gpsId: "cc1b0075c67447f6acff8651e9cb5179", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "8":        { gpsId: "f5cde634d9f74eb3b76de5b77c2acb55", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "9":        { gpsId: "f8c43090479a41aba2b20b1b34f2a96f", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "10":       { gpsId: "dccad5342d7c4984baba87a8498763f3", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "11":       { gpsId: "26a7e6944a334a8fbec79f34c5167d3a", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "12":       { gpsId: "e993b9e5e7d945f48e6ab8d0abecaea6", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "13":       { gpsId: "3050d6ef5d904daca36a88866e821376", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "14":       { gpsId: "e2c688cb3c10464bb5a676f5c5c2776c", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "15":       { gpsId: "377cccdf13e04dbe89beaf470ecaea25", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "16":       { gpsId: "8c3a6fb4886b4296852b3d4574363add", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "17":       { gpsId: "3e7b77257d5e4949b0827216d2ff7caf", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+        "18":       { gpsId: "ebfcf9d686d54d9094dfbd096167938c", enterpriseId: "43232166-6084-a2a5-d100-24a41458b0bd", mds: "58b6007cfd36444a82a97346b9d263dc" },
+    };
+
+    // Вспомогательная функция: отправить команду реле через 18gps.net
+    function send18GpsRelay(deviceName, isOn) {
+        const cfg = GPS_18GPS_DEVICES[String(deviceName).trim()];
+        if (!cfg) return false;
+        const cmd = isOn ? 'OPENRELAY_NOTPWD' : 'CLOSERELAY_NOTPWD';
+        const url = `https://18gps.net/Command.aspx?method=sendCommand&mds=${cfg.mds}&SendType=SINGLE&userType=VD40&enterprise_id=${cfg.enterpriseId}&user_id=${cfg.gpsId}&cmd=${cmd}`;
+        fetch(url, { mode: 'no-cors' }).catch(() => {});
+        return true;
+    }
+
     function sendSmartCommandSilent(deviceId, commandType) {
         deviceId = parseInt(deviceId);
         const device = db.fleet.find(d => d.id === deviceId);
@@ -3749,20 +3806,8 @@
             } catch(e) {}
         } else {
             method = 'API';
-            if (!device.imei || !device.imei.trim()) return;
-            if (!db.apiKeys || !db.apiKeys.length) return;
-            // Fire and forget
-            const command = isOn ? 'ON' : 'OFF';
-            for (const key of db.apiKeys) {
-                if (key.trim()) {
-                    fetch('https://api.example.com/relay/command', {
-                        method: 'POST',
-                        headers: {'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-                        body: JSON.stringify({imei: device.imei, command, device: device.name})
-                    }).catch(() => {});
-                }
-            }
-            success = true;
+            // Отправка через 18gps.net по имени устройства
+            success = send18GpsRelay(device.name, isOn);
         }
 
         if (success) {
@@ -3834,71 +3879,18 @@
             }
         }
 
-        // ===== ОБРАБОТКА API КОМАНД (ИНТЕРНЕТ) =====
+        // ===== ОБРАБОТКА API КОМАНД (ИНТЕРНЕТ / 18GPS) =====
         else if (commandType.includes('internet')) {
             method = 'API';
-            
-            // Проверка наличия IMEI
-            if (!device.imei || device.imei.trim() === '') {
-                showNotification('warning', 'Ошибка: IMEI не указан', `Для устройства "${device.name}" не указан IMEI.\n\nУкажите 15-значный IMEI в ⚙️ настройках устройства.`);
+
+            const gpsFound = send18GpsRelay(device.name, commandType === 'internet_on');
+            if (!gpsFound) {
+                showNotification('warning', 'GPS не настроен', `Устройство "${device.name}" не найдено в таблице GPS-трекеров 18gps.net.`);
                 return;
             }
 
-            // Проверка наличия API ключей
-            if (!db.apiKeys || db.apiKeys.length === 0) {
-                showNotification('warning', 'Ошибка: Нет API ключей', `В настройках не добавлены API ключи.\n\nПейдите в ⚙️ Настройки → 📡 Интеграция GPS и добавьте ключи.`);
-                return;
-            }
-
-            // Попытка отправить команду со всеми ключами
-            let requestCount = 0;
-            for (const key of db.apiKeys) {
-                try {
-                    // Имитация отправки API запроса
-                    // В реальном приложении здесь будет fetch() к вашему сервису
-                    const apiEndpoint = 'https://api.example.com/relay/command'; // Замените на реальный endpoint
-                    const command = commandType === 'internet_on' ? 'ON' : 'OFF';
-                    
-                    // Проверка валидности ключа (базовая проверка формата)
-                    if (key.trim().length > 0) {
-                        requestCount++;
-                        
-                        // Имитация асинхронного запроса
-                        fetch(apiEndpoint, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${key}`
-                            },
-                            body: JSON.stringify({
-                                imei: device.imei,
-                                command: command,
-                                device: device.name
-                            })
-                        }).then(response => {
-                            if (response.ok) {
-                                successCount++;
-                            }
-                        }).catch(err => {
-                            // API не доступен - но ключ валидный, значит команда отправлена
-                            successCount++;
-                        });
-                    }
-                } catch (e) {
-                    // Ошибка в формате ключа
-                }
-            }
-
-            // Если ни один ключ не отправлен
-            if (requestCount === 0) {
-                showNotification('warning', 'Ошибка: Все ключи невалидны', `Проверьте формат API ключей в настройках.\n\nВсе добавленные ключи некорректны.`);
-                return;
-            }
-
-            // Если есть успешные отправки, считаем это успехом
-            // (минимум через 100ms, чтобы дать время на обработку)
             setTimeout(() => {
-                completeCommand(device, commandType, method, timestamp, userName, requestCount > 0);
+                completeCommand(device, commandType, method, timestamp, userName, true);
             }, 100);
             return;
         }
@@ -3999,83 +3991,56 @@
     // ==========================================
     // ===== МАССОВОЕ УПРАВЛЕНИЕ ПИТАНИЕМ =======
     // ==========================================
-    let bulkSelectedDevices = new Set();
-    let bulkCurrentAction = null;
-    let bulkFilter = 'rental'; // 'all' | 'rental' | 'off'
 
     function setBulkFilter(f) {
         bulkFilter = f;
-        // Сбрасываем все кнопки фильтра
         document.querySelectorAll('[id^="bulk-filter-"]').forEach(btn => {
             btn.style.background = '';
             btn.style.color = '';
             btn.className = 'btn btn-sm btn-secondary';
             btn.style.borderRadius = '20px';
         });
-        const active = document.getElementById('bulk-filter-' + f);
-        if (active) {
-            active.style.background = '#f59e0b';
-            active.style.color = '#1c1917';
-            active.style.border = 'none';
-            active.className = 'btn btn-sm';
+        const activeBtn = document.getElementById('bulk-filter-' + f);
+        if (activeBtn) {
+            activeBtn.style.background = '#f59e0b';
+            activeBtn.style.color = '#1c1917';
+            activeBtn.style.border = 'none';
+            activeBtn.className = 'btn btn-sm';
         }
         bulkSelectedDevices = new Set();
         updateBulkCount();
         renderBulkDeviceList();
+        startBulkTimers();
     }
 
     function openBulkRelayModal() {
         bulkSelectedDevices = new Set();
         bulkCurrentAction = null;
-        bulkFilter = 'rental';
-        // Сбросить фильтры визуально
+        bulkFilter = 'active';
         document.querySelectorAll('[id^="bulk-filter-"]').forEach(btn => {
             btn.style.background = '';
             btn.style.color = '';
             btn.className = 'btn btn-sm btn-secondary';
             btn.style.borderRadius = '20px';
         });
-        const rentalBtn = document.getElementById('bulk-filter-rental');
-        if (rentalBtn) { rentalBtn.style.background = '#f59e0b'; rentalBtn.style.color = '#1c1917'; rentalBtn.style.border = 'none'; rentalBtn.className = 'btn btn-sm'; }
+        const activeBtn = document.getElementById('bulk-filter-active');
+        if (activeBtn) { activeBtn.style.background = '#f59e0b'; activeBtn.style.color = '#1c1917'; activeBtn.style.border = 'none'; activeBtn.className = 'btn btn-sm'; }
         document.getElementById('bulk-select-all').checked = false;
         document.getElementById('bulk-selected-count').innerText = '0 выбрано';
         renderBulkDeviceList();
         document.getElementById('modal-bulk-relay').style.display = 'flex';
+        startBulkTimers();
     }
 
-    // Инициализация кнопки РЕЛЕ — двойное нажатие через click-счётчик
-    function initBulkPowerBtn() {
-        const btn = document.getElementById('btn-relay-mass');
-        if (!btn) return;
-        let tapCount = 0, tapTimer = null;
-        btn.addEventListener('click', function() {
-            tapCount++;
-            const hint = document.getElementById('btn-relay-mass-hint');
-            if (tapCount === 1) {
-                if (hint) hint.textContent = '← ещё!';
-                btn.style.opacity = '0.65';
-                tapTimer = setTimeout(() => {
-                    tapCount = 0;
-                    btn.style.opacity = '1';
-                    if (hint) hint.textContent = '(2x)';
-                }, 700);
-            } else {
-                clearTimeout(tapTimer);
-                tapCount = 0;
-                btn.style.opacity = '1';
-                if (hint) hint.textContent = '(2x)';
-                openBulkRelayModal();
-            }
-        });
-    }
-    setTimeout(initBulkPowerBtn, 400);
+    // Кнопка РЕЛЕ открывается по onclick в HTML
 
     function getFilteredBulkDevices() {
         const activeRentalMap = {};
         db.rentals.forEach(r => { activeRentalMap[r.vId] = r; });
-        let devices = db.fleet.filter(f => f.status !== 'repair');
-        if (bulkFilter === 'rental') devices = devices.filter(d => activeRentalMap[d.id]);
-        if (bulkFilter === 'off') devices = devices.filter(d => d.status !== 'busy');
+        let devices = db.fleet.filter(f => f.status !== 'repair' && !f.deleted);
+        if (bulkFilter === 'active') devices = devices.filter(d => activeRentalMap[d.id]);
+        else if (bulkFilter === 'on') devices = devices.filter(d => d.status === 'busy');
+        else if (bulkFilter === 'off') devices = devices.filter(d => d.status !== 'busy');
         return { devices, activeRentalMap };
     }
 
@@ -4087,7 +4052,7 @@
         devices.sort((a, b) => {
             const rA = activeRentalMap[a.id];
             const rB = activeRentalMap[b.id];
-            if (rA && rB) return getTimeLeft(rA) - getTimeLeft(rB);
+            if (rA && rB) return rA.startTs - rB.startTs; // сортировка по времени начала аренды
             if (rA) return -1;
             if (rB) return 1;
             return a.name.localeCompare(b.name, undefined, {numeric: true});
@@ -4100,38 +4065,63 @@
 
         devices.forEach(device => {
             const rental = activeRentalMap[device.id];
-            let timerHtml = '';
-            if (rental) {
-                const left = getTimeLeft(rental);
-                const absLeft = Math.abs(left);
-                const mins = Math.floor(absLeft / 60000);
-                const secs = Math.floor((absLeft % 60000) / 1000);
-                const tStr = `${mins}:${String(secs).padStart(2,'0')}`;
-                if (left < 0) {
-                    timerHtml = `<div style="text-align:right;line-height:1.2;"><div style="color:#ef4444;font-weight:900;font-size:1.1rem;">-${tStr}</div><div style="font-size:0.62rem;color:#ef4444;font-weight:700;">ПЕРЕРАСХОД</div></div>`;
-                } else {
-                    timerHtml = `<div style="text-align:right;line-height:1.2;"><div style="color:#f59e0b;font-weight:900;font-size:1.1rem;">${tStr}</div><div style="font-size:0.62rem;color:#64748b;">осталось</div></div>`;
-                }
-            }
             const isOn = device.status === 'busy';
             const isChecked = bulkSelectedDevices.has(device.id) ? 'checked' : '';
-            const rentalBadge = rental ? `<span style="font-size:0.65rem;background:#fef3c7;color:#92400e;border-radius:10px;padding:1px 7px;margin-left:5px;font-weight:700;">В АРЕНДЕ</span>` : '';
-            const clientInfo = rental ? `<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">👤 ${rental.cName}</div>` : '';
+            const rentalBadge = rental ? `<span style="font-size:0.65rem;background:#fef3c7;color:#92400e;border-radius:10px;padding:1px 7px;margin-left:5px;font-weight:700;">АКТИВНЫЙ</span>` : '';
+            const clientInfo = rental ? `<div style="font-size:0.72rem;color:#64748b;margin-top:1px;">👤 ${rental.cName}</div>` : '';
             const statusDot = `<span style="font-size:0.72rem;color:${isOn ? '#22c55e' : '#ef4444'};font-weight:700;">${isOn ? '● ВКЛ' : '○ ВЫКЛ'}</span>`;
             const rowBg = bulkSelectedDevices.has(device.id) ? 'background:#fffbeb;' : '';
 
+            // Таймер активного времени аренды (прошедшее время с начала)
+            let timerHtml = '';
+            if (rental) {
+                const elapsed = Date.now() - rental.startTs;
+                const totalMins = rental.totalMin || 0;
+                const elMins = Math.floor(elapsed / 60000);
+                const elSecs = Math.floor((elapsed % 60000) / 1000);
+                const tStr = `${elMins}:${String(elSecs).padStart(2,'0')}`;
+                const pct = totalMins > 0 ? Math.min(100, Math.round(elapsed / (totalMins * 60000) * 100)) : 0;
+                const pctColor = pct >= 100 ? '#ef4444' : pct >= 75 ? '#f59e0b' : '#22c55e';
+                timerHtml = `<div style="text-align:right;line-height:1.2;min-width:60px;">
+                    <div id="bulk-timer-${device.id}" style="font-family:'Courier New',monospace;font-weight:900;font-size:1.15rem;color:${pctColor};">${tStr}</div>
+                    <div style="font-size:0.6rem;color:#94a3b8;font-weight:600;">${pct}% из ${totalMins}м</div>
+                </div>`;
+            }
+
             list.innerHTML += `
-                <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;${rowBg}transition:background 0.1s;" onclick="toggleBulkDevice(${device.id})">
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;${rowBg}transition:background 0.1s;" onclick="toggleBulkDevice(${device.id})">
                     <input type="checkbox" ${isChecked} style="width:22px;height:22px;flex-shrink:0;accent-color:#f59e0b;" onclick="event.stopPropagation();" onchange="toggleBulkDevice(${device.id})">
                     <div style="width:13px;height:13px;border-radius:50%;background:${device.color};flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,0.2);"></div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-weight:800;font-size:0.97rem;color:#1e293b;">${device.name}${rentalBadge}</div>
+                        <div style="font-weight:800;font-size:1rem;color:#1e293b;">${device.name}${rentalBadge}</div>
                         ${statusDot}
                         ${clientInfo}
                     </div>
                     ${timerHtml}
                 </div>`;
         });
+    }
+
+    function startBulkTimers() {
+        stopBulkTimers();
+        bulkTimerInterval = setInterval(() => {
+            const { activeRentalMap } = getFilteredBulkDevices();
+            Object.values(activeRentalMap).forEach(rental => {
+                const el = document.getElementById('bulk-timer-' + rental.vId);
+                if (!el) return;
+                const elapsed = Date.now() - rental.startTs;
+                const totalMins = rental.totalMin || 0;
+                const elMins = Math.floor(elapsed / 60000);
+                const elSecs = Math.floor((elapsed % 60000) / 1000);
+                const tStr = `${elMins}:${String(elSecs).padStart(2,'0')}`;
+                const pct = totalMins > 0 ? Math.min(100, Math.round(elapsed / (totalMins * 60000) * 100)) : 0;
+                el.textContent = tStr;
+                el.style.color = pct >= 100 ? '#ef4444' : pct >= 75 ? '#f59e0b' : '#22c55e';
+            });
+        }, 1000);
+    }
+    function stopBulkTimers() {
+        if (bulkTimerInterval) { clearInterval(bulkTimerInterval); bulkTimerInterval = null; }
     }
 
     function toggleBulkDevice(deviceId) {
@@ -4203,7 +4193,7 @@
             const commandType = `internet_${bulkCurrentAction}`;
             devices.forEach(device => { window.sendSmartCommand(device.id, commandType); });
             closeModal('modal-bulk-command');
-            closeModal('modal-bulk-relay');
+            stopBulkTimers(); closeModal('modal-bulk-relay');
         }
     }
 
