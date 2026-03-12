@@ -499,14 +499,7 @@
                 <input type="text" id="active-search" placeholder="🔍 Поиск..." oninput="renderActiveRentals()">
             </div>
             
-            <div style="margin-bottom:10px;">
-                <button class="btn" id="btn-relay-mass"
-                    style="background:linear-gradient(135deg,#f59e0b,#fbbf24); color:#1c1917; font-weight:800; padding:12px 22px; font-size:1rem; border-radius:14px; box-shadow:0 4px 14px rgba(251,191,36,0.45); letter-spacing:0.02em; border:none; display:inline-flex; align-items:center; gap:8px;">
-                    <i class="fas fa-bolt" style="font-size:1.1rem;"></i>
-                    РЕЛЕ
-                    <span id="btn-relay-mass-hint" style="font-size:0.62rem; font-weight:600; opacity:0.7; margin-left:2px;">(2x)</span>
-                </button>
-            </div>
+            
             
             <div id="active-summary-wrapper" ondblclick="toggleActiveSummary()">
                 <div id="active-summary-title">
@@ -2533,7 +2526,7 @@
                 <span style="font-size:0.55rem;color:${checkboxColor};font-weight:700;line-height:1;">АВТО</span>
             </label>` : '';
             
-            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions"><button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><span class="ar-dbl">2x</span></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><span class="ar-dbl">2x</span></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><span class="ar-dbl">2x</span></button></div>`;
+            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions"><button class="ar-btn relay" ondblclick="openRelayModal(${r.vId})"><i class="fas fa-power-off"></i><span class="ar-btn-label">РЕЛЕ</span><span class="ar-dbl">2x</span></button><button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><span class="ar-dbl">2x</span></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><span class="ar-dbl">2x</span></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><span class="ar-dbl">2x</span></button></div>`;
             list.appendChild(div);
         }); 
         // Убеждаемся что таймер запущен
