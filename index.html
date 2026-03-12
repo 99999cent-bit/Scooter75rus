@@ -40,7 +40,7 @@
             overscroll-behavior: none;
         }
         header { background: var(--surface); padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; z-index: 20; }
-        .nav-btn { background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; color: #475569; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: 0.3s; font-size: 0.9rem; position: relative; }
+        .nav-btn { background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; color: #475569; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: 0.3s; font-size: 0.9rem; position: relative; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
         .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(59,130,246,0.4); }
         .badge { background: #ef4444; color: white; border-radius: 12px; padding: 2px 6px; font-size: 0.75rem; margin-left: 4px; }
         
@@ -60,7 +60,7 @@
         h2 { margin: 0 0 12px 0; font-size: 1.15rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; color: #334155; }
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.2s; background: #fff; }
         input:focus, textarea:focus { border-color: var(--primary); outline: none; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 1rem; transition: 0.1s; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 1rem; transition: 0.1s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: var(--primary); }
         .btn-danger { background: var(--danger); }
@@ -103,8 +103,12 @@
         .ar-timer-container { flex: 1; text-align: right; padding-right: 15px; cursor: pointer; border-radius: 8px; transition: 0.2s; }
         .ar-timer-container:active { opacity: 0.5; }
         .ar-timer { font-family: 'Courier New', monospace; font-size: 2.8rem; font-weight: 700; color: inherit; line-height: 1; }
+        .ar-timer.overdue-timer { color: #ef4444; animation: blink 0.8s infinite; }
+        .ar-timer.danger-timer { color: #ef4444; }
+        .ar-timer.warn-timer { color: #f59e0b; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
         .ar-actions { display: flex; height: 100%; background: rgba(0,0,0,0.3); border-left: 1px solid rgba(255,255,255,0.1); width: 180px; flex-shrink: 0; }
-        .ar-btn { flex: 1; border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.1); padding: 0; transition: 0.1s; }
+        .ar-btn { flex: 1; border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.1); padding: 0; transition: 0.1s; touch-action: manipulation; -webkit-tap-highlight-color: rgba(255,255,255,0.2); user-select: none; }
         .ar-btn:active { opacity: 0.7; }
         .ar-btn.relay { background: #8b5cf6; color: #fff; } 
         .ar-btn.extend { background: #2563eb; color: #fff; }
@@ -454,6 +458,7 @@
         <button class="nav-btn" onclick="switchView('clients')"><i class="fas fa-users"></i> Клиенты</button>
         <button class="nav-btn" onclick="switchView('surcharge')"><i class="fas fa-hand-holding-usd"></i> Доплата</button>
         <button class="nav-btn" onclick="switchView('finance')"><i class="fas fa-chart-line"></i> История</button>
+        <button class="nav-btn" onclick="switchView('relay')"><i class="fas fa-bolt"></i> Реле</button>
         <button class="nav-btn" id="nav-btn-settings" onclick="switchView('settings')"><i class="fas fa-cog"></i></button>
     </header>
 
@@ -495,8 +500,11 @@
             </div>
             
             <div style="margin-bottom:10px;">
-                <button class="btn" style="background:#8b5cf6; color:white; font-weight:700; padding:10px 16px;" ondblclick="openBulkRelayModal()" title="Двойной клик — управление питанием устройств">
-                    <i class="fas fa-power-off"></i> ВКЛ/ВЫКЛ <span style="font-size:0.65rem; opacity:0.75; margin-left:4px;">(2x клик)</span>
+                <button class="btn" id="btn-relay-mass"
+                    style="background:linear-gradient(135deg,#f59e0b,#fbbf24); color:#1c1917; font-weight:800; padding:12px 22px; font-size:1rem; border-radius:14px; box-shadow:0 4px 14px rgba(251,191,36,0.45); letter-spacing:0.02em; border:none; display:inline-flex; align-items:center; gap:8px;">
+                    <i class="fas fa-bolt" style="font-size:1.1rem;"></i>
+                    РЕЛЕ
+                    <span id="btn-relay-mass-hint" style="font-size:0.62rem; font-weight:600; opacity:0.7; margin-left:2px;">(2x)</span>
                 </button>
             </div>
             
@@ -554,6 +562,7 @@
                 <h2>База клиентов</h2>
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 10px;">
                     <button class="btn btn-success" onclick="authWrapper(() => exportClientsExcel())"><i class="fas fa-file-excel"></i> Выгрузить</button>
+                    <button class="btn btn-primary" onclick="openCreateClientModal()"><i class="fas fa-user-plus"></i> Создать</button>
                     <button class="btn" style="background:#6366f1;color:white;" onclick="toggleBulkMessage()"><i class="fas fa-paper-plane"></i> Рассылка</button>
                 </div>
                 <!-- Фильтр по статусу -->
@@ -615,6 +624,11 @@
                     <input type="date" id="sur-end" onchange="protectDateChange('sur-end', renderSurcharge)">
                 </div>
                 <input type="text" id="sur-search" placeholder="🔍 Поиск (Имя, Тел, Устр.)" oninput="renderSurcharge()">
+                <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                    <button id="sfilter-all" class="btn btn-sm btn-primary" onclick="setSurchargeFilter('all')">Все</button>
+                    <button id="sfilter-unpaid" class="btn btn-sm btn-secondary" onclick="setSurchargeFilter('unpaid')" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">💳 Оплатить</button>
+                    <button id="sfilter-paid" class="btn btn-sm btn-secondary" onclick="setSurchargeFilter('paid')" style="background:#f0fdf4;color:#15803d;border:1px solid #86efac;">✅ Оплачено</button>
+                </div>
                 <button class="btn btn-success" style="margin-top: 10px;" onclick="authWrapper(() => exportSurchargeExcel())"><i class="fas fa-file-excel"></i> Выгрузить за период</button>
             </div>
             <div class="card" style="padding:0; overflow:hidden;">
@@ -661,18 +675,7 @@
                     <input type="number" id="hist-dur-max" placeholder="до" min="0" max="999" oninput="renderHistory()" style="flex:1; min-width:60px;">
                     <button class="btn btn-sm btn-secondary" onclick="document.getElementById('hist-dur-min').value='';document.getElementById('hist-dur-max').value='';renderHistory();" style="white-space:nowrap;">✕</button>
                 </div>
-                <div class="filter-row" style="align-items:center;">
-                    <span style="font-size:0.8rem; color:#8b5cf6; font-weight:700; white-space:nowrap;">⚡ Реле вкл. (мин):</span>
-                    <input type="number" id="hist-relay-min" placeholder="от" min="0" max="999" oninput="renderHistory()" style="flex:1; min-width:60px;">
-                    <span style="color:#94a3b8;">—</span>
-                    <input type="number" id="hist-relay-max" placeholder="до" min="0" max="999" oninput="renderHistory()" style="flex:1; min-width:60px;">
-                    <select id="hist-relay-filter" onchange="renderHistory()" style="flex:1; min-width:80px; margin-bottom:0;">
-                        <option value="all">Все</option>
-                        <option value="with">С реле</option>
-                        <option value="without">Без реле</option>
-                    </select>
-                    <button class="btn btn-sm btn-secondary" onclick="document.getElementById('hist-relay-min').value='';document.getElementById('hist-relay-max').value='';document.getElementById('hist-relay-filter').value='all';renderHistory();" style="white-space:nowrap;">✕</button>
-                </div>
+
                 <button class="btn btn-success" style="margin-top: 10px;" onclick="authWrapper(() => exportHistoryExcel())"><i class="fas fa-file-excel"></i> Выгрузить историю</button>
             </div>
             <div class="card" style="padding:0; overflow:hidden;">
@@ -684,26 +687,45 @@
                 </div>
             </div>
 
-            <!-- Отдельные события реле (вне аренды) -->
-            <div class="card" style="margin-top:10px;" id="relay-standalone-card">
-                <h2 style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-                    <span>⚡ Статус работы реле</span>
-                    <div style="display:flex;gap:6px;align-items:center;">
-                        <select id="relay-standalone-filter" onchange="renderHistory()" style="font-size:0.8rem;padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;background:#fff;color:#334155;margin:0;">
-                            <option value="outside">Вне аренды</option>
-                            <option value="all">Все события</option>
-                            <option value="rental">Только в аренде</option>
-                        </select>
-                        <span style="font-size:0.75rem;color:#94a3b8;font-weight:400;">за выбранный период</span>
-                    </div>
-                </h2>
+        </div>
+
+        <!-- ===== НОВАЯ ВКЛАДКА РЕЛЕ ===== -->
+        <div id="view-relay" class="view">
+            <div class="card">
+                <h2>⚡ Фильтры реле</h2>
+                <div class="filter-row">
+                    <input type="date" id="relay-tab-start">
+                    <input type="date" id="relay-tab-end">
+                </div>
+                <div class="filter-row">
+                    <input type="text" id="relay-tab-search" placeholder="🔍 Поиск по устройству..." oninput="renderRelayTab()">
+                    <select id="relay-tab-status" onchange="renderRelayTab()" style="flex:1;">
+                        <option value="all">Все события</option>
+                        <option value="rental">В аренде</option>
+                        <option value="outside">Вне аренды</option>
+                    </select>
+                </div>
+                <div class="filter-row" style="align-items:center;">
+                    <span style="font-size:0.8rem; color:#8b5cf6; font-weight:700; white-space:nowrap;">⏱ Включено (мин):</span>
+                    <input type="number" id="relay-dur-min" placeholder="от" min="0" max="9999" oninput="renderRelayTab()" style="flex:1; min-width:55px;">
+                    <span style="color:#94a3b8;">—</span>
+                    <input type="number" id="relay-dur-max" placeholder="до" min="0" max="9999" oninput="renderRelayTab()" style="flex:1; min-width:55px;">
+                    <button class="btn btn-sm btn-secondary" onclick="document.getElementById('relay-dur-min').value='';document.getElementById('relay-dur-max').value='';renderRelayTab();" style="white-space:nowrap;">✕</button>
+                </div>
+                <button class="btn btn-sm btn-secondary" style="margin-top:6px;" onclick="initRelayTabDates();renderRelayTab()"><i class="fas fa-sync"></i> Обновить</button>
+                <div style="margin-top:8px;font-size:0.75rem;color:#64748b;display:flex;gap:12px;flex-wrap:wrap;">
+                    <span><span style="background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;font-weight:700;">⚠ Вне аренды</span> — выделены жёлтым</span>
+                    <span><span style="background:#eff6ff;color:#1d4ed8;border-radius:3px;padding:1px 5px;font-weight:700;">В аренде</span> — клиент указан</span>
+                </div>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden;">
                 <div style="overflow-x:auto;">
                     <table class="history-table">
-                        <thead><tr><th>Устройство</th><th>Включено</th><th>Выключено</th><th>Длит.</th><th>Кем ВКЛ</th><th>Кем ВЫКЛ</th><th>Статус</th></tr></thead>
-                        <tbody id="relay-standalone-rows"></tbody>
+                        <thead><tr><th>Устройство</th><th>Включено</th><th>Выключено</th><th>Длит.</th><th>Кем ВКЛ</th><th>Кем ВЫКЛ</th><th>Статус / Клиент</th></tr></thead>
+                        <tbody id="relay-tab-rows"></tbody>
                     </table>
                 </div>
-                <div id="no-relay-msg" style="text-align:center;padding:15px;color:#94a3b8;display:none;">Нет событий реле за период</div>
+                <div id="relay-tab-empty" style="text-align:center;padding:15px;color:#94a3b8;display:none;">Нет событий за период</div>
             </div>
         </div>
 
@@ -1037,6 +1059,34 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ПРОДЛЕНИЯ -->
+    <div id="modal-extend" class="modal-overlay" style="z-index:290;">
+        <div class="modal-content" style="padding:24px 20px;">
+            <div style="text-align:center;margin-bottom:16px;">
+                <i class="fas fa-clock" style="font-size:2.2rem;color:#2563eb;margin-bottom:8px;display:block;"></i>
+                <h3 style="margin:0;font-size:1.2rem;">Продлить время</h3>
+                <div id="extend-device-name" style="font-size:0.9rem;color:#64748b;margin-top:4px;"></div>
+            </div>
+            <div id="extend-tariffs-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+            <button class="btn btn-secondary" onclick="closeModal('modal-extend')" style="margin-top:16px;width:100%;">Отмена</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ПРОДЛЕНИЯ -->
+    <div id="modal-extend-confirm" class="modal-overlay" style="z-index:300;">
+        <div class="modal-content" style="text-align:center;padding:28px 20px;">
+            <i class="fas fa-clock" style="font-size:2.5rem;color:#2563eb;margin-bottom:12px;display:block;"></i>
+            <h3 style="margin:0 0 6px 0;">Подтвердить продление?</h3>
+            <div id="ext-confirm-tariff" style="font-size:1.25rem;font-weight:800;color:#1e293b;margin:14px 0 4px 0;"></div>
+            <div id="ext-confirm-price" style="font-size:1.5rem;font-weight:800;color:#2563eb;margin-bottom:6px;"></div>
+            <div id="ext-confirm-dur" style="font-size:0.9rem;color:#64748b;margin-bottom:20px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-extend-confirm')">Отмена</button>
+                <button class="btn btn-primary" id="ext-confirm-btn" style="font-size:1rem;font-weight:700;">✅ Продлить</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-client" class="modal-overlay">
         <div class="modal-content">
             <h3>Клиент</h3>
@@ -1160,44 +1210,62 @@
     </div>
 
     <!-- МОДАЛЬНОЕ ОКНО МАССОВОГО УПРАВЛЕНИЯ -->
-    <div id="modal-bulk-relay" class="modal-overlay" style="z-index: 250;">
-        <div class="modal-content" style="max-height: 85vh; padding: 20px;">
-            <h3 style="margin-top:0;">⚡ Массовое управление питанием</h3>
-            <!-- Фильтры -->
-            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
-                <button id="bulk-filter-all" class="btn btn-sm btn-primary" onclick="setBulkFilter('all')" style="padding:5px 10px; font-size:0.8rem;">Все</button>
-                <button id="bulk-filter-rental" class="btn btn-sm btn-secondary" onclick="setBulkFilter('rental')" style="padding:5px 10px; font-size:0.8rem;">В аренде</button>
-                <button id="bulk-filter-off" class="btn btn-sm btn-secondary" onclick="setBulkFilter('off')" style="padding:5px 10px; font-size:0.8rem;">Выключенные</button>
+    <!-- МОДАЛЬНОЕ ОКНО МАССОВОГО РЕЛЕ -->
+    <div id="modal-bulk-relay" class="modal-overlay" style="z-index:250;">
+        <div class="modal-content" style="max-height:88vh; padding:0; border-radius:18px; overflow:hidden; display:flex; flex-direction:column;">
+            <!-- Шапка -->
+            <div style="background:linear-gradient(135deg,#f59e0b,#fbbf24); padding:16px 20px 14px; display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-bolt" style="font-size:1.4rem; color:#1c1917;"></i>
+                <div>
+                    <div style="font-size:1.1rem; font-weight:800; color:#1c1917;">Массовое реле</div>
+                    <div style="font-size:0.75rem; color:#78350f; font-weight:600;">Выберите устройства для команды</div>
+                </div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
-                    <input type="checkbox" id="bulk-select-all" onchange="bulkSelectAll(this)" style="width:22px;height:22px;margin:0;accent-color:var(--primary);">
+            <!-- Фильтры -->
+            <div style="padding:12px 16px 0; display:flex; gap:8px; flex-wrap:wrap;">
+                <button id="bulk-filter-all" class="btn btn-sm btn-secondary" onclick="setBulkFilter('all')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700;">Все</button>
+                <button id="bulk-filter-rental" class="btn btn-sm" onclick="setBulkFilter('rental')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700; background:#f59e0b; color:#1c1917; border:none;">В аренде</button>
+                <button id="bulk-filter-off" class="btn btn-sm btn-secondary" onclick="setBulkFilter('off')" style="padding:6px 14px; font-size:0.82rem; border-radius:20px; font-weight:700;">Выключенные</button>
+            </div>
+            <!-- Выбрать все -->
+            <div style="padding:10px 16px 8px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9;">
+                <label style="display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer; font-size:0.95rem;">
+                    <input type="checkbox" id="bulk-select-all" onchange="bulkSelectAll(this)" style="width:22px;height:22px;margin:0;accent-color:#f59e0b;">
                     Выбрать все
                 </label>
-                <span id="bulk-selected-count" style="font-size:0.85rem; color:#64748b; font-weight:600;">0 выбрано</span>
+                <span id="bulk-selected-count" style="font-size:0.85rem; color:#f59e0b; font-weight:800; background:#fef3c7; padding:3px 10px; border-radius:20px;">0 выбрано</span>
             </div>
-            <div id="bulk-device-list" style="max-height: 320px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;"></div>
-            <button class="btn btn-primary" onclick="openBulkCommandModal()">Готово <span id="bulk-ready-count"></span></button>
-            <button class="btn btn-secondary" onclick="closeModal('modal-bulk-relay')" style="margin-top:8px;">Отмена</button>
+            <!-- Список устройств -->
+            <div id="bulk-device-list" style="flex:1; overflow-y:auto; min-height:80px; max-height:340px;"></div>
+            <!-- Кнопки -->
+            <div style="padding:14px 16px; border-top:1px solid #f1f5f9; display:flex; flex-direction:column; gap:8px;">
+                <button class="btn btn-primary" onclick="openBulkCommandModal()" style="width:100%; padding:13px; font-size:1rem; font-weight:800; border-radius:12px;">
+                    Готово <span id="bulk-ready-count" style="font-weight:900;"></span>
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal('modal-bulk-relay')" style="width:100%; padding:11px; border-radius:12px;">Отмена</button>
+            </div>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ВЫБОРА КОМАНДЫ МАССОВОГО УПРАВЛЕНИЯ -->
-    <div id="modal-bulk-command" class="modal-overlay" style="z-index: 260;">
-        <div class="modal-content" style="text-align:center;">
-            <i class="fas fa-power-off" style="font-size:2.5rem; color:#8b5cf6; margin-bottom:12px;"></i>
-            <h3 style="margin-top:0;">Команда для <span id="bulk-cmd-count">0</span> устройств</h3>
-            <p style="color:#64748b; font-size:0.9rem; margin-bottom:10px;">Выберите действие:</p>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-                <button class="btn btn-success" onclick="setBulkAction('on')" id="bulk-btn-on" style="opacity:0.45;">✅ ВКЛЮЧИТЬ</button>
-                <button class="btn btn-danger" onclick="setBulkAction('off')" id="bulk-btn-off" style="opacity:0.45;">❌ ВЫКЛЮЧИТЬ</button>
+    <!-- МОДАЛЬНОЕ ОКНО КОМАНДЫ -->
+    <div id="modal-bulk-command" class="modal-overlay" style="z-index:260;">
+        <div class="modal-content" style="text-align:center; padding:28px 22px; border-radius:20px;">
+            <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#fbbf24);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 14px rgba(251,191,36,0.4);">
+                <i class="fas fa-bolt" style="font-size:1.6rem;color:#1c1917;"></i>
             </div>
-            <p style="color:#64748b; font-size:0.9rem; margin-bottom:10px;">Способ отправки:</p>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-                <button class="btn" style="background:#8b5cf6; color:white;" onclick="executeBulkCommand('sms')"><i class="fas fa-sms"></i> СМС</button>
-                <button class="btn btn-primary" onclick="executeBulkCommand('internet')"><i class="fas fa-wifi"></i> Интернет</button>
+            <h3 style="margin:0 0 4px 0; font-size:1.15rem;">Команда реле</h3>
+            <div style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">для <b><span id="bulk-cmd-count">0</span> устройств</b></div>
+            <p style="color:#64748b; font-size:0.85rem; font-weight:700; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">Действие</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
+                <button class="btn btn-success" onclick="setBulkAction('on')" id="bulk-btn-on" style="opacity:0.4; padding:13px; font-size:0.95rem; font-weight:700; border-radius:12px;">✅ ВКЛЮЧИТЬ</button>
+                <button class="btn btn-danger" onclick="setBulkAction('off')" id="bulk-btn-off" style="opacity:0.4; padding:13px; font-size:0.95rem; font-weight:700; border-radius:12px;">❌ ВЫКЛЮЧИТЬ</button>
             </div>
-            <button class="btn btn-secondary" onclick="closeModal('modal-bulk-command')">Назад</button>
+            <p style="color:#64748b; font-size:0.85rem; font-weight:700; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">Способ отправки</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                <button class="btn" style="background:#8b5cf6; color:white; padding:13px; border-radius:12px; font-weight:700;" onclick="executeBulkCommand('sms')"><i class="fas fa-sms"></i> СМС</button>
+                <button class="btn btn-primary" style="padding:13px; border-radius:12px; font-weight:700;" onclick="executeBulkCommand('internet')"><i class="fas fa-wifi"></i> Интернет</button>
+            </div>
+            <button class="btn btn-secondary" onclick="closeModal('modal-bulk-command')" style="width:100%; border-radius:12px; padding:11px;">Назад</button>
         </div>
     </div>
     <!-- МОДАЛЬНОЕ ОКНО ИСТОРИЯ РЕЛЕ УСТРОЙСТВА -->
@@ -1322,7 +1390,7 @@
             createMonitorStyles();
             loadDB(); applyScale(); 
             setTimeout(() => switchView('active'), 100);
-            setInterval(tick, 1000);
+            startTimer();
             return; 
         }
         if ("Notification" in window) Notification.requestPermission();
@@ -1340,7 +1408,8 @@
         window.last_sur_end = todayChita;
 
         initializeAPIKeys();
-        updateUI(); setInterval(tick, 1000);
+        updateUI(); 
+        startTimer();
         applyPriceSettings();
         
         window.onclick = function(e) { 
@@ -1391,7 +1460,14 @@
     }
     window.addEventListener('resize', applyScale);
 
+    function _adminNoPassActive() {
+        const email = (window.currentUserEmail || '').toLowerCase().trim();
+        const ADMIN_EMAILS = ['safronov.a.a993@gmail.com', 'admin@gmail.com'];
+        return ADMIN_EMAILS.includes(email) && db.passControl && db.passControl.adminNoPass;
+    }
+
     function authWrapper(actionCallback, cancelCallback = null) {
+        if (_adminNoPassActive()) { if (actionCallback) actionCallback(); return; }
         pendingAuthCallback = actionCallback;
         pendingAuthCancel = cancelCallback;
         document.getElementById('auth-pass-input').value = '';
@@ -1401,6 +1477,7 @@
 
     // authWrapper that keeps a parent modal open (doesn't close on backdrop click)
     function authWrapperKeepParent(actionCallback, cancelCallback = null) {
+        if (_adminNoPassActive()) { if (actionCallback) actionCallback(); return; }
         pendingAuthCallback = actionCallback;
         pendingAuthCancel = cancelCallback;
         document.getElementById('auth-pass-input').value = '';
@@ -1437,7 +1514,7 @@
         { key: 'delete_history',  label: '🗑 Удаление/восстановление записей истории' },
         { key: 'edit_client',     label: '✏️ Редактирование клиента' },
         { key: 'tg_unlink',       label: '🔐 Отвязать / Перепривязать Telegram' },
-        { key: 'finish_rental',   label: '✅ Завершение аренды' },
+        // finish_rental removed — СТОП не требует пароля
         { key: 'delete_client',   label: '🗑 Удаление клиента' },
         { key: 'add_tariff',      label: '➕ Добавление/удаление тарифа' },
         { key: 'delete_tariff',   label: '🗑 Удаление тарифа из прайса' },
@@ -1571,7 +1648,7 @@
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active')); document.getElementById('view-'+id).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active')); if(event && event.currentTarget) event.currentTarget.classList.add('active'); 
         if(id === 'active') renderActiveRentals(); if(id === 'new') renderNewRent(); if(id === 'clients') renderClients(); if(id === 'fleet') renderFleet();
-        if(id === 'finance') { initDeviceFilter(); renderHistory(); } if(id === 'surcharge') renderSurcharge(); if(id === 'settings') { renderSettingsList(); renderAutoRelayPanel(); renderBonusPanel(); renderPassCtrlPanel(); applySettingsCollapse(); } unlockAudio();
+        if(id === 'finance') { initDeviceFilter(); renderHistory(); } if(id === 'surcharge') renderSurcharge(); if(id === 'relay') { initRelayTabDates(); renderRelayTab(); } if(id === 'settings') { renderSettingsList(); renderAutoRelayPanel(); renderBonusPanel(); renderPassCtrlPanel(); applySettingsCollapse(); } unlockAudio();
     }
 
     function openConfirm(msg, yesCallback) {
@@ -1927,31 +2004,44 @@
     }
 
     function finishRental(id) {
-        openConfirm('Завершить поездку?', () => {
-            const idx = db.rentals.findIndex(x => x.id === id); const r = db.rentals[idx]; const v = db.fleet.find(f => f.id === r.vId); if(v) v.status = 'free';
-            const now = Date.now(); const pauseMs = r.totalPause; const pauseMin = Math.round(pauseMs / 60000); const activeDurationMs = now - r.startTs - pauseMs; const activeDurationMin = Math.ceil(activeDurationMs / 60000);
-            let overdueMin = 0; if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
-            const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
-            
-            // Добавляем историю команд управления в actionLog
-            let actionLog = r.actionLog || [];
-            if (v && v.commandHistory && v.commandHistory.length > 0) {
-                v.commandHistory.forEach(cmd => {
-                    if (new Date(cmd.timestamp).getTime() >= r.startTs && new Date(cmd.timestamp).getTime() <= now) {
-                        actionLog.push({
-                            time: cmd.timestamp,
-                            user: cmd.user,
-                            action: `Команда управления: ${cmd.action} (${cmd.method})`
-                        });
-                    }
-                });
+        const idx = db.rentals.findIndex(x => x.id === id); 
+        if (idx === -1) return;
+        const r = db.rentals[idx]; 
+        const v = db.fleet.find(f => f.id === r.vId); 
+        if(v) v.status = 'free';
+        const now = Date.now(); const pauseMs = r.totalPause; const pauseMin = Math.round(pauseMs / 60000); const activeDurationMs = now - r.startTs - pauseMs; const activeDurationMin = Math.ceil(activeDurationMs / 60000);
+        let overdueMin = 0; if(r.limit > 0 && activeDurationMin > r.limit) { overdueMin = activeDurationMin - r.limit; }
+        const finalDeviceName = (r.swapHistory && r.swapHistory.length > 1) ? r.swapHistory.join(' ➜ ') : r.vName;
+        
+        // Добавляем историю команд управления в actionLog
+        let actionLog = r.actionLog || [];
+        if (v && v.commandHistory && v.commandHistory.length > 0) {
+            v.commandHistory.forEach(cmd => {
+                if (new Date(cmd.timestamp).getTime() >= r.startTs && new Date(cmd.timestamp).getTime() <= now) {
+                    actionLog.push({
+                        time: cmd.timestamp,
+                        user: cmd.user,
+                        action: `Команда управления: ${cmd.action} (${cmd.method})`
+                    });
+                }
+            });
+        }
+        
+        logRentalAction(r, 'Завершение', `Длительность: ${activeDurationMin}м. Сумма: ${r.cost}₽`);
+        
+        db.history.unshift({ id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone, cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0, tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash', actionLog: actionLog, lastUser: r.lastUser, bonusMin: r.bonusMin || 0 });
+        db.rentals.splice(idx, 1);
+
+        // Авто-выключение реле при завершении аренды
+        if (v) {
+            const autoS = db.autoSettings || {};
+            if (autoS.autoOffOnFinish) {
+                const m = autoS.autoOffOnFinishMethod || 'internet';
+                sendSmartCommandSilent(v.id, m === 'sms' ? 'sms_off' : 'internet_off');
             }
-            
-            logRentalAction(r, 'Завершение', `Длительность: ${activeDurationMin}м. Сумма: ${r.cost}₽`);
-            
-            db.history.unshift({ id: Date.now()+Math.random(), ts: r.startTs, endTs: now, vName: finalDeviceName, cName: r.cName, cPhone: r.cPhone, cost: r.cost, duration: activeDurationMin, pauseDur: pauseMin, overDur: overdueMin, baseRate: r.baseRate || 0, tName: r.tName, deleted: false, payMethod: r.payMethod || 'cash', actionLog: actionLog, lastUser: r.lastUser, bonusMin: r.bonusMin || 0 });
-            db.rentals.splice(idx, 1); save(); renderActiveRentals();
-        });
+        }
+
+        save(); renderActiveRentals();
     }
 
     // ==========================================
@@ -2443,9 +2533,11 @@
                 <span style="font-size:0.55rem;color:${checkboxColor};font-weight:700;line-height:1;">АВТО</span>
             </label>` : '';
             
-            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions"><button class="ar-btn relay" ondblclick="openRelayModal(${r.vId})"><i class="fas fa-power-off"></i><span class="ar-btn-label">РЕЛЕ</span><div class="ar-dbl">2x</div></button><button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><div class="ar-dbl">2x</div></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><div class="ar-dbl">2x</div></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><div class="ar-dbl">2x</div></button></div>`;
+            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions"><button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><span class="ar-dbl">2x</span></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><span class="ar-dbl">2x</span></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><span class="ar-dbl">2x</span></button></div>`;
             list.appendChild(div);
-        }); tick();
+        }); 
+        // Убеждаемся что таймер запущен
+        if (!window._tickTimeout) startTimer();
     }
 
     function toggleRentalAutoOff(rentalId, checked) {
@@ -2457,33 +2549,38 @@
     
     function tick() {
         const now = Date.now();
+        let missingEl = false;
         db.rentals.forEach(r => {
-            const el = document.getElementById(`t-${r.id}`); if(!el) return;
-            if(r.paused) { el.innerText = "ПАУЗА"; el.className = "ar-timer"; return; }
-            const elapsed = now - r.startTs - r.totalPause; let display = "";
-            if(r.limit > 0) {
-                const left = (r.limit * 60000) - elapsed; const abs = Math.abs(left);
-                display = (left < 0 ? "-" : "") + `${Math.floor(abs/60000)}:${Math.floor((abs%60000)/1000).toString().padStart(2,'0')}`;
+            const el = document.getElementById('t-' + r.id);
+            if (!el) { missingEl = true; return; }
+            if (r.paused) { el.textContent = 'ПАУЗА'; el.className = 'ar-timer'; return; }
+            const elapsed = now - r.startTs - (r.totalPause || 0);
+            let display = '';
+            if (r.limit > 0) {
+                const left = (r.limit * 60000) - elapsed;
+                const abs = Math.abs(left);
+                display = (left < 0 ? '-' : '') + Math.floor(abs/60000) + ':' + String(Math.floor((abs%60000)/1000)).padStart(2,'0');
                 if (left > 0) {
-                    if (left < 300000 && !r.notified5) { sendNotify("⏳ Внимание!", `У ${r.vName} осталось < 5 мин!`, false); r.notified5 = true; save(); renderActiveRentals(); }
-                    if (left < 120000 && !r.notified2) { sendNotify("⚠️ Срочно!", `У ${r.vName} осталось < 2 мин!`, true); r.notified2 = true; save(); renderActiveRentals(); }
+                    if (left < 300000 && !r.notified5) { sendNotify('⏳ Внимание!', 'У ' + r.vName + ' осталось < 5 мин!', false); r.notified5 = true; save(); renderActiveRentals(); return; }
+                    if (left < 120000 && !r.notified2) { sendNotify('⚠️ Срочно!', 'У ' + r.vName + ' осталось < 2 мин!', true); r.notified2 = true; save(); renderActiveRentals(); return; }
                 }
-                // Авто-выключение при истечении времени
                 if (left <= 0 && !r.autoOffSent) {
                     const autoS = db.autoSettings || {};
-                    // Per-rental override: если явно задано — используем, иначе глобальная настройка
                     const shouldAutoOff = (r.autoOffEnabled !== undefined) ? r.autoOffEnabled : (autoS.autoOff || false);
-                    if (shouldAutoOff) {
-                        r.autoOffSent = true;
-                        const method = autoS.autoOffMethod || 'internet';
-                        const cmd = method === 'sms' ? 'sms_off' : 'internet_off';
-                        sendSmartCommandSilent(r.vId, cmd);
-                        save();
-                    }
+                    if (shouldAutoOff) { r.autoOffSent = true; const method = autoS.autoOffMethod || 'internet'; sendSmartCommandSilent(r.vId, method === 'sms' ? 'sms_off' : 'internet_off'); save(); }
                 }
-            } else { display = `${Math.floor(elapsed/60000)}:${Math.floor((elapsed%60000)/1000).toString().padStart(2,'0')}`; el.className = "ar-timer"; }
-            el.innerText = display;
+                el.className = left < 0 ? 'ar-timer overdue-timer' : (left < 120000 ? 'ar-timer danger-timer' : (left < 300000 ? 'ar-timer warn-timer' : 'ar-timer'));
+            } else {
+                display = Math.floor(elapsed/60000) + ':' + String(Math.floor((elapsed%60000)/1000)).padStart(2,'0');
+                el.className = 'ar-timer';
+            }
+            el.textContent = display;
         });
+        // If any rental missing its timer element and active view is shown, re-render (throttled)
+        if (missingEl && document.getElementById('view-active').classList.contains('active') && !window._renderPending) {
+            window._renderPending = true;
+            setTimeout(() => { window._renderPending = false; renderActiveRentals(); }, 50);
+        }
     }
 
     function renderSurcharge() {
@@ -2491,7 +2588,7 @@
         const startTs = startVal ? new Date(`${startVal}T00:00:00+09:00`).getTime() : 0; const endTs = endVal ? new Date(`${endVal}T23:59:59.999+09:00`).getTime() : 9999999999999;
         let totalSur = 0; let hasData = false;
         // Собираем и сортируем: новые сверху
-        const filtered = db.history.filter(h => h.overDur > 0 && !h.deleted && h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal))));
+        const filtered = db.history.filter(h => h.overDur > 0 && !h.deleted && h.ts >= startTs && h.ts <= endTs && (!searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal))) && (surchargeFilter === 'all' || (surchargeFilter === 'paid' && h.surPaid) || (surchargeFilter === 'unpaid' && !h.surPaid)));
         filtered.sort((a, b) => b.ts - a.ts);
         filtered.forEach(h => {
             hasData = true; const extraPay = h.overDur * (h.baseRate || 0); totalSur += extraPay;
@@ -2566,10 +2663,9 @@
         const durMinEl = document.getElementById('hist-dur-min'); const durMaxEl = document.getElementById('hist-dur-max');
         const durMin = durMinEl && durMinEl.value !== '' ? parseInt(durMinEl.value) : null;
         const durMax = durMaxEl && durMaxEl.value !== '' ? parseInt(durMaxEl.value) : null;
-        const relayMinEl = document.getElementById('hist-relay-min'); const relayMaxEl = document.getElementById('hist-relay-max');
-        const relayMin = relayMinEl && relayMinEl.value !== '' ? parseInt(relayMinEl.value) : null;
-        const relayMax = relayMaxEl && relayMaxEl.value !== '' ? parseInt(relayMaxEl.value) : null;
-        const relayFilterVal = document.getElementById('hist-relay-filter')?.value || 'all';
+        const relayFilterVal = 'all';
+        const relayMin = null;
+        const relayMax = null;
         const tbody = document.getElementById('history-rows'); tbody.innerHTML = '';
         const startTs = startVal ? new Date(`${startVal}T00:00:00+09:00`).getTime() : 0; const endTs = endVal ? new Date(`${endVal}T23:59:59.999+09:00`).getTime() : 9999999999999;
         let total = 0;
@@ -2617,6 +2713,7 @@
 
         const filterEl = document.getElementById('relay-standalone-filter');
         const filter = filterEl ? filterEl.value : 'outside';
+        const minDurFilter = (db.autoSettings?.relayMinLogMin) || 0;
 
         db.fleet.forEach(device => {
             if (!device.relayLog || !device.relayLog.length) return;
@@ -2626,12 +2723,18 @@
                 const t = ev.onTs || ev.offTs;
                 if (!t || t < startTs || t > endTs) return;
 
+                // Минимальная длительность
+                if (minDurFilter > 0 && ev.onTs && ev.offTs) {
+                    const durMin = (ev.offTs - ev.onTs) / 60000;
+                    if (durMin < minDurFilter) return;
+                }
+
                 const histRental = db.history.find(h => {
                     const dName = h.vName.split(' ➜ ')[0];
-                    return dName === device.name && t >= h.ts && t <= (h.endTs || Date.now());
+                    return dName === device.name && t >= (h.ts - 300000) && t <= ((h.endTs || Date.now()) + 300000);
                 });
-                const activeRental = db.rentals.find(r => r.vId === device.id && t >= r.startTs);
-                const duringRental = !!(histRental || activeRental);
+                const activeRental = db.rentals.find(r => r.vId === device.id && t >= (r.startTs - 300000));
+                const duringRental = !!(histRental || activeRental || ev.duringRental);
 
                 if (filter === 'outside' && duringRental) return;
                 if (filter === 'rental' && !duringRental) return;
@@ -2640,10 +2743,9 @@
             });
         });
 
-        // Сортировка: новые сверху
         rows.sort((a, b) => b.t - a.t);
 
-        rows.forEach(({ device, ev, histRental, activeRental }) => {
+        rows.forEach(({ device, ev, histRental, activeRental, duringRental }) => {
             const fmtTs = (ts) => ts ? new Date(ts).toLocaleString('ru-RU', {timeZone:'Asia/Chita', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '—';
             const onStr = fmtTs(ev.onTs);
             const offStr = ev.offTs ? fmtTs(ev.offTs) : '—';
@@ -2660,7 +2762,7 @@
             if (activeRental) {
                 statusBadge = `<span style="background:#eff6ff;color:#1d4ed8;border-radius:4px;padding:2px 6px;font-size:0.72rem;font-weight:700;">В аренде: ${activeRental.cName}</span>`;
             } else if (histRental) {
-                statusBadge = `<span style="background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 6px;font-size:0.72rem;font-weight:700;">Аренда: ${histRental.cName}</span>`;
+                statusBadge = `<span style="background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 6px;font-size:0.72rem;font-weight:700;">В аренде: ${histRental.cName}</span>`;
             } else {
                 statusBadge = `<span style="background:#f1f5f9;color:#64748b;border-radius:4px;padding:2px 6px;font-size:0.72rem;">Вне аренды</span>`;
             }
@@ -2878,8 +2980,47 @@
 
     function togglePause(id) { const r = db.rentals.find(x => x.id === id); if(r.paused) { r.totalPause += (Date.now() - r.pauseStart); r.paused = false; logRentalAction(r, 'Снятие с паузы', ''); } else { r.pauseStart = Date.now(); r.paused = true; logRentalAction(r, 'Постановка на паузу', ''); } save(); renderActiveRentals(); }
     
-    function openExtendModal(id) { document.getElementById('swap-search').style.display = 'none'; document.getElementById('btn-do-swap').style.display = 'none'; const container = document.getElementById('swap-list-container'); container.innerHTML = ''; document.querySelector('#modal-sub h3').innerText = 'Продлить время'; const r = db.rentals.find(x => x.id === id); const cat = db.categories.find(c => c.id == r.catId); cat.tariffs.forEach(t => { container.innerHTML += `<div class="list-opt" onclick="applyExt(${id}, ${t.id})"><b>${t.name}</b> <span>${t.price}₽ (${t.type==='fix'?'+'+t.dur+'м':'Помин.'})</span></div>`; }); document.getElementById('modal-sub').style.display = 'flex'; }
-    function applyExt(rId, tId) { openConfirm('Продлить время?', () => { const r = db.rentals.find(x => x.id === rId); const cat = db.categories.find(c => c.id == r.catId); const t = cat.tariffs.find(x => x.id === tId); if(t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); logRentalAction(r, 'Продление', `+${t.dur} мин (${t.price}₽)`); } else { r.limit = 0; r.cost += parseInt(t.start || 0); logRentalAction(r, 'Продление', `Смена на поминутный`); } save(); closeModal('modal-sub'); renderActiveRentals(); }); }
+    function openExtendModal(id) {
+        const r = db.rentals.find(x => x.id === id);
+        if (!r) return;
+        const cat = db.categories.find(c => c.id == r.catId);
+        const dev = db.fleet.find(f => f.id === r.vId);
+        document.getElementById('extend-device-name').innerText = (dev ? dev.name : '') + ' — ' + r.cName;
+        const list = document.getElementById('extend-tariffs-list');
+        list.innerHTML = '';
+        (cat?.tariffs || []).forEach(t => {
+            const durLabel = t.type === 'fix' ? `+${t.dur} мин` : 'Поминутный';
+            const btn = document.createElement('button');
+            btn.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-radius:14px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;width:100%;text-align:left;transition:all 0.15s;';
+            btn.innerHTML = `<div><div style="font-size:1.05rem;font-weight:800;color:#1e293b;">${t.name}</div><div style="font-size:0.82rem;color:#64748b;margin-top:3px;">${durLabel}</div></div><div style="font-size:1.4rem;font-weight:900;color:#2563eb;">${t.price} ₽</div>`;
+            btn.ontouchstart = function() { this.style.background='#eff6ff'; this.style.borderColor='#2563eb'; };
+            btn.ontouchend = function() { this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; };
+            btn.onclick = () => openExtendConfirm(id, t);
+            list.appendChild(btn);
+        });
+        document.getElementById('modal-extend').style.display = 'flex';
+    }
+
+    function openExtendConfirm(rId, t) {
+        document.getElementById('ext-confirm-tariff').innerText = t.name;
+        document.getElementById('ext-confirm-price').innerText = t.price + ' ₽';
+        document.getElementById('ext-confirm-dur').innerText = t.type === 'fix' ? `Добавляет +${t.dur} минут` : 'Переключает на поминутный тариф';
+        const btn = document.getElementById('ext-confirm-btn');
+        btn.onclick = () => applyExt(rId, t.id);
+        document.getElementById('modal-extend-confirm').style.display = 'flex';
+    }
+
+    function applyExt(rId, tId) {
+        const r = db.rentals.find(x => x.id === rId);
+        const cat = db.categories.find(c => c.id == r.catId);
+        const t = cat.tariffs.find(x => x.id === tId);
+        if (t.type === 'fix') { r.limit += parseInt(t.dur); r.cost += parseInt(t.price); logRentalAction(r, 'Продление', `+${t.dur} мин (${t.price}₽)`); }
+        else { r.limit = 0; r.cost += parseInt(t.start || 0); logRentalAction(r, 'Продление', `Смена на поминутный`); }
+        save();
+        closeModal('modal-extend-confirm');
+        closeModal('modal-extend');
+        renderActiveRentals();
+    }
 
     function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) { h.deleted = !h.deleted; if(!h.actionLog) h.actionLog = []; h.actionLog.push({ ts: Date.now(), user: window.currentUserEmail || 'Неизвестный', action: h.deleted ? 'Удаление' : 'Восстановление', details: '' }); h.lastUser = window.currentUserEmail || 'Неизвестный'; save(); renderHistory(); } })); }
     
@@ -2968,7 +3109,15 @@
     function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
     function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
     function saveCat() { openConfirm('Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
-    function closeModal(id) { document.getElementById(id).style.display='none'; if(id==='modal-sub'){ document.getElementById('swap-search').style.display='block'; document.getElementById('btn-do-swap').style.display='block'; document.querySelector('#modal-sub h3').innerText='🔄 Замена устройства'; } }
+    function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+        if (id === 'modal-sub') {
+            document.getElementById('swap-search').style.display = 'block';
+            document.getElementById('btn-do-swap').style.display = 'block';
+            document.querySelector('#modal-sub h3').innerText = '🔄 Замена устройства';
+        }
+    }
     function fullReset() { authWrapper(() => openConfirm('СБРОСИТЬ ВСЁ?', () => { localStorage.removeItem('rm_final_keyboard_fix'); location.reload(); })); }
     function forceUploadToCloud() { if(confirm('Вы уверены? Это перезапишет облако!')) { if(window.sendToCloud) { window.sendToCloud(db); alert('Отправлено!'); } else alert('Нет связи'); } }
 
@@ -3020,7 +3169,7 @@
     function initializeAPIKeys() {
         if (!db.apiKeys) db.apiKeys = [];
         if (!db.apiSettings) db.apiSettings = { showSMS: true, showInternet: true };
-        if (!db.autoSettings) db.autoSettings = { autoOff: false, autoOffMethod: 'internet', autoOn: false, autoOnMethod: 'internet', autoOffOnDeselect: false, autoOffOnDeselectMethod: 'internet' };
+        if (!db.autoSettings) db.autoSettings = { autoOff: false, autoOffMethod: 'internet', autoOn: false, autoOnMethod: 'internet', autoOffOnDeselect: false, autoOffOnDeselectMethod: 'internet', autoOffOnFinish: false, autoOffOnFinishMethod: 'internet' };
         renderAPIPanel();
         renderAutoRelayPanel();
     }
@@ -3315,13 +3464,47 @@
     function renderAutoRelayPanel() {
         const panel = document.getElementById('auto-relay-settings-panel');
         if (!panel) return;
-        if (!db.autoSettings) db.autoSettings = { autoOff: false, autoOffMethod: 'internet', autoOn: false, autoOnMethod: 'internet', autoOffOnDeselect: false, autoOffOnDeselectMethod: 'internet', swapAutoRelay: false, swapAutoRelayMethod: 'internet' };
+        if (!db.autoSettings) db.autoSettings = {};
+        if (db.autoSettings.autoOff === undefined) db.autoSettings.autoOff = false;
+        if (db.autoSettings.autoOffMethod === undefined) db.autoSettings.autoOffMethod = 'internet';
+        if (db.autoSettings.autoOn === undefined) db.autoSettings.autoOn = false;
+        if (db.autoSettings.autoOnMethod === undefined) db.autoSettings.autoOnMethod = 'internet';
+        if (db.autoSettings.autoOffOnDeselect === undefined) db.autoSettings.autoOffOnDeselect = false;
+        if (db.autoSettings.autoOffOnDeselectMethod === undefined) db.autoSettings.autoOffOnDeselectMethod = 'internet';
+        if (db.autoSettings.swapAutoRelay === undefined) db.autoSettings.swapAutoRelay = false;
+        if (db.autoSettings.swapAutoRelayMethod === undefined) db.autoSettings.swapAutoRelayMethod = 'internet';
+        if (db.autoSettings.autoOffOnFinish === undefined) db.autoSettings.autoOffOnFinish = false;
+        if (db.autoSettings.autoOffOnFinishMethod === undefined) db.autoSettings.autoOffOnFinishMethod = 'internet';
+        if (db.autoSettings.relayMinLogEnabled === undefined) db.autoSettings.relayMinLogEnabled = false;
+        if (db.autoSettings.relayMinLogMin === undefined) db.autoSettings.relayMinLogMin = 3;
         if (!db.settingsCollapsed) db.settingsCollapsed = {};
         const s = db.autoSettings;
         const isCollapsed = db.settingsCollapsed['relay'];
+        const minDur = s.relayMinLogMin !== undefined ? s.relayMinLogMin : 3;
+        const minLogOn = !!s.relayMinLogEnabled;
 
         const inner = `
         <div class="api-keys-section" style="border-color:#8b5cf6; background:#faf5ff;">
+            <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-bottom:12px;">
+                <div class="toggle-container" style="border-color:${minLogOn ? '#3b82f6' : '#cbd5e1'};margin-bottom:${minLogOn ? '10px' : '0'};">
+                    <div>
+                        <div class="toggle-label" style="color:${minLogOn ? '#1d4ed8' : '#334155'};">⏱ Фильтр минимального времени реле</div>
+                        <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">Короткие включения не сохраняются в истории</div>
+                    </div>
+                    <button class="toggle-switch ${minLogOn ? 'active' : ''}" onclick="toggleRelayMinLog()" style="background:${minLogOn ? '#3b82f6' : '#cbd5e1'};flex-shrink:0;"></button>
+                </div>
+                ${minLogOn ? `<div style="display:flex;align-items:center;gap:8px;padding:4px 0 2px 0;flex-wrap:wrap;">
+                    <span style="font-size:0.85rem;color:#334155;font-weight:600;">Минимум:</span>
+                    <input type="number" id="relay-min-log-input" value="${minDur}" min="1" max="120" style="width:70px;font-size:1rem;text-align:center;padding:6px;border:1px solid #bae6fd;border-radius:8px;margin:0;" oninput="setRelayMinLog(this.value)">
+                    <span style="font-size:0.85rem;color:#334155;">мин</span>
+                    <span style="font-size:0.72rem;color:#64748b;">— включения короче не логируются</span>
+                </div>` : ''}
+            </div>
+            <div class="toggle-container" style="border-color:${s.autoOffOnFinish ? '#dc2626' : '#cbd5e1'};">
+                <div><div class="toggle-label" style="color:${s.autoOffOnFinish ? '#dc2626' : '#334155'};">🔴 Авто-ВЫКЛ при завершении аренды</div><div style="font-size:0.75rem;color:#64748b;margin-top:2px;">При нажатии СТОП — устройство автоматически выключает реле</div></div>
+                <button class="toggle-switch ${s.autoOffOnFinish ? 'active' : ''}" onclick="toggleAutoOffOnFinish()" style="background:${s.autoOffOnFinish ? '#dc2626' : '#cbd5e1'};flex-shrink:0;"></button>
+            </div>
+            ${s.autoOffOnFinish ? `<div style="padding:10px;background:#fff;border-radius:8px;margin-bottom:10px;border:1px solid #fca5a5;"><p style="margin:0 0 8px 0;font-size:0.85rem;color:#64748b;font-weight:600;">Способ ВЫКЛ при завершении:</p><div style="display:flex;gap:8px;"><button class="btn btn-sm ${s.autoOffOnFinishMethod==='internet'?'btn-primary':'btn-secondary'}" onclick="setAutoOffOnFinishMethod('internet')"><i class="fas fa-wifi"></i> Интернет</button><button class="btn btn-sm ${s.autoOffOnFinishMethod==='sms'?'btn-danger':'btn-secondary'}" onclick="setAutoOffOnFinishMethod('sms')"><i class="fas fa-sms"></i> СМС</button></div></div>` : ''}
             <div class="toggle-container" style="border-color:${s.autoOff ? '#ef4444' : '#cbd5e1'};">
                 <div><div class="toggle-label" style="color:${s.autoOff ? '#ef4444' : '#334155'};">🔴 Авто-ВЫКЛ при истечении времени</div><div style="font-size:0.75rem;color:#64748b;margin-top:2px;">При 0:00 — команда ВЫКЛ (галочка АВТО у аренды)</div></div>
                 <button class="toggle-switch ${s.autoOff ? 'active' : ''}" onclick="toggleAutoOff()" style="background:${s.autoOff ? '#ef4444' : '#cbd5e1'};"></button>
@@ -3352,6 +3535,193 @@
         <div id="settings-body-relay" style="display:${isCollapsed ? 'none' : ''};">${inner}</div>`;
     }
 
+    function toggleRelayMinLog() {
+        if (!db.autoSettings) db.autoSettings = {};
+        db.autoSettings.relayMinLogEnabled = !db.autoSettings.relayMinLogEnabled;
+        save(); renderAutoRelayPanel();
+    }
+
+    function setRelayMinLog(val) {
+        if (!db.autoSettings) db.autoSettings = {};
+        db.autoSettings.relayMinLogMin = Math.max(1, parseInt(val) || 1);
+        save();
+    }
+
+    // ===== ВКЛАДКА РЕЛЕ =====
+    function initRelayTabDates() {
+        const today = getChitaDateString();
+        const s = document.getElementById('relay-tab-start');
+        const e = document.getElementById('relay-tab-end');
+        if (e && !e.value) e.value = today;
+        if (s && !s.value) {
+            // Default: last 7 days
+            const d = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Chita'}));
+            d.setDate(d.getDate() - 7);
+            s.value = d.toISOString().slice(0, 10);
+        }
+    }
+
+    function renderRelayTab() {
+        const tbody = document.getElementById('relay-tab-rows');
+        const empty = document.getElementById('relay-tab-empty');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const startEl = document.getElementById('relay-tab-start');
+        const endEl   = document.getElementById('relay-tab-end');
+        const searchVal = (document.getElementById('relay-tab-search')?.value || '').toLowerCase();
+        const statusFilter = document.getElementById('relay-tab-status')?.value || 'all';
+        const relayDurMinEl = document.getElementById('relay-dur-min');
+        const relayDurMaxEl = document.getElementById('relay-dur-max');
+        const relayDurMin = relayDurMinEl && relayDurMinEl.value !== '' ? parseInt(relayDurMinEl.value) : null;
+        const relayDurMax = relayDurMaxEl && relayDurMaxEl.value !== '' ? parseInt(relayDurMaxEl.value) : null;
+        // Минимальный фильтр применяется только если тумблер включён
+        const minLogEnabled = !!(db.autoSettings?.relayMinLogEnabled);
+        const minDurFilter = minLogEnabled ? ((db.autoSettings?.relayMinLogMin) || 3) : 0;
+
+        const startTs = startEl?.value ? new Date(`${startEl.value}T00:00:00+09:00`).getTime() : 0;
+        const endTs   = endEl?.value   ? new Date(`${endEl.value}T23:59:59.999+09:00`).getTime() : 9999999999999;
+
+        let rows = [];
+
+        db.fleet.forEach(device => {
+            if (!device.relayLog?.length) return;
+            if (searchVal && !device.name.toLowerCase().includes(searchVal)) return;
+            device.relayLog.forEach(ev => {
+                const t = ev.onTs || ev.offTs;
+                if (!t || t < startTs || t > endTs) return;
+
+                // Определяем: было ли устройство в аренде в момент события
+                // +300000ms (5 мин) — отсрочка: устройство могло быть выбрано ещё на стадии оформления
+                const histRental = db.history.find(h => {
+                    const dName = h.vName.split(' ➜ ')[0];
+                    return dName === device.name && t >= (h.ts - 300000) && t <= ((h.endTs || Date.now()) + 300000);
+                });
+                const activeRental = db.rentals.find(r => r.vId === device.id && t >= (r.startTs - 300000));
+                const duringRental = !!(histRental || activeRental || ev.duringRental);
+
+                if (statusFilter === 'rental' && !duringRental) return;
+                if (statusFilter === 'outside' && duringRental) return;
+
+                // Фильтр по минимальной длительности (только если тумблер включён)
+                if (minDurFilter > 0 && ev.onTs && ev.offTs) {
+                    const durMin = (ev.offTs - ev.onTs) / 60000;
+                    if (durMin < minDurFilter) return;
+                }
+                // Активные сессии (ещё не выключены) — не фильтруем по длительности
+
+                // Фильтр по диапазону длительности (поле "Включено мин: от — до")
+                if (relayDurMin !== null || relayDurMax !== null) {
+                    const durCalc = ev.durationMin != null
+                        ? ev.durationMin
+                        : (ev.onTs && ev.offTs ? Math.round((ev.offTs - ev.onTs) / 60000)
+                        : (ev.onTs ? Math.round((Date.now() - ev.onTs) / 60000) : null));
+                    if (durCalc === null) return;
+                    if (relayDurMin !== null && durCalc < relayDurMin) return;
+                    if (relayDurMax !== null && durCalc > relayDurMax) return;
+                }
+
+                rows.push({ device, ev, t, histRental, activeRental, duringRental });
+            });
+        });
+
+        rows.sort((a, b) => b.t - a.t);
+
+        const fmt = ts => ts ? new Date(ts).toLocaleString('ru-RU', {timeZone:'Asia/Chita', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '—';
+
+        rows.forEach(({ device, ev, histRental, activeRental, duringRental }) => {
+            const isActive = ev.onTs && !ev.offTs; // реле ещё включено
+            const durMin = ev.durationMin != null
+                ? ev.durationMin
+                : (ev.onTs && ev.offTs ? Math.round((ev.offTs - ev.onTs) / 60000)
+                : (ev.onTs ? Math.round((Date.now() - ev.onTs) / 60000) : null));
+            const durStr = isActive
+                ? `<b style="color:#22c55e;">▶ ${durMin ?? '?'} мин</b>`
+                : (durMin != null ? `<b>${durMin} мин</b>` : '—');
+
+            const offCell = isActive
+                ? `<td style="color:#22c55e;font-size:0.82rem;font-weight:700;">▶ Активно</td>`
+                : `<td style="color:#ef4444;font-size:0.82rem;">${fmt(ev.offTs)}</td>`;
+
+            const onUser = getUserAlias(ev.user || '');
+            const offUser = isActive ? '' : getUserAlias(ev.offUser || '');
+            const onMethod = ev.method || '';
+            const offMethod = isActive ? '' : (ev.offMethod || '');
+
+            let statusBadge;
+            if (activeRental) {
+                statusBadge = `<span style="background:#eff6ff;color:#1d4ed8;border-radius:4px;padding:2px 6px;font-size:0.72rem;font-weight:700;">В аренде: ${activeRental.cName}</span>`;
+            } else if (histRental) {
+                statusBadge = `<span style="background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 6px;font-size:0.72rem;font-weight:700;">В аренде: ${histRental.cName}</span>`;
+            } else {
+                statusBadge = `<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 6px;font-size:0.72rem;font-weight:700;">⚠ Вне аренды</span>`;
+            }
+
+            // Строки "вне аренды" выделяем желтоватым фоном
+            const rowStyle = !duringRental ? 'background:#fffbeb;' : '';
+
+            const tr = document.createElement('tr');
+            tr.style.cssText = rowStyle;
+            tr.innerHTML = `
+                <td><b style="color:${device.color}">${device.name}</b></td>
+                <td style="color:#22c55e;font-size:0.82rem;">${fmt(ev.onTs)}</td>
+                ${offCell}
+                <td style="text-align:center;">${durStr}</td>
+                <td style="font-size:0.78rem;"><div style="color:#3b82f6;">${onUser}</div><div style="color:#94a3b8;">${onMethod}</div></td>
+                <td style="font-size:0.78rem;"><div style="color:#ef4444;">${offUser}</div><div style="color:#94a3b8;">${offMethod}</div></td>
+                <td>${statusBadge}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        if (empty) empty.style.display = rows.length ? 'none' : 'block';
+    }
+
+    // ===== СОЗДАТЬ КЛИЕНТА ВРУЧНУЮ =====
+    function openCreateClientModal() {
+        let ex = document.getElementById('modal-create-client'); if (ex) ex.remove();
+        const modal = document.createElement('div');
+        modal.id = 'modal-create-client';
+        modal.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;justify-content:center;align-items:center;';
+        modal.onclick = e => { if (e.target === modal) modal.remove(); e.stopPropagation(); };
+        modal.innerHTML = `
+        <div style="background:#fff;border-radius:16px;padding:22px;width:92%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <h3 style="margin:0;">👤 Новый клиент</h3>
+                <button onclick="document.getElementById('modal-create-client').remove()" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1rem;color:#64748b;">✕</button>
+            </div>
+            <input type="text" id="new-cl-name" placeholder="Имя клиента *" style="margin-bottom:8px;">
+            <input type="tel" id="new-cl-phone" placeholder="Телефон *" style="margin-bottom:8px;">
+            <textarea id="new-cl-comment" placeholder="Комментарий" rows="2" style="margin-bottom:12px;resize:vertical;width:100%;box-sizing:border-box;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:0.9rem;"></textarea>
+            <button class="btn btn-primary" style="width:100%;" onclick="saveNewClient()"><i class="fas fa-user-plus"></i> Создать клиента</button>
+        </div>`;
+        document.body.appendChild(modal);
+        setTimeout(() => document.getElementById('new-cl-name')?.focus(), 100);
+    }
+
+    function saveNewClient() {
+        const name = (document.getElementById('new-cl-name')?.value || '').trim();
+        const phone = (document.getElementById('new-cl-phone')?.value || '').trim();
+        if (!name) { showNotification('warning', 'Ошибка', 'Введите имя клиента'); return; }
+        if (!phone) { showNotification('warning', 'Ошибка', 'Введите телефон'); return; }
+        const newId = Date.now();
+        const comment = document.getElementById('new-cl-comment')?.value || '';
+        db.clients.push({ id: newId, name, phone, comment, blocked: false, bonusMin: 0 });
+        save(); renderClients();
+        document.getElementById('modal-create-client')?.remove();
+        showNotification('success', 'Клиент создан', name);
+    }
+
+    // ===== ФИЛЬТР ДОПЛАТ =====
+    let surchargeFilter = 'all';
+    function setSurchargeFilter(f) {
+        surchargeFilter = f;
+        ['all','unpaid','paid'].forEach(k => {
+            const btn = document.getElementById('sfilter-' + k);
+            if (btn) { btn.className = 'btn btn-sm ' + (k === f ? 'btn-primary' : 'btn-secondary'); }
+        });
+        renderSurcharge();
+    }
+
     function toggleAutoOff() { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.autoOff=!db.autoSettings.autoOff; save(); renderAutoRelayPanel(); renderActiveRentals(); }
     function toggleAutoOn() { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.autoOn=!db.autoSettings.autoOn; save(); renderAutoRelayPanel(); }
     function setAutoOffMethod(m) { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.autoOffMethod=m; save(); renderAutoRelayPanel(); }
@@ -3360,6 +3730,8 @@
     function setAutoOffDeselectMethod(m) { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.autoOffOnDeselectMethod=m; save(); renderAutoRelayPanel(); }
     function toggleSwapAutoRelay() { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.swapAutoRelay=!db.autoSettings.swapAutoRelay; save(); renderAutoRelayPanel(); }
     function setSwapAutoRelayMethod(m) { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.swapAutoRelayMethod=m; save(); renderAutoRelayPanel(); }
+    function toggleAutoOffOnFinish() { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.autoOffOnFinish=!db.autoSettings.autoOffOnFinish; save(); renderAutoRelayPanel(); }
+    function setAutoOffOnFinishMethod(m) { if(!db.autoSettings)db.autoSettings={}; db.autoSettings.autoOffOnFinishMethod=m; save(); renderAutoRelayPanel(); }
 
     // Silent command — without modal notification
     function sendSmartCommandSilent(deviceId, commandType) {
@@ -3406,18 +3778,25 @@
             if (!device.commandHistory) device.commandHistory = [];
             const nowTs = Date.now();
             device.commandHistory.push({ timestamp, ts: nowTs, user: userName, action: isOn ? 'ВКЛЮЧЕНО' : 'ОТКЛЮЧЕНО', method, command: commandType });
-            // relayLog
+            // relayLog — всегда пишем
             if (!device.relayLog) device.relayLog = [];
             const isInRental = db.rentals.some(r => r.vId === device.id);
-            if (!isInRental) {
-                if (isOn) {
-                    device.relayLog.push({ id: nowTs, onTs: nowTs, offTs: null, user: userName, method, durationMin: null });
-                } else {
-                    const lastOn = [...device.relayLog].reverse().find(r => r.offTs === null);
-                    if (lastOn) { lastOn.offTs = nowTs; lastOn.durationMin = Math.round((nowTs - lastOn.onTs) / 60000); lastOn.offUser = userName; lastOn.offMethod = method; }
-                }
-                if (device.relayLog.length > 200) device.relayLog = device.relayLog.slice(-200);
+            const minLogEnabled = !!(db.autoSettings?.relayMinLogEnabled);
+            const minLogMin = minLogEnabled ? ((db.autoSettings?.relayMinLogMin) || 3) : 0;
+            if (isOn) {
+                device.relayLog.push({ id: nowTs, onTs: nowTs, offTs: null, user: userName, method, durationMin: null, duringRental: isInRental });
+            } else {
+                const lastOn = [...device.relayLog].reverse().find(r => r.offTs === null);
+                if (lastOn) {
+                    lastOn.offTs = nowTs;
+                    lastOn.durationMin = Math.round((nowTs - lastOn.onTs) / 60000);
+                    lastOn.offUser = userName; lastOn.offMethod = method;
+                    if (minLogMin > 0 && lastOn.durationMin < minLogMin) {
+                        device.relayLog = device.relayLog.filter(r => r !== lastOn);
+                    }
+                } else { device.relayLog.push({ id: nowTs, onTs: null, offTs: nowTs, user: userName, method, durationMin: null, duringRental: isInRental }); }
             }
+            if (device.relayLog.length > 300) device.relayLog = device.relayLog.slice(-300);
             save();
         }
     }
@@ -3558,43 +3937,37 @@
                 command: commandType
             });
 
-            // --- Standalone relay log (вне аренды) ---
+            // --- Relay log (всегда пишем, независимо от аренды) ---
             if (!device.relayLog) device.relayLog = [];
             const isInRental = db.rentals.some(r => r.vId === device.id);
-            if (!isInRental) {
-                if (isOn) {
-                    // Новая сессия включения
-                    device.relayLog.push({
-                        id: nowTs,
-                        onTs: nowTs,
-                        offTs: null,
-                        user: userName,
-                        method: method,
-                        durationMin: null
-                    });
-                } else {
-                    // Закрываем последнюю открытую сессию
-                    const lastOn = [...device.relayLog].reverse().find(r => r.offTs === null);
-                    if (lastOn) {
-                        lastOn.offTs = nowTs;
-                        lastOn.durationMin = Math.round((nowTs - lastOn.onTs) / 60000);
-                        lastOn.offUser = userName;
-                        lastOn.offMethod = method;
-                    } else {
-                        // Выключение без предшествующего включения — фиксируем
-                        device.relayLog.push({
-                            id: nowTs,
-                            onTs: null,
-                            offTs: nowTs,
-                            user: userName,
-                            method: method,
-                            durationMin: null
-                        });
+            const minLogEnabled = !!(db.autoSettings?.relayMinLogEnabled);
+            const minLogMin = minLogEnabled ? ((db.autoSettings?.relayMinLogMin) || 3) : 0;
+            if (isOn) {
+                device.relayLog.push({
+                    id: nowTs, onTs: nowTs, offTs: null,
+                    user: userName, method: method, durationMin: null,
+                    duringRental: isInRental
+                });
+            } else {
+                const lastOn = [...device.relayLog].reverse().find(r => r.offTs === null);
+                if (lastOn) {
+                    lastOn.offTs = nowTs;
+                    lastOn.durationMin = Math.round((nowTs - lastOn.onTs) / 60000);
+                    lastOn.offUser = userName;
+                    lastOn.offMethod = method;
+                    // Удаляем запись если короче минимума
+                    if (minLogMin > 0 && lastOn.durationMin < minLogMin) {
+                        device.relayLog = device.relayLog.filter(r => r !== lastOn);
                     }
+                } else {
+                    device.relayLog.push({
+                        id: nowTs, onTs: null, offTs: nowTs,
+                        user: userName, method: method, durationMin: null,
+                        duringRental: isInRental
+                    });
                 }
-                // Храним только последние 200 записей
-                if (device.relayLog.length > 200) device.relayLog = device.relayLog.slice(-200);
             }
+            if (device.relayLog.length > 300) device.relayLog = device.relayLog.slice(-300);
 
             // Показываем уведомление
             const notificationType = isOn ? 'success' : 'danger';
@@ -3611,19 +3984,48 @@
 
     init();
 
+    // Restart timer when screen wakes (Android Samsung Internet kills intervals on sleep)
+    function startTimer() {
+        // Use recursive setTimeout — more reliable than setInterval on Samsung Internet
+        if (window._tickTimeout) clearTimeout(window._tickTimeout);
+        if (window._tickInterval) { clearInterval(window._tickInterval); window._tickInterval = null; }
+        function schedTick() {
+            tick();
+            window._tickTimeout = setTimeout(schedTick, 500);
+        }
+        schedTick();
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) { startTimer(); }
+    });
+    document.addEventListener('touchstart', () => {
+        // Restart timer on first touch if stopped (Samsung Internet power saver)
+        if (!window._tickTimeout) startTimer();
+    }, {passive: true});
+
     // ==========================================
     // ===== МАССОВОЕ УПРАВЛЕНИЕ ПИТАНИЕМ =======
     // ==========================================
     let bulkSelectedDevices = new Set();
     let bulkCurrentAction = null;
-    let bulkFilter = 'all'; // 'all' | 'rental' | 'off'
+    let bulkFilter = 'rental'; // 'all' | 'rental' | 'off'
 
     function setBulkFilter(f) {
         bulkFilter = f;
+        // Сбрасываем все кнопки фильтра
         document.querySelectorAll('[id^="bulk-filter-"]').forEach(btn => {
+            btn.style.background = '';
+            btn.style.color = '';
             btn.className = 'btn btn-sm btn-secondary';
+            btn.style.borderRadius = '20px';
         });
-        document.getElementById('bulk-filter-' + f).className = 'btn btn-sm btn-primary';
+        const active = document.getElementById('bulk-filter-' + f);
+        if (active) {
+            active.style.background = '#f59e0b';
+            active.style.color = '#1c1917';
+            active.style.border = 'none';
+            active.className = 'btn btn-sm';
+        }
         bulkSelectedDevices = new Set();
         updateBulkCount();
         renderBulkDeviceList();
@@ -3632,14 +4034,48 @@
     function openBulkRelayModal() {
         bulkSelectedDevices = new Set();
         bulkCurrentAction = null;
-        bulkFilter = 'rental'; // по умолчанию — В аренде
-        document.querySelectorAll('[id^="bulk-filter-"]').forEach(btn => btn.className = 'btn btn-sm btn-secondary');
-        document.getElementById('bulk-filter-rental').className = 'btn btn-sm btn-primary';
+        bulkFilter = 'rental';
+        // Сбросить фильтры визуально
+        document.querySelectorAll('[id^="bulk-filter-"]').forEach(btn => {
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.className = 'btn btn-sm btn-secondary';
+            btn.style.borderRadius = '20px';
+        });
+        const rentalBtn = document.getElementById('bulk-filter-rental');
+        if (rentalBtn) { rentalBtn.style.background = '#f59e0b'; rentalBtn.style.color = '#1c1917'; rentalBtn.style.border = 'none'; rentalBtn.className = 'btn btn-sm'; }
         document.getElementById('bulk-select-all').checked = false;
         document.getElementById('bulk-selected-count').innerText = '0 выбрано';
         renderBulkDeviceList();
         document.getElementById('modal-bulk-relay').style.display = 'flex';
     }
+
+    // Инициализация кнопки РЕЛЕ — двойное нажатие через click-счётчик
+    function initBulkPowerBtn() {
+        const btn = document.getElementById('btn-relay-mass');
+        if (!btn) return;
+        let tapCount = 0, tapTimer = null;
+        btn.addEventListener('click', function() {
+            tapCount++;
+            const hint = document.getElementById('btn-relay-mass-hint');
+            if (tapCount === 1) {
+                if (hint) hint.textContent = '← ещё!';
+                btn.style.opacity = '0.65';
+                tapTimer = setTimeout(() => {
+                    tapCount = 0;
+                    btn.style.opacity = '1';
+                    if (hint) hint.textContent = '(2x)';
+                }, 700);
+            } else {
+                clearTimeout(tapTimer);
+                tapCount = 0;
+                btn.style.opacity = '1';
+                if (hint) hint.textContent = '(2x)';
+                openBulkRelayModal();
+            }
+        });
+    }
+    setTimeout(initBulkPowerBtn, 400);
 
     function getFilteredBulkDevices() {
         const activeRentalMap = {};
@@ -3665,13 +4101,13 @@
         });
 
         if (devices.length === 0) {
-            list.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">Нет устройств по фильтру</div>';
+            list.innerHTML = '<div style="padding:24px;text-align:center;color:#94a3b8;font-size:0.9rem;">Нет устройств по фильтру</div>';
             return;
         }
 
         devices.forEach(device => {
             const rental = activeRentalMap[device.id];
-            let timeBlock = '';
+            let timerHtml = '';
             if (rental) {
                 const left = getTimeLeft(rental);
                 const absLeft = Math.abs(left);
@@ -3679,26 +4115,28 @@
                 const secs = Math.floor((absLeft % 60000) / 1000);
                 const tStr = `${mins}:${String(secs).padStart(2,'0')}`;
                 if (left < 0) {
-                    timeBlock = `<div style="text-align:right;"><div style="color:#ef4444;font-weight:800;font-size:1rem;">-${tStr}</div><div style="font-size:0.65rem;color:#ef4444;">ПЕРЕРАСХОД</div></div>`;
+                    timerHtml = `<div style="text-align:right;line-height:1.2;"><div style="color:#ef4444;font-weight:900;font-size:1.1rem;">-${tStr}</div><div style="font-size:0.62rem;color:#ef4444;font-weight:700;">ПЕРЕРАСХОД</div></div>`;
                 } else {
-                    timeBlock = `<div style="text-align:right;"><div style="color:#f59e0b;font-weight:800;font-size:1rem;">${tStr}</div><div style="font-size:0.65rem;color:#64748b;">осталось</div></div>`;
+                    timerHtml = `<div style="text-align:right;line-height:1.2;"><div style="color:#f59e0b;font-weight:900;font-size:1.1rem;">${tStr}</div><div style="font-size:0.62rem;color:#64748b;">осталось</div></div>`;
                 }
             }
-            const statusColor = device.status === 'busy' ? '#22c55e' : '#ef4444';
+            const isOn = device.status === 'busy';
             const isChecked = bulkSelectedDevices.has(device.id) ? 'checked' : '';
-            const rentalBadge = rental ? `<span style="font-size:0.7rem;background:#eff6ff;color:#3b82f6;border-radius:4px;padding:1px 5px;margin-left:4px;">В АРЕНДЕ</span>` : '';
-            const clientInfo = rental ? `<div style="font-size:0.7rem;color:#64748b;margin-top:1px;">${rental.cName}</div>` : '';
+            const rentalBadge = rental ? `<span style="font-size:0.65rem;background:#fef3c7;color:#92400e;border-radius:10px;padding:1px 7px;margin-left:5px;font-weight:700;">В АРЕНДЕ</span>` : '';
+            const clientInfo = rental ? `<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">👤 ${rental.cName}</div>` : '';
+            const statusDot = `<span style="font-size:0.72rem;color:${isOn ? '#22c55e' : '#ef4444'};font-weight:700;">${isOn ? '● ВКЛ' : '○ ВЫКЛ'}</span>`;
+            const rowBg = bulkSelectedDevices.has(device.id) ? 'background:#fffbeb;' : '';
 
             list.innerHTML += `
-                <div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #f1f5f9;cursor:pointer;" onclick="toggleBulkDevice(${device.id})">
-                    <input type="checkbox" ${isChecked} style="width:22px;height:22px;flex-shrink:0;accent-color:var(--primary);" onclick="event.stopPropagation();" onchange="toggleBulkDevice(${device.id})">
-                    <div style="width:12px;height:12px;border-radius:50%;background:${device.color};flex-shrink:0;"></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;${rowBg}transition:background 0.1s;" onclick="toggleBulkDevice(${device.id})">
+                    <input type="checkbox" ${isChecked} style="width:22px;height:22px;flex-shrink:0;accent-color:#f59e0b;" onclick="event.stopPropagation();" onchange="toggleBulkDevice(${device.id})">
+                    <div style="width:13px;height:13px;border-radius:50%;background:${device.color};flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,0.2);"></div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-weight:700;font-size:0.95rem;">${device.name}${rentalBadge}</div>
-                        <div style="font-size:0.75rem;color:${statusColor};">${device.status === 'busy' ? '● ВКЛ' : '● ВЫКЛ'}</div>
+                        <div style="font-weight:800;font-size:0.97rem;color:#1e293b;">${device.name}${rentalBadge}</div>
+                        ${statusDot}
                         ${clientInfo}
                     </div>
-                    ${timeBlock}
+                    ${timerHtml}
                 </div>`;
         });
     }
@@ -3829,13 +4267,23 @@
         // Сортируем: последние сессии сверху
         sessions.sort((a, b) => (b.offTs || b.onTs) - (a.offTs || a.onTs));
 
-        if (sessions.length === 0) {
+        // Применяем фильтр минимальной длительности
+        const minLogMin = (db.autoSettings?.relayMinLogMin) || 0;
+        const filteredSessions = sessions.filter(({ rl }) => {
+            if (minLogMin <= 0) return true;
+            const dur = rl.durationMin !== null && rl.durationMin !== undefined
+                ? rl.durationMin
+                : (rl.onTs && rl.offTs ? Math.round((rl.offTs - rl.onTs) / 60000) : 0);
+            return dur >= minLogMin;
+        });
+
+        if (filteredSessions.length === 0) {
             c.innerHTML = '<div style="padding:20px;text-align:center;color:#999;font-size:0.9rem;">Нет завершённых сессий реле для этого устройства</div>';
             document.getElementById('modal-device-relay-log').style.display = 'flex';
             return;
         }
 
-        sessions.forEach(({ rl }) => {
+        filteredSessions.forEach(({ rl }) => {
             const fmtTs = ts => ts ? new Date(ts).toLocaleString('ru-RU', {timeZone:'Asia/Chita', day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'}) : '—';
             const onStr  = fmtTs(rl.onTs);
             const offStr = fmtTs(rl.offTs);
@@ -3853,16 +4301,16 @@
             const refTs = rl.onTs || rl.offTs;
             const histRental = db.history.find(h => {
                 const dName = h.vName.split(' ➜ ')[0];
-                return dName === device.name && refTs >= h.ts && refTs <= (h.endTs || Date.now());
+                return dName === device.name && refTs >= (h.ts - 300000) && refTs <= ((h.endTs || Date.now()) + 300000);
             });
-            const activeRental = db.rentals.find(r => r.vId === device.id);
-            const isActiveRental = activeRental && rl.onTs && rl.onTs >= activeRental.startTs;
+            const activeRental = db.rentals.find(r => r.vId === device.id && refTs >= (r.startTs - 300000));
+            const duringRental = !!(activeRental || histRental || rl.duringRental);
 
             let statusBadge;
-            if (isActiveRental) {
+            if (activeRental) {
                 statusBadge = `<span style="background:#eff6ff;color:#1d4ed8;border-radius:4px;padding:2px 7px;font-size:0.7rem;font-weight:700;">В аренде: ${activeRental.cName}</span>`;
             } else if (histRental) {
-                statusBadge = `<span style="background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 7px;font-size:0.7rem;font-weight:700;">Аренда: ${histRental.cName}</span>`;
+                statusBadge = `<span style="background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 7px;font-size:0.7rem;font-weight:700;">В аренде: ${histRental.cName}</span>`;
             } else {
                 statusBadge = `<span style="background:#f1f5f9;color:#64748b;border-radius:4px;padding:2px 7px;font-size:0.7rem;">Вне аренды</span>`;
             }
@@ -4040,8 +4488,8 @@
         if (window._lastTap[key] && (now - window._lastTap[key]) < 1200) {
             window._lastTap[key] = 0;
             if (btn) { btn.style.transform = ''; btn.style.boxShadow = ''; btn.innerText = label; }
-            // authWrapperKeepParent — окно пароля не закрывает родительский модал по клику на фон
-            authWrapperKeepParent(action);
+            // Выполняем действие напрямую — каждая функция сама управляет паролем если нужно
+            try { action(); } catch(e) { console.error(e); }
         } else {
             window._lastTap[key] = now;
             if (btn) {
@@ -4086,7 +4534,7 @@
             let list = hasTg
                 ? db.clients.filter(c => c.id !== clientId)
                 : db.clients.filter(c => c.id !== clientId && c.tgChatId);
-            if (query) list = list.filter(c => c.name.toLowerCase().includes(query) || (c.phone||''). includes(query));
+            if (query) list = list.filter(c => c.name.toLowerCase().includes(query) || (c.phone||'').includes(query));
             if (!list.length) return '<div style="padding:12px;text-align:center;color:#94a3b8;font-size:0.85rem;">Ничего не найдено</div>';
             return list.map(c => {
                 const args = hasTg ? c.id+','+clientId : clientId+','+c.id;
