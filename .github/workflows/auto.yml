@@ -2,7 +2,7 @@ name: Keep 18gps
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/6 * * * *'
 jobs:
   check:
     runs-on: ubuntu-latest
