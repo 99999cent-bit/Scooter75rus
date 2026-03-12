@@ -1,15 +1,13 @@
 name: Keep 18gps Session Alive
-
 on:
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
-
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Pings
-        run: |
-          curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -e "https://18gps.net/" "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-a7d1-40a5-d100-5db4383c33ab&custid=43232166-a7d1-40a5-d100-5db4383c33ab&mds=023ab7453fab4cc2b75fd7fd9f048c0b&mapType=GOOGLE"
-          curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -e "https://18gps.net/" "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-6084-a2a5-d100-24a41458b0bd&custid=43232166-6084-a2a5-d100-24a41458b0bd&mds=2aee2a8c78dc456eabcd2911f2951fc0&mapType=GOOGLE"
+      - name: Ping1
+        run: curl -s -A "Mozilla/5.0" "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-a7d1-40a5-d100-5db4383c33ab&custid=43232166-a7d1-40a5-d100-5db4383c33ab&mds=023ab7453fab4cc2b75fd7fd9f048c0b&mapType=GOOGLE"
+      - name: Ping2
+        run: curl -s -A "Mozilla/5.0" "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-6084-a2a5-d100-24a41458b0bd&custid=43232166-6084-a2a5-d100-24a41458b0bd&mds=2aee2a8c78dc456eabcd2911f2951fc0&mapType=GOOGLE"
