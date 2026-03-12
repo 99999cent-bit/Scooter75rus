@@ -18,5 +18,5 @@ jobs:
       
       - name: Ping
         run: |
-          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-a7d1-40a5-d100-5db4383c33ab&custid=43232166-a7d1-40a5-d100-5db4383c33ab&mds=023ab7453fab4cc2b75fd7fd9f048c0b&mapType=GOOGLE"
-          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-6084-a2a5-d100-24a41458b0bd&custid=43232166-6084-a2a5-d100-24a41458b0bd&mds=2aee2a8c78dc456eabcd2911f2951fc0&mapType=GOOGLE"
+          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-a7d1-40a5-d100-5db4383c33ab&custid=43232166-a7d1-40a5-d100-5db4383c33ab&mds=4661f21f31f84adfa7183a372f22b744&mapType=GOOGLE"
+          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-6084-a2a5-d100-24a41458b0bd&custid=43232166-6084-a2a5-d100-24a41458b0bd&mds=8dc9b50a49f3488f8a28b1b527f9686d&mapType=GOOGLE"
