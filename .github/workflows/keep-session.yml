@@ -8,32 +8,23 @@ on:
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # Увеличили до 15 минут
+    timeout-minutes: 5
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'  # Включаем кэш
-
-      - name: Install dependencies
+      - name: Ping Account 1
         run: |
-          npm ci --only=production  # Быстрее чем npm install
-
-      - name: Run browser automation
-        run: node keep-alive.js
-        env:
-          URL_1: ${{ secrets.URL_1 }}
-          URL_2: ${{ secrets.URL_2 }}
-
-      - name: Upload screenshots
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: screenshots-${{ github.run_number }}
-          path: screenshots/
-          retention-days: 3
+          curl -v \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+            -H "Accept-Language: en-US,en;q=0.5" \
+            -H "Connection: keep-alive" \
+            "${{ secrets.URL_1 }}"
+          
+      - name: Ping Account 2
+        run: |
+          curl -v \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+            -H "Accept-Language: en-US,en;q=0.5" \
+            -H "Connection: keep-alive" \
+            "${{ secrets.URL_2 }}"
