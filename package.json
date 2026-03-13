@@ -1,0 +1,16 @@
+{
+  "name": "18gps-keep-alive",
+  "version": "1.0.0",
+  "description": "Автоматическое поддержание сессий 18gps",
+  "main": "keep-alive.js",
+  "scripts": {
+    "start": "node keep-alive.js",
+    "test": "node keep-alive.js"
+  },
+  "keywords": ["18gps", "session", "keep-alive"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.7.0"
+  }
+}
