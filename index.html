@@ -240,6 +240,12 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             pointer-events: none;
         }
+        #map-pick-hint {
+            display: none; position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+            background: #1d4ed8; color: white; padding: 8px 18px; border-radius: 20px;
+            font-weight: 700; font-size: 0.85rem; z-index: 500; white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3); pointer-events: none;
+        }
         .pay-icon { font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; display: inline-block; margin-top: 2px; }
         .pay-cash { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .pay-bank { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
@@ -1718,7 +1724,13 @@
     function applyScale() {
         if (!db.scale) db.scale = 1.0;
         const wrapper = document.getElementById('app-wrapper'); const scaleDisplay = document.getElementById('scale-display');
-        wrapper.style.transform = `scale(${db.scale})`; wrapper.style.width = `${100 / db.scale}vw`; wrapper.style.height = `${100 / db.scale}dvh`;
+        // Во вкладке Гео scale НЕ применяем — иначе карта ymaps неправильно считает координаты кликов
+        const geoActive = document.getElementById('view-geo') && document.getElementById('view-geo').classList.contains('active');
+        if (geoActive) {
+            wrapper.style.transform = 'scale(1)'; wrapper.style.width = '100vw'; wrapper.style.height = '100dvh';
+        } else {
+            wrapper.style.transform = `scale(${db.scale})`; wrapper.style.width = `${100 / db.scale}vw`; wrapper.style.height = `${100 / db.scale}dvh`;
+        }
         if (scaleDisplay) scaleDisplay.innerText = Math.round(db.scale * 100) + '%';
     }
     window.addEventListener('resize', applyScale);
@@ -1932,6 +1944,8 @@
 
     function switchView(id) { if (id === 'settings') { authWrapper(() => { doSwitchView(id); }); return; } doSwitchView(id); }
     function doSwitchView(id) {
+        // При уходе с вкладки Гео — восстанавливаем масштаб
+        if (id !== 'geo') { applyScale(); }
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active')); document.getElementById('view-'+id).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active')); if(event && event.currentTarget) event.currentTarget.classList.add('active');
         // Снимаем активность с кнопки Гео при переходе на другие вкладки
@@ -4547,6 +4561,7 @@
     // ===== ПАРКОВКИ =====
     let _mapPickingMode = false;
     let _mapPickListener = null;
+    let _parkingTouchHandler = null;
 
     function _renderParkingMarkers() {
         if (!_mapYInstance) return;
@@ -4688,20 +4703,92 @@
     }
 
     function pickParkingOnMap() {
-        // Закрываем модалку, входим в режим выбора
+        if (!_mapYInstance) { showNotification('warning', 'Карта не открыта', 'Сначала откройте вкладку Карта'); return; }
+
+        // Скрываем модалку
         const modal = document.getElementById('modal-parking');
         if (modal) modal.style.display = 'none';
-        showNotification('warning', '📍 Режим выбора', 'Нажмите на карту чтобы установить точку парковки');
-        startMapPickMode((lat, lng) => {
-            // Переоткрываем панель с заполненными координатами
+
+        // Показываем подсказку
+        const hint = document.getElementById('map-pick-mode-hint');
+        if (hint) hint.style.display = 'block';
+        _mapPickingMode = true;
+        // Сбрасываем scale — иначе ymaps неверно считает координаты тапа
+        const wrapper = document.getElementById('app-wrapper');
+        if (wrapper) { wrapper.style.transform = 'scale(1)'; wrapper.style.width = '100vw'; wrapper.style.height = '100dvh'; }
+        if (_mapYInstance) { setTimeout(() => { try { _mapYInstance.container.fitToViewport(); } catch(e){} }, 50); }
+
+        // Удаляем старые обработчики
+        if (_mapPickListener) {
+            _mapYInstance.events.remove('click', _mapPickListener);
+            _mapPickListener = null;
+        }
+        if (_parkingTouchHandler) {
+            document.getElementById('ymap').removeEventListener('touchend', _parkingTouchHandler);
+            _parkingTouchHandler = null;
+        }
+
+        function finishPick(lat, lng) {
+            _mapPickingMode = false;
+            if (hint) hint.style.display = 'none';
+            // Убираем оба обработчика
+            if (_mapPickListener) { _mapYInstance.events.remove('click', _mapPickListener); _mapPickListener = null; }
+            if (_parkingTouchHandler) {
+                const el = document.getElementById('ymap');
+                if (el) el.removeEventListener('touchend', _parkingTouchHandler);
+                _parkingTouchHandler = null;
+            }
+            // Восстанавливаем масштаб
+            applyScale();
             openParkingPanel();
-            setTimeout(() => {
+            requestAnimationFrame(() => {
                 const latEl = document.getElementById('parking-lat-input');
                 const lngEl = document.getElementById('parking-lng-input');
                 if (latEl) latEl.value = lat.toFixed(6);
                 if (lngEl) lngEl.value = lng.toFixed(6);
-            }, 100);
-        });
+            });
+        }
+
+        // Обработчик через ymaps events (десктоп + часть мобильных)
+        function onPickClick(e) {
+            const coords = e.get('coords');
+            finishPick(coords[0], coords[1]);
+        }
+        _mapPickListener = onPickClick;
+        _mapYInstance.events.add('click', onPickClick);
+
+        // Резервный обработчик через touchend напрямую на контейнер (Samsung Internet)
+        function onTouchEnd(e) {
+            if (!_mapPickingMode) return;
+            const touch = e.changedTouches[0];
+            if (!touch) return;
+            try {
+                const mapEl = document.getElementById('ymap');
+                const rect = mapEl.getBoundingClientRect();
+                // rect возвращает размеры с учётом scale transform (CSS-пиксели)
+                // ymaps containerSize — размеры без scale (реальные пиксели контейнера)
+                // Поэтому делим смещение на scale, чтобы перейти в систему координат ymaps
+                const scale = db.scale || 1.0;
+                const xPx = (touch.clientX - rect.left) / scale;
+                const yPx = (touch.clientY - rect.top) / scale;
+                // Переводим в глобальные пиксели ymaps
+                const zoom = _mapYInstance.getZoom();
+                const centerGlobal = _mapYInstance.getGlobalPixelCenter();
+                const containerSize = _mapYInstance.container.getSize();
+                const globalX = centerGlobal[0] - containerSize[0] / 2 + xPx;
+                const globalY = centerGlobal[1] - containerSize[1] / 2 + yPx;
+                const coords = _mapYInstance.options.get('projection')
+                    .fromGlobalPixels([globalX, globalY], zoom);
+                finishPick(coords[0], coords[1]);
+            } catch(err) {
+                // Fallback — центр карты
+                const center = _mapYInstance.getCenter();
+                finishPick(center[0], center[1]);
+            }
+        }
+        _parkingTouchHandler = onTouchEnd;
+        const mapEl = document.getElementById('ymap');
+        if (mapEl) mapEl.addEventListener('touchend', onTouchEnd, { passive: true });
     }
 
     function fillParkingFromMap() {
@@ -5925,12 +6012,21 @@
     function openGeoTab() {
         _geoUnlocked = true;
         stopMapView(); // останавливаем GPS таймеры карты
+        // Сбрасываем масштаб враппера — иначе ymaps неверно считает координаты кликов
+        const wrapper = document.getElementById('app-wrapper');
+        wrapper.style.transform = 'scale(1)';
+        wrapper.style.width = '100vw';
+        wrapper.style.height = '100dvh';
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-btn-geo').classList.add('active');
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         const geoView = document.getElementById('view-geo');
         if (geoView) geoView.classList.add('active');
-        setTimeout(() => initGeoMap(), 200);
+        setTimeout(() => {
+            initGeoMap();
+            // Сообщаем ymaps о возможном изменении размеров контейнера
+            if (_geoYMap) { try { _geoYMap.container.fitToViewport(); } catch(e) {} }
+        }, 250);
         renderGeoZonesList();
         renderGeoHistory();
         updateGeoMasterUI();
