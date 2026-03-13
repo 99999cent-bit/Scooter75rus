@@ -18,7 +18,7 @@ jobs:
             -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
             -H "Accept-Language: en-US,en;q=0.5" \
             -H "Connection: keep-alive" \
-            "https://18gps.net/user/index.aspx?login_id=43232166-6084-a2a5-d100-24a41458b0bd&mds=95402f3160ca45ae860717f0e2b71325&father_id=43232166-6084-a2a5-d100-24a41458b0bd&isDealer=false"
+            "https://18gps.net/user/index.aspx?login_id=43232166-6084-a2a5-d100-24a41458b0bd&mds=5174eceaa3c446f4b12de35cc9983705&father_id=43232166-6084-a2a5-d100-24a41458b0bd&isDealer=false"
           
       - name: Ping Account 2
         run: |
