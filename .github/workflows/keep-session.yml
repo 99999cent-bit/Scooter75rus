@@ -3,12 +3,12 @@ name: Keep 18gps Session
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'  # Каждые 5 минут
+    - cron: '*/5 * * * *'
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15  # Увеличили до 15 минут
     
     steps:
       - name: Checkout code
@@ -18,10 +18,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'  # Включаем кэш
 
       - name: Install dependencies
         run: |
-          npm install puppeteer
+          npm ci --only=production  # Быстрее чем npm install
 
       - name: Run browser automation
         run: node keep-alive.js
@@ -35,4 +36,4 @@ jobs:
         with:
           name: screenshots-${{ github.run_number }}
           path: screenshots/
-          retention-days: 7
+          retention-days: 3
