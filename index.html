@@ -4100,26 +4100,36 @@
     async function loginAccount(accNum, login, pwd, isSilent) {
         if(!isSilent) showToastMsg(`⏳ Авторизация в ${accNum}...`, 'warning');
         
-        try {
-            // Формируем прямую ссылку с параметрами
-            const targetUrl = `https://18gps.net/LoginByUser.aspx?method=loginSystem&name=${encodeURIComponent(login)}&pwd=${encodeURIComponent(pwd)}&type=normal`;
-            
-            // Используем AllOrigins — надежный бесплатный CORS-мост для обхода блокировки браузера
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-            
-            const res = await fetch(proxyUrl);
-            const proxyData = await res.json();
-            
-            // Прокси возвращает ответ китайского сервера внутри поля .contents
-            if (proxyData.contents) {
-                const data = JSON.parse(proxyData.contents);
-                handleLoginResponse(accNum, data, isSilent);
-            } else {
-                throw new Error("Пустой ответ от прокси-сервера");
+        // Прямая ссылка на сервер
+        const targetUrl = `https://18gps.net/LoginByUser.aspx?method=loginSystem&name=${encodeURIComponent(login)}&pwd=${encodeURIComponent(pwd)}&type=normal`;
+        
+        // 3 разных бесплатных моста. Если 18gps блокирует один, берем следующий!
+        const proxies = [
+            `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+        ];
+
+        let success = false;
+        
+        for (let proxyUrl of proxies) {
+            try {
+                const res = await fetch(proxyUrl);
+                const data = await res.json();
+                
+                // Проверяем, прислал ли сервер заветный ключ
+                if (data && (data.mds || (data.key && data.key.mds))) {
+                    handleLoginResponse(accNum, data, isSilent);
+                    success = true;
+                    break; // Успех! Останавливаем перебор
+                }
+            } catch(e) {
+                console.log(`Мост не сработал, переключаюсь на резервный...`);
             }
-        } catch(e) {
-            console.error("Ошибка авторизации через прокси:", e);
-            if(!isSilent) showToastMsg(`❌ Ошибка сети авторизации ${accNum}. Сервер заблокировал запрос.`, 'danger');
+        }
+        
+        if (!success) {
+            if(!isSilent) showToastMsg(`❌ Ошибка сети ${accNum}. Сервер 18gps временно недоступен.`, 'danger');
         }
     }
     function handleLoginResponse(accNum, data, isSilent) {
