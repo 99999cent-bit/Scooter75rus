@@ -2,7 +2,7 @@ name: Keep 18gps
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/6 * * * *'
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -18,5 +18,11 @@ jobs:
       
       - name: Ping
         run: |
-          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-a7d1-40a5-d100-5db4383c33ab&custid=43232166-a7d1-40a5-d100-5db4383c33ab&mds=2c8d7383278c4873ba9d4dbd560b1883&mapType=GOOGLE"
-          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-6084-a2a5-d100-24a41458b0bd&custid=43232166-6084-a2a5-d100-24a41458b0bd&mds=63c58e49ae6e4a03a9c015a2e5244e65&mapType=GOOGLE"
+          echo "🔄 Pinging 18gps.net..."
+          echo "=== Request 1 ==="
+          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-6084-a2a5-d100-24a41458b0bd&custid=43232166-6084-a2a5-d100-24a41458b0bd&mds=40df44c809d7422299cce4271e61b5fa&mapType=GOOGLE"
+          echo ""
+          echo "=== Request 2 ==="
+          curl -s "https://18gps.net/TrackService.aspx?method=getUserAndGPSInfoUtc&school_id=43232166-a7d1-40a5-d100-5db4383c33ab&custid=43232166-a7d1-40a5-d100-5db4383c33ab&mds=ccd67b5238684f439829cfce89995901&mapType=GOOGLE"
+          echo ""
+          echo "✅ Ping completed!"
