@@ -228,9 +228,9 @@
             color: white;
             box-shadow: 0 2px 8px rgba(245,158,11,0.4);
         }
-        /* Полоска цвета устройства — справа */
+        /* Полоска цвета устройства — слева */
         .mcard-color-strip {
-            width: 6px; flex-shrink: 0; border-radius: 0 10px 10px 0;
+            width: 12px; flex-shrink: 0; border-radius: 10px 0 0 10px;
         }
         /* Пикер координат — режим */
         #map-pick-mode-hint {
@@ -604,8 +604,8 @@
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                     <span style="font-size:0.82rem;color:#64748b;font-weight:700;white-space:nowrap;">🛰</span>
                     <select id="map-interval-select" onchange="setMapInterval()" style="margin:0;width:auto;padding:5px 7px;font-size:0.8rem;">
-                        <option value="10">10с</option>
-                        <option value="15" selected>15с</option>
+                        <option value="10" selected>10с</option>
+                        <option value="15">15с</option>
                         <option value="30">30с</option>
                         <option value="60">1мин</option>
                     </select>
@@ -614,7 +614,7 @@
                         <option value="all">Все</option>
                         <option value="online">🟢 Онлайн</option>
                         <option value="offline">🔴 Офлайн</option>
-                        <option value="rented">🟡 Аренда</option>
+                        <option value="rented" selected>🟡 Аренда</option>
                     </select>
                 </div>
                 <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;">
@@ -1098,6 +1098,26 @@
                     <button class="btn btn-secondary" onclick="changeScale(0.01)" style="font-size: 1.5rem;">➕</button>
                 </div>
                 <p style="font-size:0.8rem; color:#64748b; text-align:center; margin-top:10px;">Шаг 1%. Сохраняется автоматически.</p>
+                </div>
+            </div>
+
+            <div class="card" id="settings-card-active-style">
+                <div class="settings-card-header" onclick="toggleSettingsCard('active-style')">
+                    <h2 style="margin:0;">⚡ Стиль вкладки Активные</h2>
+                    <span class="settings-card-arrow" id="settings-arrow-active-style">▼</span>
+                </div>
+                <div id="settings-body-active-style" style="display:none;">
+                    <div id="active-style-panel"><!-- renderActiveStylePanel() --></div>
+                </div>
+            </div>
+
+            <div class="card" id="settings-card-modals">
+                <div class="settings-card-header" onclick="toggleSettingsCard('modals')">
+                    <h2 style="margin:0;">💬 Подтверждения (модальные окна)</h2>
+                    <span class="settings-card-arrow" id="settings-arrow-modals">▼</span>
+                </div>
+                <div id="settings-body-modals" style="display:none;">
+                    <div id="modal-settings-panel"><!-- renderModalSettingsPanel() --></div>
                 </div>
             </div>
 
@@ -1938,7 +1958,7 @@
             const cHist = newData.history ? newData.history.length : 0; const lHist = db.history ? db.history.length : 0;
             if (cHist <= lHist) return; 
         }
-        db = { ...newData, password: newData.password || db.password || '4892', scale: newData.scale || db.scale || 1.0 };
+        db = { ...newData, password: newData.password || db.password || '4892', scale: newData.scale || db.scale || 1.0, geoSettings: (newData.geoSettings && newData.geoSettings.geozones && newData.geoSettings.geozones.length > 0) ? newData.geoSettings : (db.geoSettings || newData.geoSettings) };
         updateUI(); applyScale(); applyPriceSettings();
     }
 
@@ -1952,9 +1972,15 @@
         const geoBtn = document.getElementById('nav-btn-geo');
         if (geoBtn && id !== 'geo') geoBtn.classList.remove('active');
         if(id === 'active') renderActiveRentals(); if(id === 'new') renderNewRent(); if(id === 'clients') renderClients(); if(id === 'fleet') renderFleet();
-        if(id === 'finance') { initDeviceFilter(); renderHistory(); } if(id === 'surcharge') renderSurcharge(); if(id === 'relay') { initRelayTabDates(); renderRelayTab(); } if(id === 'settings') { renderSettingsList(); renderAutoRelayPanel(); renderBonusPanel(); renderPassCtrlPanel(); renderMapDevicesPanel(); applySettingsCollapse(); } unlockAudio();
+        if(id === 'finance') { initDeviceFilter(); renderHistory(); } if(id === 'surcharge') renderSurcharge(); if(id === 'relay') { initRelayTabDates(); renderRelayTab(); } if(id === 'settings') { renderSettingsList(); renderAutoRelayPanel(); renderBonusPanel(); renderPassCtrlPanel(); renderMapDevicesPanel(); renderActiveStylePanel(); renderModalSettingsPanel(); applySettingsCollapse(); } unlockAudio();
         if(id === 'map') { startMapView(); }
         else { stopMapView(); }
+    }
+
+    function openConfirmIfEnabled(settingKey, msg, yesCallback) {
+        const ms = db.modalSettings || {};
+        if (ms[settingKey] === false) { yesCallback(); return; }
+        openConfirm(msg, yesCallback);
     }
 
     function openConfirm(msg, yesCallback) {
@@ -2310,6 +2336,39 @@
     }
 
     function finishRental(id) {
+        // Проверяем - нужно ли показывать подтверждение
+        const ms = db.modalSettings || {};
+        if (ms.confirmFinish !== false) {
+            openFinishConfirmModal(id);
+            return;
+        }
+        _doFinishRental(id);
+    }
+
+    function openFinishConfirmModal(id) {
+        const r = db.rentals.find(x => x.id === id);
+        if (!r) return;
+        const autoS = db.autoSettings || {};
+        document.getElementById('finish-confirm-name').innerText = r.vName || '—';
+        document.getElementById('finish-confirm-client').innerText = r.cName ? ('👤 ' + r.cName) : '';
+        // Таймер
+        const tEl = document.getElementById('t-' + id);
+        document.getElementById('finish-confirm-timer').innerText = tEl ? tEl.innerText : '';
+        // Авто-выключение
+        const autoOffEl = document.getElementById('finish-confirm-autooff');
+        if (autoOffEl) autoOffEl.style.display = autoS.autoOffOnFinish ? '' : 'none';
+        // Цвет устройства
+        const devBlock = document.getElementById('finish-confirm-device');
+        if (devBlock && r.vColor) devBlock.style.borderColor = r.vColor;
+        // Кнопка подтверждения
+        const btn = document.getElementById('btn-finish-confirm-yes');
+        if (btn) {
+            btn.onclick = () => { closeModal('modal-finish-confirm'); _doFinishRental(id); };
+        }
+        document.getElementById('modal-finish-confirm').style.display = 'flex';
+    }
+
+    function _doFinishRental(id) {
         const idx = db.rentals.findIndex(x => x.id === id); 
         if (idx === -1) return;
         const r = db.rentals[idx]; 
@@ -2491,7 +2550,7 @@
             
             const statusBtn = `<button class="btn btn-sm" style="background: ${isEnabled ? '#22c55e' : '#ef4444'}; color: white;" ondblclick="toggleDeviceStatus(${f.id})" title="2x клик — переключить ВКЛ/ВЫКЛ"><i class="fas fa-circle"></i> ${isEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button>`;
             const repBtn = isRep ? `<button class="btn btn-success btn-sm" onclick="toggleRepair(${f.id})" title="В ремонт"><i class="fas fa-check"></i></button>` : `<button class="btn btn-warning btn-sm" onclick="toggleRepair(${f.id})" title="В ремонт"><i class="fas fa-wrench"></i></button>`;
-            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirm('Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))" title="Удалить"><i class="fas fa-trash"></i></button>`;
+            const delBtn = `<button class="btn btn-danger btn-sm" onclick="authWrapper(() => openConfirmIfEnabled('confirmDelete','Удалить?', () => {db.fleet=db.fleet.filter(x=>x.id!==${f.id});save();renderFleet();}))" title="Удалить"><i class="fas fa-trash"></i></button>`;
             const editBtn = `<button class="btn btn-secondary btn-sm" onclick="openEditVehicle(${f.id})" title="Редактировать имя, цвет и категорию"><i class="fas fa-pen"></i></button>`;
             const relayLogBtn = `<button class="btn btn-sm" style="background: #0f172a; color: white;" onclick="showDeviceRelayLog(${f.id})" title="История реле"><i class="fas fa-history"></i></button>`;
 
@@ -2855,11 +2914,13 @@
                 <span style="font-size:0.55rem;color:${checkboxColor};font-weight:700;line-height:1;">АВТО</span>
             </label>` : '';
             
-            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions"><button class="ar-btn relay" onclick="openRelayModal(${r.vId})"><i class="fas fa-power-off"></i><span class="ar-btn-label">РЕЛЕ</span></button><button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><span class="ar-dbl">2x</span></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><span class="ar-dbl">2x</span></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><span class="ar-dbl">2x</span></button></div>`;
+            div.innerHTML = `<div class="ar-color" style="background:${r.vColor}"></div><div class="ar-info-block" ondblclick="openSwapModal(${r.id})" title="2x клик для замены"><div class="ar-device">${r.vName} <i class="fas fa-sync-alt" style="font-size:0.6rem; opacity:0.3;"></i></div>${clientHtml}</div><div class="ar-timer-container" style="display:flex;align-items:center;gap:4px;" ondblclick="togglePause(${r.id})" title="2x клик для Паузы">${autoOffBox}<div style="display:flex;flex-direction:column;align-items:center;"><span class="ar-timer" id="t-${r.id}">--:--</span>${r.paused ? '<div style="font-size:0.7rem; color:#fbbf24; font-weight:bold;">НА ПАУЗЕ</div>' : ''}</div></div><div class="ar-actions">${isMonitor ? '' : `<button class="ar-btn relay" onclick="openRelayModal(${r.vId})"><i class="fas fa-power-off"></i><span class="ar-btn-label">РЕЛЕ</span></button>`}<button class="ar-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);" ondblclick="openQuickSwapModal(${r.id})"><i class="fas fa-exchange-alt"></i><span class="ar-btn-label">ЗАМЕНА</span><span class="ar-dbl">2x</span></button><button class="ar-btn extend" ondblclick="openExtendModal(${r.id})"><i class="fas fa-clock"></i><span class="ar-btn-label">ПРОДЛИТЬ</span><span class="ar-dbl">2x</span></button><button class="ar-btn finish" ondblclick="finishRental(${r.id})"><i class="fas fa-stop"></i><span class="ar-btn-label">СТОП</span><span class="ar-dbl">2x</span></button></div>`;
             list.appendChild(div);
         }); 
         // Убеждаемся что таймер запущен
         if (!window._tickTimeout) startTimer();
+        // Применяем стили таймера и цвета строк
+        setTimeout(() => { applyActiveStyle(); renderActiveStylePanel(); }, 0);
     }
 
     function toggleRentalAutoOff(rentalId, checked) {
@@ -3112,7 +3173,29 @@
 
     function openSwapModal(id) { currentSwapRentalId = id; document.getElementById('swap-search').value = ''; document.getElementById('btn-do-swap').disabled = true; renderSwapList(''); document.getElementById('modal-sub').style.display = 'flex'; }
     function renderSwapList(query) { const container = document.getElementById('swap-list-container'); container.innerHTML = ''; const q = query.toLowerCase(); const free = db.fleet.filter(f => f.status === 'free' && f.name.toLowerCase().includes(q)); if(free.length === 0) { container.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">Нет свободных устройств</div>'; return; } free.forEach(f => { container.innerHTML += `<label class="swap-radio-item"><input type="radio" name="swap-radio" class="swap-radio-input" value="${f.id}" onchange="document.getElementById('btn-do-swap').disabled=false"><div><div style="font-size:1.1rem; font-weight:600; color:${f.color}">${f.name}</div><small style="color:#666">Свободен</small></div></label>`; }); }
-    function finalizeSwap() { const selected = document.querySelector('input[name="swap-radio"]:checked'); if (!selected) return; openConfirm('Подтвердить замену устройства?', () => { const newVId = parseInt(selected.value); const r = db.rentals.find(x => x.id === currentSwapRentalId); const oldV = db.fleet.find(f => f.id === r.vId); if(oldV) oldV.status = 'free'; const newV = db.fleet.find(f => f.id === newVId); newV.status = 'busy'; r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId; if(!r.swapHistory) r.swapHistory = [oldV.name]; r.swapHistory.push(newV.name); logRentalAction(r, 'Замена', `${oldV.name} ➜ ${newV.name}`); applySwapRelay(oldV, newV); save(); closeModal('modal-sub'); renderActiveRentals(); }); }
+    function _doSwap(newVId) {
+        const r = db.rentals.find(x => x.id === currentSwapRentalId);
+        if (!r) return;
+        const oldV = db.fleet.find(f => f.id === r.vId);
+        if(oldV) oldV.status = 'free';
+        const newV = db.fleet.find(f => f.id === newVId);
+        newV.status = 'busy';
+        r.vId = newV.id; r.vName = newV.name; r.vColor = newV.color; r.catId = newV.catId;
+        if(!r.swapHistory) r.swapHistory = [oldV.name];
+        r.swapHistory.push(newV.name);
+        logRentalAction(r, 'Замена', `${oldV.name} ➜ ${newV.name}`);
+        applySwapRelay(oldV, newV);
+        save(); closeModal('modal-sub'); renderActiveRentals();
+    }
+
+    function finalizeSwap() {
+        const selected = document.querySelector('input[name="swap-radio"]:checked');
+        if (!selected) return;
+        const newVId = parseInt(selected.value);
+        const _ms2 = db.modalSettings || {};
+        if (_ms2.confirmSwap === false) { _doSwap(newVId); return; }
+        openConfirm('Подтвердить замену устройства?', () => { _doSwap(newVId); });
+    }
 
     function applySwapRelay(oldV, newV) {
         const autoS = db.autoSettings || {};
@@ -3240,12 +3323,30 @@
         // For dynamically rendered panels, re-render them
         if (key === 'api') { renderAPIPanel(); return; }
         if (key === 'relay') { renderAutoRelayPanel(); return; }
+        if (key === 'active-style') {
+            const body = document.getElementById('settings-body-active-style');
+            const arrow = document.getElementById('settings-arrow-active-style');
+            const isCollapsed = db.settingsCollapsed[key];
+            if (body) body.style.display = isCollapsed ? 'none' : '';
+            if (arrow) arrow.innerText = isCollapsed ? '▼' : '▲';
+            if (!isCollapsed) renderActiveStylePanel();
+            return;
+        }
+        if (key === 'modals') {
+            const body = document.getElementById('settings-body-modals');
+            const arrow = document.getElementById('settings-arrow-modals');
+            const isCollapsed = db.settingsCollapsed[key];
+            if (body) body.style.display = isCollapsed ? 'none' : '';
+            if (arrow) arrow.innerText = isCollapsed ? '▼' : '▲';
+            if (!isCollapsed) renderModalSettingsPanel();
+            return;
+        }
         applySettingsCollapse();
     }
 
     function applySettingsCollapse() {
         const col = db.settingsCollapsed || {};
-        const cards = ['profile', 'pricelist', 'qr', 'scale', 'categories', 'passctrl', 'utils', 'reset'];
+        const cards = ['profile', 'pricelist', 'qr', 'scale', 'active-style', 'modals', 'categories', 'passctrl', 'utils', 'reset'];
         cards.forEach(key => {
             const body = document.getElementById('settings-body-' + key);
             const arrow = document.getElementById('settings-arrow-' + key);
@@ -3324,6 +3425,11 @@
     }
 
     function openExtendConfirm(rId, t) {
+        const _msEx = db.modalSettings || {};
+        if (_msEx.confirmExtend === false) {
+            applyExt(rId, t.id);
+            return;
+        }
         document.getElementById('ext-confirm-tariff').innerText = t.name;
         document.getElementById('ext-confirm-price').innerText = t.price + ' ₽';
         document.getElementById('ext-confirm-dur').innerText = t.type === 'fix' ? `Добавляет +${t.dur} минут` : 'Переключает на поминутный тариф';
@@ -3344,7 +3450,7 @@
         renderActiveRentals();
     }
 
-    function toggleHistoryStatus(id) { authWrapper(() => openConfirm('Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) { h.deleted = !h.deleted; if(!h.actionLog) h.actionLog = []; h.actionLog.push({ ts: Date.now(), user: window.currentUserEmail || 'Неизвестный', action: h.deleted ? 'Удаление' : 'Восстановление', details: '' }); h.lastUser = window.currentUserEmail || 'Неизвестный'; save(); renderHistory(); } })); }
+    function toggleHistoryStatus(id) { authWrapper(() => openConfirmIfEnabled('confirmDelete','Изменить статус записи?', () => { const h = db.history.find(x => x.id === id); if(h) { h.deleted = !h.deleted; if(!h.actionLog) h.actionLog = []; h.actionLog.push({ ts: Date.now(), user: window.currentUserEmail || 'Неизвестный', action: h.deleted ? 'Удаление' : 'Восстановление', details: '' }); h.lastUser = window.currentUserEmail || 'Неизвестный'; save(); renderHistory(); } })); }
     
     function toggleRepair(id) { openConfirm('Изменить статус ремонта?', () => { const v = db.fleet.find(f => f.id === id); if (v.status === 'repair') { v.status = 'free'; } else { v.status = 'repair'; } save(); renderFleet(); if(document.getElementById('view-new').classList.contains('active')) renderNewRent(); }); }
     function saveClient() { openConfirm('Сохранить клиента?', () => { const id = parseInt(document.getElementById('edit-cl-id').value); const c = db.clients.find(x => x.id === id); c.name = document.getElementById('edit-cl-name').value; c.phone = document.getElementById('edit-cl-phone').value; c.comment = document.getElementById('edit-cl-comment').value; c.blocked = document.getElementById('edit-cl-block').checked; const bonusVal = parseInt(document.getElementById('edit-cl-bonus').value) || 0; c.bonusMin = bonusVal > 0 ? bonusVal : 0; save(); closeModal('modal-client'); renderClients(); }); }
@@ -3472,7 +3578,7 @@
     function renderCatTariffs(tariffs) { const d=document.getElementById('cat-tariffs-list'); d.innerHTML=''; if(tariffs) tariffs.forEach((t,i)=> d.innerHTML+=`<div class="list-opt">${t.name} <i class="fas fa-trash" style="color:red;" onclick="authWrapper(() => delTariff(${i}))"></i></div>`); }
     function addTariffIO() { openConfirm('Добавить тариф?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('nt-name').value; const v1=document.getElementById('nt-v1').value; const v2=document.getElementById('nt-v2').value; const type=document.getElementById('nt-type').value; if(name && v1 && v2 && id) { const c=db.categories.find(x=>x.id==id); if(!c.tariffs)c.tariffs=[]; c.tariffs.push({id:Date.now(), type, name, dur:v1, price:v2, start:v1, min:v2}); renderCatTariffs(c.tariffs); document.getElementById('nt-name').value=''; } else if(!id) alert('Сначала сохраните категорию'); }); }
     function delTariff(i) { const id=document.getElementById('edit-cat-id').value; if(id){ const c=db.categories.find(x=>x.id==id); c.tariffs.splice(i,1); renderCatTariffs(c.tariffs); } }
-    function saveCat() { openConfirm('Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
+    function saveCat() { openConfirmIfEnabled('confirmCategory','Сохранить категорию?', () => { const id=document.getElementById('edit-cat-id').value; const name=document.getElementById('edit-cat-name').value; const rate=document.getElementById('edit-cat-rate').value; if(!name) return alert('Введите имя'); if(id) { const c=db.categories.find(x=>x.id==id); c.name=name; c.baseRate=rate; } else { db.categories.push({id:Date.now(), name, baseRate:rate, tariffs:[]}); } save(); closeModal('modal-cat'); renderSettingsList(); }); }
     function closeModal(id) {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -3491,6 +3597,11 @@
         if(document.getElementById('view-finance').classList.contains('active')) { initDeviceFilter(); renderHistory(); } 
         if(document.getElementById('view-surcharge').classList.contains('active')) renderSurcharge(); 
         applyMapTabVisibility();
+        applyGeoTabVisibility();
+        renderActiveStylePanel();
+        applyActiveStyle();
+        applyMapTimerStyle();
+        renderModalSettingsPanel();
     }
 
     // --- УВЕДОМЛЕНИЯ О СЕТИ ---
@@ -3564,6 +3675,7 @@
         inner += `<div class="toggle-container"><div class="toggle-label">📱 Показывать кнопку SMS</div><button class="toggle-switch ${db.apiSettings.showSMS ? 'active' : ''}" onclick="toggleSMSButton()"></button></div>`;
         inner += `<div class="toggle-container"><div class="toggle-label">🌐 Показывать кнопку ИНТЕРНЕТ</div><button class="toggle-switch ${db.apiSettings.showInternet ? 'active' : ''}" onclick="toggleInternetButton()"></button></div>`;
         inner += `<div class="toggle-container"><div class="toggle-label">🗺 Показывать вкладку Карта</div><button class="toggle-switch ${db.apiSettings.showMapTab ? 'active' : ''}" onclick="toggleMapTab()"></button></div>`;
+        inner += `<div class="toggle-container"><div class="toggle-label">🌍 Показывать вкладку Гео</div><button class="toggle-switch ${db.apiSettings.showGeoTab !== false ? 'active' : ''}" onclick="toggleGeoTab()"></button></div>`;
 
         // MDS ключи
         const mdsAcc1 = (db.mdsKeys && db.mdsKeys.acc1) ? db.mdsKeys.acc1 : GPS_18GPS_DEFAULT_MDS.acc1;
@@ -3905,6 +4017,25 @@
         }
     }
 
+    function toggleGeoTab() {
+        if (!db.apiSettings) db.apiSettings = {};
+        // по умолчанию вкладка видна (showGeoTab !== false)
+        db.apiSettings.showGeoTab = db.apiSettings.showGeoTab === false ? true : false;
+        save();
+        applyGeoTabVisibility();
+        renderAPIPanel();
+    }
+
+    function applyGeoTabVisibility() {
+        const btn = document.getElementById('nav-btn-geo');
+        if (!btn) return;
+        const show = !db.apiSettings || db.apiSettings.showGeoTab !== false;
+        btn.style.display = show ? '' : 'none';
+        if (!show && document.getElementById('view-geo').classList.contains('active')) {
+            doSwitchView('active');
+        }
+    }
+
     // ===== НАСТРОЙКИ УСТРОЙСТВ КАРТЫ =====
     function renderMapDevicesPanel() {
         const panel = document.getElementById('map-devices-settings-panel');
@@ -4007,6 +4138,62 @@
             <div style="font-size:0.8rem;color:#64748b;margin-bottom:6px;">Снимите галочку — устройство скроется с карты и из списка</div>
             ${checkboxes}
             ${colorRows}
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;">
+                <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:10px;">🔤 Стиль цифр устройств (карта)</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                    <div>
+                        <div style="font-size:0.72rem;color:#64748b;margin-bottom:4px;">Размер</div>
+                        <input type="range" min="1.0" max="4.0" step="0.1" value="${(mc.nameFontSize||1.7).toFixed(1)}"
+                            oninput="setMapNameStyle('fontSize',this.value);document.getElementById('map-name-size-val').innerText=parseFloat(this.value).toFixed(1)+'rem';"
+                            style="width:100%;accent-color:#3b82f6;">
+                        <span id="map-name-size-val" style="font-size:0.75rem;font-weight:700;color:#3b82f6;">${(mc.nameFontSize||1.7).toFixed(1)}rem</span>
+                    </div>
+                    <div>
+                        <div style="font-size:0.72rem;color:#64748b;margin-bottom:4px;">Цвет цифр</div>
+                        <input type="color" value="${mc.nameColor||'#1e293b'}" onchange="setMapNameStyle('color',this.value)"
+                            style="width:100%;height:34px;padding:2px;border:1px solid #cbd5e1;border-radius:6px;cursor:pointer;">
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                    <label style="display:flex;align-items:center;gap:6px;background:${mc.nameBold?'#dbeafe':'#f8fafc'};border:2px solid ${mc.nameBold?'#3b82f6':'#e2e8f0'};border-radius:8px;padding:8px 12px;cursor:pointer;flex:1;justify-content:center;user-select:none;">
+                        <input type="checkbox" ${mc.nameBold?'checked':''} onchange="setMapNameStyle('bold',this.checked)" style="width:16px;height:16px;accent-color:#3b82f6;margin:0;">
+                        <span style="font-weight:800;font-size:0.85rem;">Жирный</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;background:${mc.nameItalic?'#dbeafe':'#f8fafc'};border:2px solid ${mc.nameItalic?'#3b82f6':'#e2e8f0'};border-radius:8px;padding:8px 12px;cursor:pointer;flex:1;justify-content:center;user-select:none;">
+                        <input type="checkbox" ${mc.nameItalic?'checked':''} onchange="setMapNameStyle('italic',this.checked)" style="width:16px;height:16px;accent-color:#3b82f6;margin:0;">
+                        <span style="font-style:italic;font-size:0.85rem;">Курсив</span>
+                    </label>
+                </div>
+                <button onclick="resetMapNameStyle()" class="btn btn-sm btn-secondary" style="width:100%;">↩ Сбросить стиль цифр</button>
+            </div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;">
+                <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:10px;">⏱ Стиль таймера аренды (карта)</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                    <div>
+                        <div style="font-size:0.72rem;color:#64748b;margin-bottom:4px;">Размер</div>
+                        <input type="range" min="1.0" max="5.0" step="0.1" value="${(mc.mapTimerFontSize||2.4).toFixed(1)}"
+                            oninput="setMapTimerStyle('fontSize',this.value);document.getElementById('map-timer-size-val').innerText=parseFloat(this.value).toFixed(1)+'rem';"
+                            style="width:100%;accent-color:#f59e0b;">
+                        <span id="map-timer-size-val" style="font-size:0.75rem;font-weight:700;color:#f59e0b;">${(mc.mapTimerFontSize||2.4).toFixed(1)}rem</span>
+                    </div>
+                    <div>
+                        <div style="font-size:0.72rem;color:#64748b;margin-bottom:4px;">Цвет (норм.)</div>
+                        <input type="color" value="${mc.mapTimerColor||'#92400e'}" onchange="setMapTimerStyle('color',this.value)"
+                            style="width:100%;height:34px;padding:2px;border:1px solid #cbd5e1;border-radius:6px;cursor:pointer;">
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                    <label style="display:flex;align-items:center;gap:6px;background:${mc.mapTimerBold!==false?'#fef3c7':'#f8fafc'};border:2px solid ${mc.mapTimerBold!==false?'#f59e0b':'#e2e8f0'};border-radius:8px;padding:8px 12px;cursor:pointer;flex:1;justify-content:center;user-select:none;">
+                        <input type="checkbox" ${mc.mapTimerBold!==false?'checked':''} onchange="setMapTimerStyle('bold',this.checked)" style="width:16px;height:16px;accent-color:#f59e0b;margin:0;">
+                        <span style="font-weight:800;font-size:0.85rem;">Жирный</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;background:${mc.mapTimerItalic?'#fef3c7':'#f8fafc'};border:2px solid ${mc.mapTimerItalic?'#f59e0b':'#e2e8f0'};border-radius:8px;padding:8px 12px;cursor:pointer;flex:1;justify-content:center;user-select:none;">
+                        <input type="checkbox" ${mc.mapTimerItalic?'checked':''} onchange="setMapTimerStyle('italic',this.checked)" style="width:16px;height:16px;accent-color:#f59e0b;margin:0;">
+                        <span style="font-style:italic;font-size:0.85rem;">Курсив</span>
+                    </label>
+                </div>
+                <button onclick="resetMapTimerStyle()" class="btn btn-sm btn-secondary" style="width:100%;">↩ Сбросить стиль таймера</button>
+            </div>
             <div style="margin-top:12px;padding:10px;background:#f0fdf4;border-radius:8px;border:1px solid #86efac;font-size:0.8rem;color:#166534;">
                 ✅ Изменения применяются немедленно и сохраняются автоматически
             </div>
@@ -4089,6 +4276,256 @@
         return `rgba(${r},${g},${b},${alpha})`;
     }
 
+    function setMapNameStyle(prop, value) {
+        if (!db.mapColors) db.mapColors = {};
+        if (prop === 'fontSize') db.mapColors.nameFontSize = parseFloat(value);
+        else if (prop === 'color') db.mapColors.nameColor = value;
+        else if (prop === 'bold') db.mapColors.nameBold = value;
+        else if (prop === 'italic') db.mapColors.nameItalic = value;
+        save();
+        applyMapNameStyle();
+    }
+
+    function resetMapNameStyle() {
+        if (!db.mapColors) db.mapColors = {};
+        delete db.mapColors.nameFontSize;
+        delete db.mapColors.nameColor;
+        delete db.mapColors.nameBold;
+        delete db.mapColors.nameItalic;
+        save();
+        applyMapNameStyle();
+        renderMapDevicesPanel();
+    }
+
+    function setMapTimerStyle(prop, value) {
+        if (!db.mapColors) db.mapColors = {};
+        if (prop === 'fontSize') db.mapColors.mapTimerFontSize = parseFloat(value);
+        else if (prop === 'color') db.mapColors.mapTimerColor = value;
+        else if (prop === 'bold') db.mapColors.mapTimerBold = value;
+        else if (prop === 'italic') db.mapColors.mapTimerItalic = value;
+        save();
+        applyMapTimerStyle();
+    }
+
+    function resetMapTimerStyle() {
+        if (!db.mapColors) db.mapColors = {};
+        delete db.mapColors.mapTimerFontSize;
+        delete db.mapColors.mapTimerColor;
+        delete db.mapColors.mapTimerBold;
+        delete db.mapColors.mapTimerItalic;
+        save();
+        applyMapTimerStyle();
+        renderMapDevicesPanel();
+    }
+
+    function applyMapTimerStyle() {
+        const mc = db.mapColors || {};
+        const size = mc.mapTimerFontSize ? mc.mapTimerFontSize + 'rem' : '2.4rem';
+        const color = mc.mapTimerColor || '#92400e';
+        const fw = mc.mapTimerBold !== false ? '700' : '400';
+        const fs = mc.mapTimerItalic ? 'italic' : 'normal';
+        document.querySelectorAll('[id^="mcard-timer-"]').forEach(el => {
+            el.style.fontSize = size;
+            el.style.fontWeight = fw;
+            el.style.fontStyle = fs;
+            // Цвет применяем только если не overdue (красный мигающий)
+            if (!el.style.animation || el.style.animation === 'none' || el.style.animation === '') {
+                el.style.color = color;
+            }
+        });
+    }
+
+    function applyMapNameStyle() {
+        const mc = db.mapColors || {};
+        const size = mc.nameFontSize ? mc.nameFontSize + 'rem' : '1.7rem';
+        const color = mc.nameColor || '#1e293b';
+        const fw = mc.nameBold === false ? '400' : '800';
+        const fs = mc.nameItalic ? 'italic' : 'normal';
+        document.querySelectorAll('[id^="mcard-name-"]').forEach(el => {
+            el.style.fontSize = size;
+            el.style.color = color;
+            el.style.fontWeight = fw;
+            el.style.fontStyle = fs;
+            el.style.display = 'block';
+            el.style.visibility = 'visible';
+            el.style.opacity = '1';
+            el.style.textShadow = '0 1px 2px rgba(255,255,255,0.6)';
+        });
+    }
+
+
+
+    // ===== НАСТРОЙКИ МОДАЛЬНЫХ ОКОН =====
+    // Список всех модальных окон с описанием
+    const MODAL_DEFS = [
+        { key: 'confirmFinish',   icon: '🛑', label: 'Подтверждение завершения аренды',    desc: 'Окно «Завершить аренду?» с именем устройства и клиента перед нажатием СТОП' },
+        { key: 'confirmSwap',     icon: '🔄', label: 'Подтверждение замены устройства',     desc: 'Окно подтверждения при замене самоката во время аренды' },
+        { key: 'confirmExtend',   icon: '⏱',  label: 'Подтверждение продления аренды',     desc: 'Окно с тарифом и ценой при продлении времени аренды' },
+        { key: 'confirmDelete',   icon: '🗑',  label: 'Подтверждение удаления',             desc: 'Окно «Удалить?» при удалении устройств, тарифов и записей истории' },
+        { key: 'confirmCategory', icon: '📁',  label: 'Подтверждение сохранения категории', desc: 'Окно при создании или изменении категории/тарифа' },
+    ];
+
+    function renderModalSettingsPanel() {
+        const panel = document.getElementById('modal-settings-panel');
+        if (!panel) return;
+        const ms = db.modalSettings || {};
+        let html = '<div style="font-size:0.8rem;color:#64748b;margin-bottom:12px;">Выключите ненужные подтверждения чтобы ускорить работу</div>';
+        html += '<div style="display:flex;flex-direction:column;gap:8px;">';
+        MODAL_DEFS.forEach(def => {
+            const enabled = ms[def.key] !== false; // по умолчанию включено
+            html += `<div style="display:flex;align-items:center;gap:12px;background:${enabled?'#f0fdf4':'#f8fafc'};border:2px solid ${enabled?'#86efac':'#e2e8f0'};border-radius:12px;padding:10px 14px;transition:0.2s;">
+                <div style="font-size:1.5rem;flex-shrink:0;">${def.icon}</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:0.88rem;font-weight:700;color:#1e293b;">${def.label}</div>
+                    <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">${def.desc}</div>
+                </div>
+                <button onclick="toggleModalSetting('${def.key}')" style="
+                    width:52px;height:28px;border-radius:14px;border:none;cursor:pointer;transition:0.25s;
+                    background:${enabled?'#22c55e':'#cbd5e1'};position:relative;flex-shrink:0;" title="${enabled?'Выключить':'Включить'}">
+                    <div style="position:absolute;top:3px;${enabled?'right:3px':'left:3px'};width:22px;height:22px;background:white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.2);transition:0.25s;"></div>
+                </button>
+            </div>`;
+        });
+        html += '</div>';
+        html += '<div style="margin-top:10px;padding:8px 12px;background:#fefce8;border:1px solid #fde68a;border-radius:8px;font-size:0.78rem;color:#92400e;">💡 Подтверждения защищают от случайных нажатий. Рекомендуем оставить включёнными.</div>';
+        panel.innerHTML = html;
+    }
+
+    function toggleModalSetting(key) {
+        if (!db.modalSettings) db.modalSettings = {};
+        db.modalSettings[key] = db.modalSettings[key] === false ? true : false;
+        save();
+        renderModalSettingsPanel();
+    }
+
+    // ===== СТИЛЬ ВКЛАДКИ АКТИВНЫЕ =====
+    function renderActiveStylePanel() {
+        const panel = document.getElementById('active-style-panel');
+        if (!panel) return;
+        const as = db.activeStyle || {};
+        const allRentals = db.rentals || [];
+        let rowColorRows = '';
+        if (allRentals.length === 0) {
+            rowColorRows = '<div style="color:#94a3b8;font-size:0.85rem;padding:8px 0;">Нет активных аренд — цвета строк настраиваются здесь во время аренды</div>';
+        } else {
+            rowColorRows = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px;">';
+            allRentals.forEach(r => {
+                const savedBg = (as.rowColors || {})[r.id] || '';
+                rowColorRows += `<div style="display:flex;align-items:center;gap:6px;background:#f8fafc;border-radius:8px;padding:6px 8px;border:1px solid #e2e8f0;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:${r.vColor||'#94a3b8'};flex-shrink:0;"></div>
+                    <span style="font-size:0.82rem;font-weight:700;flex:1;">${r.vName}</span>
+                    <input type="color" value="${savedBg||'#1e1e1e'}" onchange="setActiveRowColor(${r.id},this.value)"
+                        style="width:28px;height:28px;padding:1px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;flex-shrink:0;">
+                    <button onclick="clearActiveRowColor(${r.id})" style="border:none;background:#fee2e2;color:#b91c1c;border-radius:4px;padding:2px 5px;cursor:pointer;font-size:0.7rem;flex-shrink:0;">✕</button>
+                </div>`;
+            });
+            rowColorRows += '</div>';
+        }
+        panel.innerHTML = `
+        <div style="margin-bottom:14px;">
+            <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:10px;">🔤 Стиль цифр таймера (Активные)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                <div>
+                    <div style="font-size:0.72rem;color:#64748b;margin-bottom:4px;">Размер</div>
+                    <input type="range" min="1.5" max="5.0" step="0.1" value="${(as.timerFontSize||2.8).toFixed(1)}"
+                        oninput="setActiveStyle('timerFontSize',parseFloat(this.value));document.getElementById('act-timer-size-val').innerText=parseFloat(this.value).toFixed(1)+'rem';"
+                        style="width:100%;accent-color:#3b82f6;">
+                    <span id="act-timer-size-val" style="font-size:0.75rem;font-weight:700;color:#3b82f6;">${(as.timerFontSize||2.8).toFixed(1)}rem</span>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;color:#64748b;margin-bottom:4px;">Цвет цифр (норм.)</div>
+                    <input type="color" value="${as.timerColor||'#f3f4f6'}" onchange="setActiveStyle('timerColor',this.value)"
+                        style="width:100%;height:34px;padding:2px;border:1px solid #cbd5e1;border-radius:6px;cursor:pointer;">
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <label style="display:flex;align-items:center;gap:6px;background:${as.timerBold!==false?'#dbeafe':'#f8fafc'};border:2px solid ${as.timerBold!==false?'#3b82f6':'#e2e8f0'};border-radius:8px;padding:8px 12px;cursor:pointer;flex:1;justify-content:center;user-select:none;">
+                    <input type="checkbox" ${as.timerBold!==false?'checked':''} onchange="setActiveStyle('timerBold',this.checked)" style="width:16px;height:16px;accent-color:#3b82f6;margin:0;">
+                    <span style="font-weight:800;font-size:0.85rem;">Жирный</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;background:${as.timerItalic?'#dbeafe':'#f8fafc'};border:2px solid ${as.timerItalic?'#3b82f6':'#e2e8f0'};border-radius:8px;padding:8px 12px;cursor:pointer;flex:1;justify-content:center;user-select:none;">
+                    <input type="checkbox" ${as.timerItalic?'checked':''} onchange="setActiveStyle('timerItalic',this.checked)" style="width:16px;height:16px;accent-color:#3b82f6;margin:0;">
+                    <span style="font-style:italic;font-size:0.85rem;">Курсив</span>
+                </label>
+            </div>
+        </div>
+        <div style="margin-bottom:14px;padding-top:12px;border-top:1px solid #e2e8f0;">
+            <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:10px;">🎨 Цвет строк аренды</div>
+            ${rowColorRows}
+        </div>
+        <button onclick="resetActiveStyle()" class="btn btn-sm btn-secondary" style="width:100%;margin-bottom:8px;">↩ Сбросить все стили</button>
+        <div style="padding:8px;background:#f0fdf4;border-radius:8px;border:1px solid #86efac;font-size:0.78rem;color:#166534;">
+            ✅ Изменения применяются немедленно и сохраняются
+        </div>`;
+    }
+
+    function setActiveStyle(prop, value) {
+        if (!db.activeStyle) db.activeStyle = {};
+        db.activeStyle[prop] = value;
+        save();
+        applyActiveStyle();
+    }
+
+    function setActiveRowColor(rentalId, color) {
+        if (!db.activeStyle) db.activeStyle = {};
+        if (!db.activeStyle.rowColors) db.activeStyle.rowColors = {};
+        db.activeStyle.rowColors[rentalId] = color;
+        save();
+        applyActiveRowColors();
+    }
+
+    function clearActiveRowColor(rentalId) {
+        if (!db.activeStyle || !db.activeStyle.rowColors) return;
+        delete db.activeStyle.rowColors[rentalId];
+        save();
+        applyActiveRowColors();
+        renderActiveStylePanel();
+    }
+
+    function resetActiveStyle() {
+        db.activeStyle = {};
+        save();
+        applyActiveStyle();
+        renderActiveStylePanel();
+    }
+
+    function applyActiveStyle() {
+        const as = db.activeStyle || {};
+        const size = as.timerFontSize ? as.timerFontSize + 'rem' : '2.8rem';
+        const color = as.timerColor || null;
+        const fw = as.timerBold !== false ? '700' : '400';
+        const fs = as.timerItalic ? 'italic' : 'normal';
+        document.querySelectorAll('.ar-timer').forEach(el => {
+            el.style.fontSize = size;
+            el.style.fontWeight = fw;
+            el.style.fontStyle = fs;
+            if (color && !el.classList.contains('overdue-timer') && !el.classList.contains('danger-timer') && !el.classList.contains('warn-timer')) {
+                el.style.color = color;
+            } else if (!color) {
+                el.style.color = '';
+            }
+        });
+        applyActiveRowColors();
+    }
+
+    function applyActiveRowColors() {
+        const as = db.activeStyle || {};
+        const rowColors = as.rowColors || {};
+        document.querySelectorAll('.active-row').forEach(row => {
+            const timerEl = row.querySelector('[id^="t-"]');
+            if (timerEl) {
+                const rid = parseInt(timerEl.id.replace('t-', ''));
+                if (rowColors[rid]) {
+                    row.style.setProperty('background-color', rowColors[rid], 'important');
+                    row.style.animation = 'none';
+                } else {
+                    row.style.removeProperty('background-color');
+                    row.style.animation = '';
+                }
+            }
+        });
+    }
+
     function toggleMapDevice(name, visible) {
         if (!db.mapHiddenDevices) db.mapHiddenDevices = {};
         if (visible) {
@@ -4123,7 +4560,7 @@
     let _mapGpsTimer = null;
     let _mapGpsState = {}; // name -> { isOnline, speed, lat, lng }
     let _mapTapTimers = {}; // double-tap
-    let _mapInterval = 15;
+    let _mapInterval = 10;
     let _mapCardTimer = null; // 1-sec tick for rental timers
     let _mapRotation = 0;
     let _mapRotateControl = null;
@@ -4143,7 +4580,7 @@
     function startMapView() {
         if (typeof ymaps === 'undefined') return;
         const sel = document.getElementById('map-interval-select');
-        _mapInterval = sel ? parseInt(sel.value) || 15 : 15;
+        _mapInterval = sel ? parseInt(sel.value) || 10 : 10;
         if (!_mapYInstance) {
             ymaps.ready(() => {
                 _mapYInstance = new ymaps.Map('ymap', {
@@ -4214,7 +4651,7 @@
 
     function setMapInterval() {
         const sel = document.getElementById('map-interval-select');
-        _mapInterval = parseInt(sel.value) || 15;
+        _mapInterval = parseInt(sel.value) || 10;
         if (_mapGpsTimer) { clearInterval(_mapGpsTimer); _mapGpsTimer = null; }
         _mapGpsTimer = setInterval(fetchMapGPS, _mapInterval * 1000);
     }
@@ -4346,7 +4783,7 @@
                     const dot = powerBtn.querySelector('div');
                     if (dot) {
                         dot.style.background = isOn ? 'radial-gradient(circle,#4ade80,#16a34a)' : 'radial-gradient(circle,#64748b,#334155)';
-                        dot.style.boxShadow = isOn ? '0 0 12px #4ade80aa' : 'none';
+                        dot.style.boxShadow = isOn ? '0 0 14px #4ade80aa' : 'none';
                     }
                     const spans = powerBtn.querySelectorAll('span');
                     if (spans[0]) spans[0].innerText = isOn ? 'ВКЛ' : 'ВЫКЛ';
@@ -4354,15 +4791,33 @@
             }
         });
         filterMapCards();
+        applyMapNameStyle();
+        applyMapTimerStyle();
     }
 
     function renderMapCards() {
         const list = document.getElementById('map-devices-list');
         if (!list) return;
         list.innerHTML = '';
-        const mapDevs = getMapDevices();
+        let mapDevs = getMapDevices();
         const showSMS = db.apiSettings && db.apiSettings.showSMS !== false;
         const showInternet = db.apiSettings && db.apiSettings.showInternet !== false;
+
+        // Сортировка: у кого в аренде и меньше времени (или в минусе) — вверх
+        mapDevs = mapDevs.slice().sort((a, b) => {
+            const flA = db.fleet ? db.fleet.find(f => f.name === a.name) : null;
+            const flB = db.fleet ? db.fleet.find(f => f.name === b.name) : null;
+            const rentA = flA && db.rentals ? db.rentals.find(r => r.vId === flA.id) : null;
+            const rentB = flB && db.rentals ? db.rentals.find(r => r.vId === flB.id) : null;
+            const getLeft = (r) => {
+                if (!r) return 999999999;
+                if (r.limit === 0) return 888888888;
+                const now = Date.now();
+                const pauseNow = r.paused ? (now - r.pauseStart) : 0;
+                return (r.limit * 60000) - (now - r.startTs - (r.totalPause || 0) - pauseNow);
+            };
+            return getLeft(rentA) - getLeft(rentB);
+        });
 
         mapDevs.forEach(md => {
             const fleetDev = db.fleet ? db.fleet.find(f => f.name === md.name) : null;
@@ -4389,16 +4844,16 @@
             let relayBtn = '';
             if (canRelay) {
                 const isOn = fleetDev && fleetDev.status === 'busy';
-                relayBtn = `<div style="width:70px;flex-shrink:0;display:flex;align-items:stretch;height:100%;border-left:1px solid rgba(0,0,0,0.08);">
+                relayBtn = `<div style="width:85px;flex-shrink:0;display:flex;align-items:stretch;height:100%;border-left:1px solid rgba(0,0,0,0.08);">
                     <button id="mpower-${md.name}"
                         style="flex:1;border:none;background:${isOn ? 'linear-gradient(160deg,#16a34a,#166534)' : 'linear-gradient(160deg,#334155,#1e293b)'};color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:all 0.25s;touch-action:manipulation;border-radius:0 10px 10px 0;"
                         data-devid="${devId}" data-devname="${md.name}"
                         onclick="mapPowerTap(this)">
-                        <div style="width:32px;height:32px;border-radius:50%;background:${isOn ? 'radial-gradient(circle,#4ade80,#16a34a)' : 'radial-gradient(circle,#64748b,#334155)'};box-shadow:${isOn ? '0 0 12px #4ade80aa' : 'none'};display:flex;align-items:center;justify-content:center;transition:all 0.25s;">
-                            <i class="fas fa-power-off" style="font-size:0.95rem;"></i>
+                        <div style="width:42px;height:42px;border-radius:50%;background:${isOn ? 'radial-gradient(circle,#4ade80,#16a34a)' : 'radial-gradient(circle,#64748b,#334155)'};box-shadow:${isOn ? '0 0 14px #4ade80aa' : 'none'};display:flex;align-items:center;justify-content:center;transition:all 0.25s;">
+                            <i class="fas fa-power-off" style="font-size:1.2rem;"></i>
                         </div>
-                        <span style="font-size:0.5rem;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;opacity:0.85;">${isOn ? 'ВКЛ' : 'ВЫКЛ'}</span>
-                        <span style="font-size:0.44rem;opacity:0.45;letter-spacing:0.3px;">2× тап</span>
+                        <span style="font-size:0.6rem;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;opacity:0.85;">${isOn ? 'ВКЛ' : 'ВЫКЛ'}</span>
+                        <span style="font-size:0.5rem;opacity:0.45;letter-spacing:0.3px;">2× тап</span>
                     </button>
                 </div>`;
             } else if (!devId) {
@@ -4407,7 +4862,7 @@
 
             // Таймер аренды (формат как в активных)
             const timerHtml = isRented
-                ? `<div id="mcard-timer-${md.name}" style="font-family:'Courier New',monospace;font-size:1.45rem;font-weight:700;color:#92400e;flex:1;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="mapFocusDevice('${md.name}')">--:--</div>`
+                ? `<div id="mcard-timer-${md.name}" style="font-family:'Courier New',monospace;font-size:2.4rem;font-weight:700;color:#92400e;flex:1;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="mapFocusDevice('${md.name}')">--:--</div>`
                 : `<div style="flex:1;"></div>`;
 
             // Клиент в аренде
@@ -4422,13 +4877,15 @@
             <div class="${rowClass}" id="mcard-${md.name}" data-name="${md.name}" data-status="offline" data-rented="${isRented?'yes':'no'}"
                 onclick="mapCardTap('${md.name}',event)"
                 style="user-select:none;">
+                <!-- Полоска цвета устройства слева -->
+                <div class="mcard-color-strip" style="background:${devColor};"></div>
                 <!-- Центральный блок: статус-бейдж + имя + скорость + клиент -->
                 <div style="display:flex;align-items:center;gap:8px;padding:0 10px;flex:1;min-width:0;">
                     <!-- Статусный бейдж в центре -->
                     <div class="mcard-status-badge ${badgeClass}" id="mcard-badge-${md.name}">${badgeLabel}</div>
                     <!-- Имя устройства + инфо -->
-                    <div style="display:flex;flex-direction:column;justify-content:center;min-width:0;">
-                        <div style="font-size:1.7rem;font-weight:800;color:#1e293b;line-height:1;">${md.name}</div>
+                    <div style="display:flex;flex-direction:column;justify-content:center;min-width:0;overflow:visible;">
+                        <div id="mcard-name-${md.name}" style="font-size:1.7rem;font-weight:800;color:#1e293b;line-height:1;white-space:nowrap;">${md.name}</div>
                         ${speedHtml}
                         ${rentInfo}
                     </div>
@@ -4437,8 +4894,6 @@
                 ${timerHtml}
                 <!-- Кнопка реле -->
                 ${relayBtn}
-                <!-- Полоска цвета устройства справа -->
-                <div class="mcard-color-strip" style="background:${devColor};"></div>
             </div>`;
         });
         renderMapParkingBar();
@@ -4454,6 +4909,8 @@
             }
         });
         _applyMapStatusColorVars();
+        applyMapNameStyle();
+        applyMapTimerStyle();
     }
 
     // Двойной тап по строке → приблизить карту (одиночный — нет действия)
@@ -4516,7 +4973,19 @@
                 const m = Math.floor((abs % 3600000) / 60000);
                 const s = Math.floor((abs % 60000) / 1000);
                 display = (left < 0 ? '-' : '') + (h > 0 ? String(h).padStart(2,'0') + ':' : '') + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-                el.style.color = left < 0 ? '#ef4444' : (left < 120000 ? '#f59e0b' : '#92400e');
+                if (left < 0) {
+                    el.style.color = '#ef4444';
+                    el.style.animation = 'blink 0.8s infinite';
+                } else if (left < 120000) {
+                    el.style.color = '#ef4444';
+                    el.style.animation = '';
+                } else if (left < 300000) {
+                    el.style.color = '#f59e0b';
+                    el.style.animation = '';
+                } else {
+                    el.style.color = '#92400e';
+                    el.style.animation = '';
+                }
             } else {
                 const totalSec = Math.floor(elapsed / 1000);
                 const h = Math.floor(totalSec / 3600);
@@ -4524,9 +4993,11 @@
                 const s = totalSec % 60;
                 display = (h > 0 ? String(h).padStart(2,'0') + ':' : '') + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
                 el.style.color = '#92400e';
+                el.style.animation = '';
             }
             el.innerText = display;
         });
+        applyMapTimerStyle();
     }
 
     function mapFocusDevice(name) {
@@ -4557,6 +5028,9 @@
                 _mapMarkers[name].options.set('visible', visible);
             }
         });
+        // Гарантируем видимость имён устройств после фильтрации
+        applyMapNameStyle();
+        applyMapTimerStyle();
     }
     // ===== ПАРКОВКИ =====
     let _mapPickingMode = false;
