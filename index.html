@@ -1573,26 +1573,6 @@
     </div>
 
     <!-- МОДАЛЬНОЕ ОКНО ОПЛАТЫ ДОПЛАТЫ -->
-    <div id="modal-finish-confirm" class="modal-overlay" style="z-index:300;">
-        <div class="modal-content" style="text-align:center;padding:28px 20px;max-width:340px;">
-            <div id="finish-confirm-device" style="display:inline-block;border:3px solid #e2e8f0;border-radius:12px;padding:14px 24px;margin-bottom:14px;">
-                <i class="fas fa-stop-circle" style="font-size:2.2rem;color:#ef4444;display:block;margin-bottom:6px;"></i>
-                <div id="finish-confirm-name" style="font-size:1.3rem;font-weight:800;color:#1e293b;"></div>
-                <div id="finish-confirm-client" style="font-size:0.9rem;color:#64748b;margin-top:4px;"></div>
-                <div id="finish-confirm-timer" style="font-size:1.6rem;font-weight:900;color:#ef4444;margin-top:6px;font-family:monospace;"></div>
-            </div>
-            <h3 style="margin:0 0 6px 0;color:#1e293b;">Завершить аренду?</h3>
-            <p style="color:#64748b;font-size:0.85rem;margin:0 0 20px 0;">Это действие нельзя отменить</p>
-            <div id="finish-confirm-autooff" style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px;margin-bottom:14px;font-size:0.8rem;color:#b91c1c;display:none;">
-                <i class="fas fa-power-off"></i> Реле будет выключено автоматически
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <button class="btn btn-secondary" onclick="closeModal('modal-finish-confirm')">Отмена</button>
-                <button class="btn btn-danger" id="btn-finish-confirm-yes" style="font-size:1rem;font-weight:700;">🛑 Завершить</button>
-            </div>
-        </div>
-    </div>
-
     <div id="modal-surcharge-pay" class="modal-overlay" style="z-index: 290;">
         <div class="modal-content" style="text-align:center;">
             <i class="fas fa-file-invoice-dollar" style="font-size:2.5rem; color:#f59e0b; margin-bottom:12px;"></i>
@@ -1739,9 +1719,8 @@
         requestWakeLock();
         // Фоновый автологин через 2 секунды после открытия программы
         setTimeout(() => {
-            if (db.autoLoginEnabled !== false && db.login1 && db.pass1) {
-                performAutoLogin(false);
-                startAutoLoginTimer();
+            if (db.login1 && db.pass1) {
+                performAutoLogin();
             }
         }, 2000);
     }
@@ -3727,22 +3706,41 @@
                 ${gpsApplyCount > 0 ? `<span style="margin-left:8px;background:rgba(255,255,255,0.3);border-radius:10px;padding:2px 8px;font-size:0.8rem;">${gpsApplyCount} без ID</span>` : '<span style="margin-left:8px;font-size:0.8rem;opacity:0.8;">✓ Все актуальны</span>'}
             </button>
         </div>`;
-        const mdsTs1 = db.mdsUpdated && db.mdsUpdated.acc1 ? new Date(db.mdsUpdated.acc1).toLocaleString('ru-RU') : '—';
-        const mdsTs2 = db.mdsUpdated && db.mdsUpdated.acc2 ? new Date(db.mdsUpdated.acc2).toLocaleString('ru-RU') : '—';
         inner += `
         <div style="margin-top:18px;padding-top:14px;border-top:2px dashed #e2e8f0;">
-            <button class="btn btn-success" style="width:100%; margin-bottom:8px;" onclick="performAutoLogin()">🔄 Авторизоваться</button>
-
-
-            <label style="font-size:0.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:3px;">🔑 MDS Аккаунт 1 <span style="font-weight:400;color:#94a3b8;">— обновлён: ${mdsTs1}</span></label>
-            <div style="display:flex;gap:6px;margin-bottom:10px;">
-                <input type="text" id="mds-key-acc1" value="${mdsAcc1}" style="flex:1;margin-bottom:0;font-size:0.74rem;font-family:monospace;background:#fff;" placeholder="MDS ключ аккаунта 1">
-                <button class="btn btn-primary btn-sm" onclick="saveMdsKey('acc1')" style="white-space:nowrap;flex-shrink:0;">Сохранить</button>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <div style="width:32px;height:32px;border-radius:8px;background:#3b82f6;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;flex-shrink:0;"><i class="fas fa-key"></i></div>
+                <div style="font-weight:800;color:#334155;font-size:0.95rem;">Авто-логин 18gps (MDS ключи)</div>
             </div>
-            <label style="font-size:0.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:3px;">🔑 MDS Аккаунт 2 <span style="font-weight:400;color:#94a3b8;">— обновлён: ${mdsTs2}</span></label>
-            <div style="display:flex;gap:6px;margin-bottom:4px;">
-                <input type="text" id="mds-key-acc2" value="${mdsAcc2}" style="flex:1;margin-bottom:0;font-size:0.74rem;font-family:monospace;background:#fff;" placeholder="MDS ключ аккаунта 2">
-                <button class="btn btn-primary btn-sm" onclick="saveMdsKey('acc2')" style="white-space:nowrap;flex-shrink:0;">Сохранить</button>
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px;margin-bottom:10px;font-size:0.8rem;color:#166534;">
+                Введите логин и пароль от аккаунтов. Токены будут обновляться сами!
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                <div style="flex:1; min-width:140px;">
+                    <label style="font-size:0.75rem;color:#64748b;font-weight:600;">Логин (Аккаунт 1)</label>
+                    <input type="text" id="login-acc1" value="${db.login1 || ''}" placeholder="Логин 1" style="font-size:0.8rem;margin-bottom:0;background:#fff;">
+                </div>
+                <div style="flex:1; min-width:140px;">
+                    <label style="font-size:0.75rem;color:#64748b;font-weight:600;">Пароль (Аккаунт 1)</label>
+                    <input type="password" id="pass-acc1" value="${db.pass1 || ''}" placeholder="Пароль 1" style="font-size:0.8rem;margin-bottom:0;background:#fff;">
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+                <div style="flex:1; min-width:140px;">
+                    <label style="font-size:0.75rem;color:#64748b;font-weight:600;">Логин (Аккаунт 2)</label>
+                    <input type="text" id="login-acc2" value="${db.login2 || ''}" placeholder="Логин 2" style="font-size:0.8rem;margin-bottom:0;background:#fff;">
+                </div>
+                <div style="flex:1; min-width:140px;">
+                    <label style="font-size:0.75rem;color:#64748b;font-weight:600;">Пароль (Аккаунт 2)</label>
+                    <input type="password" id="pass-acc2" value="${db.pass2 || ''}" placeholder="Пароль 2" style="font-size:0.8rem;margin-bottom:0;background:#fff;">
+                </div>
+            </div>
+            <button class="btn btn-success" style="width:100%; margin-bottom:10px;" onclick="performAutoLogin()">🔄 Сохранить и Авторизоваться</button>
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <input type="text" id="mds-key-acc1" value="${mdsAcc1}" style="flex:1;margin-bottom:0;font-size:0.75rem;font-family:monospace;background:#f1f5f9;color:#64748b;" readonly title="Обновляется автоматически" placeholder="MDS Аккаунт 1">
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:4px;">
+                <input type="text" id="mds-key-acc2" value="${mdsAcc2}" style="flex:1;margin-bottom:0;font-size:0.75rem;font-family:monospace;background:#f1f5f9;color:#64748b;" readonly title="Обновляется автоматически" placeholder="MDS Аккаунт 2">
             </div>
         </div>`;
 
@@ -4001,46 +3999,14 @@
         const val = inputEl.value.trim();
         if (!val) { showNotification('warning', 'Ошибка', 'Введите MDS ключ'); return; }
         if (!db.mdsKeys) db.mdsKeys = {};
-        if (!db.mdsUpdated) db.mdsUpdated = {};
         db.mdsKeys[acc] = val;
-        db.mdsUpdated[acc] = Date.now();
         save();
         const label = acc === 'acc1' ? 'Аккаунт 1' : 'Аккаунт 2';
         showNotification('success', 'MDS ключ сохранён', `${label}: ключ обновлён`);
-        renderAPIPanel();
     }
 
     // === АВТО-ЛОГИН 18GPS ===
-    let autoLoginTimer = null;
-
-    function toggleAutoLogin() {
-        if (db.autoLoginEnabled === undefined) db.autoLoginEnabled = true;
-        db.autoLoginEnabled = !db.autoLoginEnabled;
-        save();
-        renderAPIPanel();
-        startAutoLoginTimer();
-    }
-
-    function saveAutoLoginInterval(val) {
-        let v = parseInt(val);
-        if (isNaN(v) || v < 1) v = 720;
-        db.autoLoginInterval = v;
-        save();
-        startAutoLoginTimer();
-        showNotification('success', 'Настройки', `Интервал обновления: ${v} мин.`);
-    }
-
-    function startAutoLoginTimer() {
-        if (autoLoginTimer) { clearInterval(autoLoginTimer); autoLoginTimer = null; }
-        if (db.autoLoginEnabled !== false && db.login1 && db.pass1) {
-            const intervalMin = db.autoLoginInterval || 720;
-            autoLoginTimer = setInterval(() => {
-                performAutoLogin(true);
-            }, intervalMin * 60000);
-        }
-    }
-
-    function performAutoLogin(isSilent = false) {
+    function performAutoLogin() {
         const l1El = document.getElementById("login-acc1");
         const p1El = document.getElementById("pass-acc1");
         const l2El = document.getElementById("login-acc2");
@@ -4055,12 +4021,12 @@
         db.login2 = l2; db.pass2 = p2;
         save();
 
-        if (l1 && p1) loginAccount('acc1', l1, p1, isSilent);
-        if (l2 && p2) setTimeout(() => loginAccount('acc2', l2, p2, isSilent), 1000);
+        if (l1 && p1) loginAccount('acc1', l1, p1);
+        if (l2 && p2) setTimeout(() => loginAccount('acc2', l2, p2), 1000);
     }
 
-    async function loginAccount(accNum, login, pwd, isSilent) {
-        if (!isSilent) showToastMsg(`⏳ Авторизация в ${accNum}...`, 'warning');
+    async function loginAccount(accNum, login, pwd) {
+        showToastMsg(`⏳ Авторизация в ${accNum}...`, 'warning');
         try {
             const res = await fetch('https://18gps.net/LoginByUser.aspx?method=loginSystem', {
                 method: 'POST',
@@ -4068,16 +4034,16 @@
                 body: `name=${encodeURIComponent(login)}&pwd=${encodeURIComponent(pwd)}&type=normal`
             });
             const data = await res.json();
-            handleLoginResponse(accNum, data, isSilent);
+            handleLoginResponse(accNum, data);
         } catch(e) {
-            fallbackLoginJSONP(accNum, login, pwd, isSilent);
+            fallbackLoginJSONP(accNum, login, pwd);
         }
     }
 
-    function fallbackLoginJSONP(accNum, login, pwd, isSilent) {
+    function fallbackLoginJSONP(accNum, login, pwd) {
         const cb = "loginCB_" + accNum + "_" + Date.now();
         window[cb] = function(data) {
-            handleLoginResponse(accNum, data, isSilent);
+            handleLoginResponse(accNum, data);
             let s = document.getElementById("login-script-" + accNum);
             if (s) s.remove();
             delete window[cb];
@@ -4088,76 +4054,17 @@
         document.body.appendChild(s);
     }
 
-    function handleLoginResponse(accNum, data, isSilent) {
-        // Пробуем все возможные пути токена в ответе 18gps
-        let token = null;
-        try {
-            token = data.mds
-                || (data.key && data.key.mds)
-                || (data.data && data.data.mds)
-                || data.token
-                || data.mds_key
-                || data.mdsKey
-                || (typeof data === 'string' && data.length > 10 ? data : null)
-                || null;
-        } catch(e) { token = null; }
-
+    function handleLoginResponse(accNum, data) {
+        const token = data.mds || (data.key ? data.key.mds : null);
         if (token) {
             if (!db.mdsKeys) db.mdsKeys = {};
-            if (!db.mdsUpdated) db.mdsUpdated = {};
             db.mdsKeys[accNum] = token;
-            db.mdsUpdated[accNum] = Date.now();
-            save();
-            // Всегда обновляем поле — сразу напрямую и через перерисовку панели
             const inputEl = document.getElementById(`mds-key-${accNum}`);
             if (inputEl) inputEl.value = token;
-            // Перерисовываем панель настроек если она открыта
-            const apiPanel = document.getElementById('api-panel-inner') || document.getElementById('settings-panel') || document.getElementById('modal-settings-panel');
-            if (apiPanel && apiPanel.offsetParent !== null) {
-                renderAPIPanel();
-            }
-            if (!isSilent) {
-                showToastMsg(`✅ ${accNum === 'acc1' ? 'Аккаунт 1' : 'Аккаунт 2'}: Токен обновлён!`, 'success');
-                renderAPIPanel();
-            } else {
-                // Тихий режим — просто обновляем поле без тостов
-                const el1 = document.getElementById('mds-key-acc1');
-                const el2 = document.getElementById('mds-key-acc2');
-                if (el1 && db.mdsKeys.acc1) el1.value = db.mdsKeys.acc1;
-                if (el2 && db.mdsKeys.acc2) el2.value = db.mdsKeys.acc2;
-            }
+            save();
+            showToastMsg(`✅ ${accNum}: Токен успешно обновлен!`, 'success');
         } else {
-            // Логируем сырой ответ в консоль для диагностики
-            console.warn('18gps login response (не найден токен):', JSON.stringify(data));
-            if (!isSilent) {
-                showToastMsg(`❌ Ошибка входа ${accNum === 'acc1' ? 'Аккаунт 1' : 'Аккаунт 2'}. Проверьте логин/пароль.`, 'danger');
-            }
-        }
-    }
-
-    async function debugLoginResponse() {
-        const l1 = db.login1 || '';
-        const p1 = db.pass1 || '';
-        if (!l1 || !p1) { showToastMsg('❌ Сначала введите логин и пароль Аккаунта 1', 'danger'); return; }
-        showToastMsg('⏳ Запрос к 18gps...', 'warning');
-        try {
-            const res = await fetch('https://18gps.net/LoginByUser.aspx?method=loginSystem', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `name=${encodeURIComponent(l1)}&pwd=${encodeURIComponent(p1)}&type=normal`
-            });
-            const text = await res.text();
-            alert('Ответ 18gps (Аккаунт 1):\n\n' + text);
-        } catch(e) {
-            alert('Ошибка запроса (CORS/сеть):\n' + e.message + '\n\nПробуем JSONP...');
-            const cb = 'debugCB_' + Date.now();
-            window[cb] = function(data) {
-                alert('Ответ JSONP:\n\n' + JSON.stringify(data, null, 2));
-                delete window[cb];
-            };
-            const s = document.createElement('script');
-            s.src = `https://18gps.net/LoginByUser.aspx?method=loginSystem&name=${encodeURIComponent(l1)}&pwd=${encodeURIComponent(p1)}&type=normal&callback=${cb}`;
-            document.body.appendChild(s);
+            showToastMsg(`❌ Ошибка входа в ${accNum}. Проверьте пароль.`, 'danger');
         }
     }
 
