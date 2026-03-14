@@ -568,10 +568,17 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px;">
                     <h2 style="margin: 0; border: none; padding: 0;">📝 Оформление</h2>
-                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
                         <button class="btn btn-sm" style="background:#f97316;color:white;width:auto;font-weight:bold;padding:8px 14px;font-size:0.85rem;" onclick="openMonitorTariffs()"><i class="fas fa-tags"></i> ПРАЙС</button>
                         <button class="btn btn-sm" style="background:#229ED9;color:white;width:auto;font-weight:bold;padding:8px 14px;font-size:0.85rem;" onclick="openTgSyncSearch()" title="Синхронизация Telegram"><i class="fab fa-telegram-plane"></i> TG</button>
                         <button class="btn btn-sm" style="background:#6366f1;color:white;width:auto;font-weight:bold;padding:8px 14px;font-size:0.85rem;" onclick="openQrModal()" title="QR / Объявление"><i class="fas fa-qrcode"></i> QR</button>
+                        <div id="new-tab-mds-block" style="display:flex;align-items:center;gap:5px;">
+                            <button id="new-tab-refresh-btn" class="btn btn-sm" style="background:#22c55e;color:white;width:auto;font-weight:bold;padding:8px 12px;font-size:0.85rem;" onclick="refreshKeysNow(false)" title="Обновить MDS ключи"><i class="fas fa-sync-alt"></i> Ключи</button>
+                            <div style="display:flex;gap:3px;">
+                                <div id="mds-ind-1" title="Аккаунт 1" style="width:12px;height:12px;border-radius:50%;background:#e2e8f0;border:1px solid #cbd5e1;transition:background 0.3s;"></div>
+                                <div id="mds-ind-2" title="Аккаунт 2" style="width:12px;height:12px;border-radius:50%;background:#e2e8f0;border:1px solid #cbd5e1;transition:background 0.3s;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="input-row">
@@ -621,6 +628,11 @@
                     <div id="map-ping-status" style="font-size:0.72rem;color:#94a3b8;flex:1;">⏳ Ожидание...</div>
                     <select id="map-parking-select" onchange="flyToParkingFromSelect()" style="display:none;margin:0;padding:4px 8px;font-size:0.78rem;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-weight:700;max-width:130px;"></select>
                     <button onclick="openParkingPanel()" style="border:none;background:#3b82f6;color:#fff;border-radius:8px;padding:5px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;"><i class="fas fa-parking"></i> Парковка</button>
+                    <button id="map-my-loc-btn" onclick="toggleMyLocation()" style="border:none;border-radius:22px;padding:5px 12px;font-size:0.78rem;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;transition:all 0.3s;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 2px 8px rgba(239,68,68,0.4);" title="Моё местоположение">
+                        <span style="font-size:1rem;">📍</span>
+                        <span id="map-my-loc-label">Я</span>
+                    </button>
+                    <button id="map-my-loc-center-btn" onclick="centerOnMyLocation()" style="display:none;border:none;border-radius:22px;padding:5px 12px;font-size:0.78rem;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.3s;background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;" title="Вернуться к моему положению">🎯</button>
                     <!-- Красивая кнопка ВКЛ/ВЫКЛ GPS обновления -->
                     <button id="map-gps-toggle-btn" onclick="toggleMapGpsTracking()" style="border:none;border-radius:22px;padding:5px 14px;font-size:0.78rem;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:6px;transition:all 0.3s;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.4);" title="Вкл/Выкл GPS обновление">
                         <span id="map-gps-toggle-icon" style="font-size:1rem;">📡</span>
@@ -1132,6 +1144,10 @@
                 </div>
             </div>
 
+            <div class="card" id="filter-defaults-panel">
+                <!-- Filter defaults rendered here -->
+            </div>
+
             <div class="card" id="api-settings-panel">
                 <!-- API Settings will be rendered here -->
             </div>
@@ -1274,6 +1290,24 @@
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button class="btn btn-secondary" onclick="closeModal('modal-edit-vehicle')">Отмена</button>
                 <button class="btn btn-primary" onclick="authWrapper(() => saveEditVehicle())">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-finish-confirm" class="modal-overlay" style="z-index:300;">
+        <div class="modal-content" style="max-width:340px;">
+            <h3 style="text-align:center;">🛑 Завершить аренду?</h3>
+            <div id="finish-confirm-device" style="background:#f8fafc;border-radius:10px;padding:14px;margin:12px 0;text-align:center;border:2px solid #e2e8f0;">
+                <div id="finish-confirm-name" style="font-weight:800;font-size:1.3rem;color:#334155;"></div>
+                <div id="finish-confirm-client" style="color:#64748b;font-size:0.9rem;margin-top:4px;"></div>
+                <div id="finish-confirm-timer" style="font-size:1.1rem;font-weight:700;color:#3b82f6;margin-top:6px;"></div>
+            </div>
+            <div id="finish-confirm-autooff" style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:0.82rem;color:#713f12;display:none;">
+                ⚡ Реле будет выключено автоматически
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('modal-finish-confirm')">Отмена</button>
+                <button class="btn btn-danger" style="flex:1;" id="btn-finish-confirm-yes">✅ Завершить</button>
             </div>
         </div>
     </div>
@@ -1717,12 +1751,11 @@
             } 
         }
         requestWakeLock();
-        // Фоновый автологин через 2 секунды после открытия программы
-        setTimeout(() => {
-            if (db.login1 && db.pass1) {
-                performAutoLogin();
-            }
-        }, 2000);
+        // Прописать дефолтный GS URL если не сохранён
+        if (!db.gsUrl) {
+            db.gsUrl = 'https://script.google.com/macros/s/AKfycbzr7UGMVo5TYnxWx-JS0oVMl9WzGalQDA2VUgfBEMKIXB21hSrs2dQfeOqw_HRYVVEBhQ/exec';
+            save();
+        }
         // Запустить авто-обновление ключей если включено
         setTimeout(() => initAutoRefresh(), 3000);
     }
@@ -1966,7 +1999,25 @@
             const cHist = newData.history ? newData.history.length : 0; const lHist = db.history ? db.history.length : 0;
             if (cHist <= lHist) return; 
         }
-        db = { ...newData, password: newData.password || db.password || '4892', scale: newData.scale || db.scale || 1.0, geoSettings: (newData.geoSettings && newData.geoSettings.geozones && newData.geoSettings.geozones.length > 0) ? newData.geoSettings : (db.geoSettings || newData.geoSettings) };
+        // Защищаем важные локальные поля от перезаписи пустыми значениями из облака
+        const merged = {
+            ...newData,
+            password:   newData.password  || db.password  || '4892',
+            scale:      newData.scale     || db.scale     || 1.0,
+            login1:     newData.login1    || db.login1    || '',
+            pass1:      newData.pass1     || db.pass1     || '',
+            login2:     newData.login2    || db.login2    || '',
+            pass2:      newData.pass2     || db.pass2     || '',
+            gsUrl:      newData.gsUrl     || db.gsUrl     || '',
+            mdsKeys:    (newData.mdsKeys  && Object.keys(newData.mdsKeys).length > 0) ? newData.mdsKeys : (db.mdsKeys || {}),
+            autoRefreshMinutes: newData.autoRefreshMinutes || db.autoRefreshMinutes || 30,
+            modalSettings: Object.assign({}, db.modalSettings || {}, newData.modalSettings || {}),
+            filterDefaults: Object.assign({}, db.filterDefaults || {}, newData.filterDefaults || {}),
+            apiSettings:   Object.assign({}, db.apiSettings   || {}, newData.apiSettings   || {}),
+            geoSettings: (newData.geoSettings && newData.geoSettings.geozones && newData.geoSettings.geozones.length > 0)
+                ? newData.geoSettings : (db.geoSettings || newData.geoSettings)
+        };
+        db = merged;
         updateUI(); applyScale(); applyPriceSettings();
     }
 
@@ -1980,7 +2031,8 @@
         const geoBtn = document.getElementById('nav-btn-geo');
         if (geoBtn && id !== 'geo') geoBtn.classList.remove('active');
         if(id === 'active') renderActiveRentals(); if(id === 'new') renderNewRent(); if(id === 'clients') renderClients(); if(id === 'fleet') renderFleet();
-        if(id === 'finance') { initDeviceFilter(); renderHistory(); } if(id === 'surcharge') renderSurcharge(); if(id === 'relay') { initRelayTabDates(); renderRelayTab(); } if(id === 'settings') { renderSettingsList(); renderAutoRelayPanel(); renderBonusPanel(); renderPassCtrlPanel(); renderMapDevicesPanel(); renderActiveStylePanel(); renderModalSettingsPanel(); applySettingsCollapse(); } unlockAudio();
+        if(id === 'finance') { initDeviceFilter(); applyFilterDefaults(); renderHistory(); } if(id === 'surcharge') renderSurcharge(); if(id === 'relay') { initRelayTabDates(); applyFilterDefaults(); renderRelayTab(); }
+        if(id === 'map') { applyFilterDefaults(); } if(id === 'settings') { renderSettingsList(); renderAutoRelayPanel(); renderBonusPanel(); renderPassCtrlPanel(); renderMapDevicesPanel(); renderActiveStylePanel(); renderModalSettingsPanel(); renderFilterDefaultsPanel(); applySettingsCollapse(); } unlockAudio();
         if(id === 'map') { startMapView(); }
         else { stopMapView(); }
     }
@@ -3610,6 +3662,7 @@
         applyActiveStyle();
         applyMapTimerStyle();
         renderModalSettingsPanel();
+        updateMdsIndicators();
     }
 
     // --- УВЕДОМЛЕНИЯ О СЕТИ ---
@@ -3659,6 +3712,131 @@
         renderAutoRelayPanel();
     }
 
+    function renderFilterDefaultsPanel() {
+        const panel = document.getElementById('filter-defaults-panel');
+        if (!panel) return;
+        if (!db.settingsCollapsed) db.settingsCollapsed = {};
+        const isCollapsed = db.settingsCollapsed['filterDefaults'] === true;
+        const fd = db.filterDefaults || {};
+
+        panel.innerHTML = `
+        <div class="settings-card-header" onclick="toggleSettingsCard('filterDefaults')">
+            <h2 style="margin:0;border-bottom:none;padding-bottom:0;">🎛 Фильтры по умолчанию</h2>
+            <span class="settings-card-arrow" id="settings-arrow-filterDefaults">${isCollapsed ? '▼' : '▲'}</span>
+        </div>
+        <div id="settings-body-filterDefaults" style="display:${isCollapsed?'none':'block'};margin-top:${isCollapsed?'0':'12px'};">
+            <div style="font-size:0.78rem;color:#64748b;margin-bottom:12px;">Эти значения будут установлены автоматически при открытии вкладок. Сохраняются в облако.</div>
+
+            <div style="font-weight:700;color:#334155;font-size:0.85rem;margin-bottom:8px;">📊 История (Финансы)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Период: дней назад (0=сегодня)</label>
+                    <input type="number" min="0" max="365" value="${fd.histDays !== undefined ? fd.histDays : 30}"
+                        style="margin:0;" onchange="saveFilterDefault('histDays', parseInt(this.value)||0)">
+                </div>
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Тип оплаты</label>
+                    <select style="margin:0;" onchange="saveFilterDefault('histPay', this.value)">
+                        <option value="all" ${(fd.histPay||'all')==='all'?'selected':''}>Все оплаты</option>
+                        <option value="cash" ${fd.histPay==='cash'?'selected':''}>Наличные</option>
+                        <option value="bank" ${fd.histPay==='bank'?'selected':''}>Банк/Карта</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Мин. длит. (мин)</label>
+                    <input type="number" min="0" value="${fd.histDurMin || ''}" placeholder="нет"
+                        style="margin:0;" onchange="saveFilterDefault('histDurMin', this.value ? parseInt(this.value) : '')">
+                </div>
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Макс. длит. (мин)</label>
+                    <input type="number" min="0" value="${fd.histDurMax || ''}" placeholder="нет"
+                        style="margin:0;" onchange="saveFilterDefault('histDurMax', this.value ? parseInt(this.value) : '')">
+                </div>
+            </div>
+
+            <div style="font-weight:700;color:#334155;font-size:0.85rem;margin-bottom:8px;">🗺 Карта</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Статус по умолчанию</label>
+                    <select style="margin:0;" onchange="saveFilterDefault('mapStatus', this.value)">
+                        <option value="all" ${(fd.mapStatus||'rented')==='all'?'selected':''}>Все</option>
+                        <option value="online" ${fd.mapStatus==='online'?'selected':''}>🟢 Онлайн</option>
+                        <option value="offline" ${fd.mapStatus==='offline'?'selected':''}>🔴 Офлайн</option>
+                        <option value="rented" ${(fd.mapStatus||'rented')==='rented'?'selected':''}>🟡 Аренда</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Интервал обновления</label>
+                    <select style="margin:0;" onchange="saveFilterDefault('mapInterval', this.value)">
+                        <option value="10" ${(fd.mapInterval||'10')==='10'?'selected':''}>10с</option>
+                        <option value="15" ${fd.mapInterval==='15'?'selected':''}>15с</option>
+                        <option value="30" ${fd.mapInterval==='30'?'selected':''}>30с</option>
+                        <option value="60" ${fd.mapInterval==='60'?'selected':''}>1мин</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="font-weight:700;color:#334155;font-size:0.85rem;margin-bottom:8px;">⚡ Реле</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Период: дней назад</label>
+                    <input type="number" min="0" max="365" value="${fd.relayDays !== undefined ? fd.relayDays : 7}"
+                        style="margin:0;" onchange="saveFilterDefault('relayDays', parseInt(this.value)||0)">
+                </div>
+                <div>
+                    <label style="font-size:0.72rem;color:#64748b;">Статус</label>
+                    <select style="margin:0;" onchange="saveFilterDefault('relayStatus', this.value)">
+                        <option value="all" ${(fd.relayStatus||'all')==='all'?'selected':''}>Все события</option>
+                        <option value="rental" ${fd.relayStatus==='rental'?'selected':''}>В аренде</option>
+                        <option value="outside" ${fd.relayStatus==='outside'?'selected':''}>Вне аренды</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn btn-success" style="width:100%;" onclick="applyFilterDefaults();showToastMsg('✅ Применено и сохранено в облако','success')">
+                💾 Сохранить и применить
+            </button>
+        </div>`;
+    }
+
+    function saveFilterDefault(key, value) {
+        if (!db.filterDefaults) db.filterDefaults = {};
+        db.filterDefaults[key] = value;
+        save();
+    }
+
+    function applyFilterDefaults() {
+        if (!db.filterDefaults) return;
+        const fd = db.filterDefaults;
+        // История
+        if (fd.histDays !== undefined) {
+            const end = new Date(); const start = new Date();
+            start.setDate(start.getDate() - (fd.histDays || 0));
+            const fmt = d => d.toISOString().slice(0,10);
+            const hs = document.getElementById('hist-start');
+            const he = document.getElementById('hist-end');
+            if (hs) hs.value = fmt(start);
+            if (he) he.value = fmt(end);
+        }
+        if (fd.histPay) { const el = document.getElementById('hist-pay'); if(el) el.value = fd.histPay; }
+        if (fd.histDurMin !== undefined && fd.histDurMin !== '') { const el = document.getElementById('hist-dur-min'); if(el) el.value = fd.histDurMin; }
+        if (fd.histDurMax !== undefined && fd.histDurMax !== '') { const el = document.getElementById('hist-dur-max'); if(el) el.value = fd.histDurMax; }
+        // Карта
+        if (fd.mapStatus) { const el = document.getElementById('map-status-filter'); if(el) el.value = fd.mapStatus; }
+        if (fd.mapInterval) { const el = document.getElementById('map-interval-select'); if(el) el.value = fd.mapInterval; }
+        // Реле
+        if (fd.relayDays !== undefined) {
+            const end = new Date(); const start = new Date();
+            start.setDate(start.getDate() - (fd.relayDays || 0));
+            const fmt = d => d.toISOString().slice(0,10);
+            const rs = document.getElementById('relay-tab-start');
+            const re = document.getElementById('relay-tab-end');
+            if (rs) rs.value = fmt(start);
+            if (re) re.value = fmt(end);
+        }
+        if (fd.relayStatus) { const el = document.getElementById('relay-tab-status'); if(el) el.value = fd.relayStatus; }
+    }
+
     function renderAPIPanel() {
         const settingsPanel = document.getElementById('api-settings-panel');
         if (!settingsPanel) return;
@@ -3682,7 +3860,8 @@
         }
         inner += `<div class="toggle-container"><div class="toggle-label">📱 Показывать кнопку SMS</div><button class="toggle-switch ${db.apiSettings.showSMS ? 'active' : ''}" onclick="toggleSMSButton()"></button></div>`;
         inner += `<div class="toggle-container"><div class="toggle-label">🌐 Показывать кнопку ИНТЕРНЕТ</div><button class="toggle-switch ${db.apiSettings.showInternet ? 'active' : ''}" onclick="toggleInternetButton()"></button></div>`;
-        inner += `<div class="toggle-container"><div class="toggle-label">🗺 Показывать вкладку Карта</div><button class="toggle-switch ${db.apiSettings.showMapTab ? 'active' : ''}" onclick="toggleMapTab()"></button></div>`;
+        inner += `<div class="toggle-container"><div class="toggle-label">🗺 Показывать вкладку Карта</div><button class="toggle-switch ${db.apiSettings.showMapTab !== false ? 'active' : ''}" onclick="toggleMapTab()"></button></div>` +
+        `<div class="toggle-container"><div class="toggle-label">🔑 Кнопка ключей и индикаторы (вкладка Новая)</div><button class="toggle-switch ${db.apiSettings && db.apiSettings.showMdsBlock !== false ? 'active' : ''}" onclick="toggleMdsBlock()"></button></div>`;
         inner += `<div class="toggle-container"><div class="toggle-label">🌍 Показывать вкладку Гео</div><button class="toggle-switch ${db.apiSettings.showGeoTab !== false ? 'active' : ''}" onclick="toggleGeoTab()"></button></div>`;
 
         // MDS ключи
@@ -3767,11 +3946,13 @@
                     <span style="font-size:0.75rem;color:#94a3b8;">${db.apiSettings && db.apiSettings.autoRefresh ? '🟢 Работает' : '⚪ Выключено'}</span>
                 </div>
             </div>
-            <div style="display:flex;gap:8px;margin-bottom:10px;">
-                <input type="text" id="mds-key-acc1" value="${mdsAcc1}" style="flex:1;margin-bottom:0;font-size:0.75rem;font-family:monospace;background:#f1f5f9;color:#64748b;" readonly title="Обновляется автоматически" placeholder="MDS Аккаунт 1">
+            <div style="margin-bottom:6px;">
+                <input type="text" id="mds-key-acc1" value="${mdsAcc1}" style="width:100%;box-sizing:border-box;margin-bottom:2px;font-size:0.75rem;font-family:monospace;background:#f1f5f9;color:#64748b;" readonly placeholder="MDS Аккаунт 1">
+                <div style="font-size:0.7rem;color:#94a3b8;">${(()=>{const t=db.mdsKeys&&db.mdsKeys.acc1_savedAt;if(!t)return '⚪ не обновлялся';const min=Math.floor((Date.now()-t)/60000);if(min<1)return '🟢 только что';if(min<60)return '🟢 '+min+' мин назад';const h=Math.floor(min/60);return '🟡 '+h+'ч '+(min%60)+'м назад';})()}</div>
             </div>
-            <div style="display:flex;gap:8px;margin-bottom:4px;">
-                <input type="text" id="mds-key-acc2" value="${mdsAcc2}" style="flex:1;margin-bottom:0;font-size:0.75rem;font-family:monospace;background:#f1f5f9;color:#64748b;" readonly title="Обновляется автоматически" placeholder="MDS Аккаунт 2">
+            <div style="margin-bottom:4px;">
+                <input type="text" id="mds-key-acc2" value="${mdsAcc2}" style="width:100%;box-sizing:border-box;margin-bottom:2px;font-size:0.75rem;font-family:monospace;background:#f1f5f9;color:#64748b;" readonly placeholder="MDS Аккаунт 2">
+                <div style="font-size:0.7rem;color:#94a3b8;">${(()=>{const t=db.mdsKeys&&db.mdsKeys.acc2_savedAt;if(!t)return '⚪ не обновлялся';const min=Math.floor((Date.now()-t)/60000);if(min<1)return '🟢 только что';if(min<60)return '🟢 '+min+' мин назад';const h=Math.floor(min/60);return '🟡 '+h+'ч '+(min%60)+'м назад';})()}</div>
             </div>
         </div>`;
 
@@ -4059,21 +4240,38 @@
         }
         save();
 
-        if (l1 && p1) loginAccount('acc1', l1, p1);
-        if (l2 && p2) setTimeout(() => loginAccount('acc2', l2, p2), 1500);
+        if (l1 && p1 && l2 && p2) {
+            loginAccount('acc1', l1, p1, false, () => loginAccount('acc2', l2, p2));
+        } else {
+            if (l1 && p1) loginAccount('acc1', l1, p1);
+            if (l2 && p2) loginAccount('acc2', l2, p2);
+        }
 
         startAutoRefreshIfEnabled();
     }
 
-    function refreshKeysNow(silent) {
+    window.refreshKeysNow = function refreshKeysNow(silent) {
         const l1 = db.login1 || ''; const p1 = db.pass1 || '';
         const l2 = db.login2 || ''; const p2 = db.pass2 || '';
         if (!l1 && !l2) { showToastMsg('⚠️ Нет сохранённых логинов!', 'warning'); return; }
-        if (l1 && p1) loginAccount('acc1', l1, p1, !!silent);
-        if (l2 && p2) setTimeout(() => loginAccount('acc2', l2, p2, !!silent), 1500);
-    }
+        if (l1 && p1 && l2 && p2) {
+            loginAccount('acc1', l1, p1, !!silent, () => loginAccount('acc2', l2, p2, !!silent));
+        } else {
+            if (l1 && p1) loginAccount('acc1', l1, p1, !!silent);
+            if (l2 && p2) loginAccount('acc2', l2, p2, !!silent);
+        }
+    };
 
     function toggleAutoRefresh() {
+        // Сохраняем введённые данные перед перерисовкой
+        const l2El = document.getElementById('login-acc2');
+        const p2El = document.getElementById('pass-acc2');
+        const l1El = document.getElementById('login-acc1');
+        const p1El = document.getElementById('pass-acc1');
+        if (l1El && l1El.value.trim()) db.login1 = l1El.value.trim();
+        if (p1El && p1El.value.trim()) db.pass1 = p1El.value.trim();
+        if (l2El && l2El.value.trim()) db.login2 = l2El.value.trim();
+        if (p2El && p2El.value.trim()) db.pass2 = p2El.value.trim();
         if (!db.apiSettings) db.apiSettings = {};
         db.apiSettings.autoRefresh = !db.apiSettings.autoRefresh;
         save();
@@ -4141,18 +4339,19 @@
         console.log('[MDS]', msg);
     }
 
-    function loginAccount(accNum, login, pwd, isSilent) {
+    function loginAccount(accNum, login, pwd, isSilent, onDone) {
         if (!login || !pwd) {
             if(!isSilent) showToastMsg(`⚠️ ${accNum}: нет логина или пароля`, 'warning');
             return;
         }
         if(!isSilent) showToastMsg(`⏳ Авторизация ${accNum}...`, 'warning');
         mdsLog(`🔄 ${accNum}: старт...`);
+        updateMdsIndicators(accNum, 'loading');
 
         // Чистим старые скрипты
         document.querySelectorAll(`#login-s-${accNum}`).forEach(e => e.remove());
 
-        const GS_URL = (db.gsUrl || 'https://script.google.com/macros/s/AKfycbzFORH1CJ3bNNYMQaeFLHo2VaPeSzykdRA2dc9Di9yGZR7agrYq5lnmZRfsVGUpI07x4Q/exec').trim();
+        const GS_URL = (db.gsUrl || 'https://script.google.com/macros/s/AKfycbzr7UGMVo5TYnxWx-JS0oVMl9WzGalQDA2VUgfBEMKIXB21hSrs2dQfeOqw_HRYVVEBhQ/exec').trim();
         const cb = 'loginCB_' + accNum + '_' + Date.now();
         let done = false;
 
@@ -4163,6 +4362,7 @@
             delete window[cb];
             mdsLog(`📦 ${accNum} (${source}): ` + JSON.stringify(data).substring(0, 80));
             handleLoginResponse(accNum, data, isSilent);
+            if (onDone) onDone();
         };
 
         const fail = (reason) => {
@@ -4171,7 +4371,9 @@
             document.querySelectorAll(`#login-s-${accNum}`).forEach(e => e.remove());
             delete window[cb];
             mdsLog(`❌ ${accNum}: ${reason}`);
+            updateMdsIndicators(accNum, 'error');
             if(!isSilent) showToastMsg(`❌ ${accNum}: ${reason}`, 'danger');
+            if (onDone) onDone();
         };
 
         setTimeout(() => fail('таймаут 25с'), 25000);
@@ -4228,21 +4430,85 @@
                 mdsLog(`   18gps.net недоступен`);
                 fail('сервер 18gps.net недоступен');
             };
-            s.src = `https://18gps.net/LoginByUser.aspx?method=loginSystem&name=${encodeURIComponent(login)}&pwd=${encodeURIComponent(pwd)}&type=normal&callback=${cb}`;
+            s.src = `https://18gps.net/LoginByUser.aspx?method=loginSystem&userName=${encodeURIComponent(login)}&pwd_=&loginType=ENTERPRISE&loginUrl=https%3A%2F%2F18gps.net%2FSkins%2FDefaultIndex%2FDefault_rus.html&pwd=${encodeURIComponent(pwd)}&timeZone=9&language=rus&checkPwd=1&x=117&y=21&monitor=0&callback=${cb}`;
             document.body.appendChild(s);
         }
     }
+
+    function updateMdsIndicators(accNum, status) {
+        // status: 'loading' | 'ok' | 'error' | undefined (просто обновить)
+        const MAX_AGE = 4 * 60 * 60 * 1000;
+
+        function setInd(el, accKey, forceStatus) {
+            if (!el) return;
+            const t = db.mdsKeys && db.mdsKeys[accKey + '_savedAt'];
+            const hasToken = db.mdsKeys && db.mdsKeys[accKey];
+            const fresh = t && (Date.now() - t) < MAX_AGE;
+            const min = t ? Math.floor((Date.now()-t)/60000) : null;
+            const timeStr = min !== null ? (min < 60 ? min+'м назад' : Math.floor(min/60)+'ч '+min%60+'м назад') : 'никогда';
+
+            if (forceStatus === 'loading') {
+                el.style.background = '#facc15';
+                el.style.boxShadow = '0 0 6px #facc15';
+                el.style.animation = 'mdsIndBlink 0.6s infinite';
+            } else if (forceStatus === 'error') {
+                el.style.background = '#ef4444';
+                el.style.boxShadow = '0 0 6px #ef4444';
+                el.style.animation = 'none';
+            } else if (forceStatus === 'ok' || (hasToken && fresh)) {
+                el.style.background = '#22c55e';
+                el.style.boxShadow = '0 0 6px #22c55e';
+                el.style.animation = 'none';
+            } else {
+                el.style.background = '#e2e8f0';
+                el.style.boxShadow = 'none';
+                el.style.animation = 'none';
+            }
+            el.onclick = () => showToastMsg(
+                `${accKey==='acc1'?'Аккаунт 1':'Аккаунт 2'}: ${hasToken&&fresh ? '🟢 OK · '+timeStr : '🔴 нет токена'}`,
+                hasToken&&fresh ? 'success' : 'danger'
+            );
+        }
+
+        const ind1 = document.getElementById('mds-ind-1');
+        const ind2 = document.getElementById('mds-ind-2');
+
+        if (accNum === 'acc1') { setInd(ind1, 'acc1', status); }
+        else if (accNum === 'acc2') { setInd(ind2, 'acc2', status); }
+        else { setInd(ind1, 'acc1'); setInd(ind2, 'acc2'); }
+
+        const block = document.getElementById('new-tab-mds-block');
+        if (block) {
+            block.style.display = (db.apiSettings && db.apiSettings.showMdsBlock === false) ? 'none' : 'flex';
+        }
+    }
+
+    // CSS анимация для мигания
+    (function(){
+        if (document.getElementById('mds-ind-style')) return;
+        const s = document.createElement('style');
+        s.id = 'mds-ind-style';
+        s.textContent = '@keyframes mdsIndBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }';
+        document.head.appendChild(s);
+    })();
 
     function handleLoginResponse(accNum, data, isSilent) {
         const token = data.mds || (data.key ? data.key.mds : null);
         if (token) {
             if (!db.mdsKeys) db.mdsKeys = {};
             db.mdsKeys[accNum] = token;
+            db.mdsKeys[accNum + '_savedAt'] = Date.now();
             const inputEl = document.getElementById(`mds-key-${accNum}`);
             if (inputEl) inputEl.value = token;
             save();
-            if (!isSilent) showToastMsg(`✅ ${accNum}: Токен успешно обновлен!`, 'success');
+            updateMdsIndicators(accNum, 'ok');
+            if (!isSilent) showToastMsg(`✅ ${accNum}: Токен обновлён!`, 'success');
+            if (typeof fetchMapGPS === 'function' && _mapGpsActive) {
+                setTimeout(() => fetchMapGPS(), 500);
+            }
         } else {
+            mdsLog(`❌ ${accNum}: нет токена. Ответ: ` + JSON.stringify(data).substring(0, 150));
+            updateMdsIndicators(accNum, 'error');
             if (!isSilent) showToastMsg(`❌ Ошибка входа в ${accNum}. Проверьте пароль.`, 'danger');
         }
     }
@@ -4263,7 +4529,9 @@
 
     function toggleMapTab() {
         if (!db.apiSettings) db.apiSettings = {};
-        db.apiSettings.showMapTab = !db.apiSettings.showMapTab;
+        // инвертируем: по умолчанию true (показать), false = скрыть
+        const current = db.apiSettings.showMapTab !== false;
+        db.apiSettings.showMapTab = !current;
         save();
         applyMapTabVisibility();
         renderAPIPanel();
@@ -4273,12 +4541,20 @@
     function applyMapTabVisibility() {
         const btn = document.getElementById('nav-btn-map');
         if (!btn) return;
-        const show = db.apiSettings && db.apiSettings.showMapTab;
+        // showMapTab: true = показать, false = скрыть, undefined = показать (по умолчанию)
+        const show = !db.apiSettings || db.apiSettings.showMapTab !== false;
         btn.style.display = show ? '' : 'none';
-        // если вкладка скрыта, а мы на ней — переходим на активные
         if (!show && document.getElementById('view-map').classList.contains('active')) {
             doSwitchView('active');
         }
+    }
+
+    function toggleMdsBlock() {
+        if (!db.apiSettings) db.apiSettings = {};
+        db.apiSettings.showMdsBlock = db.apiSettings.showMdsBlock === false ? true : false;
+        save();
+        updateMdsIndicators();
+        renderAPIPanel();
     }
 
     function toggleGeoTab() {
@@ -4886,6 +5162,96 @@
     function stopMapView() {
         if (_mapGpsTimer) { clearInterval(_mapGpsTimer); _mapGpsTimer = null; }
         if (_mapCardTimer) { clearInterval(_mapCardTimer); _mapCardTimer = null; }
+    }
+
+    // ===== МОЁ МЕСТОПОЛОЖЕНИЕ =====
+    let _myLocActive = false;
+    let _myLocMarker = null;
+    let _myLocWatcher = null;
+    let _myLocAccuracyCircle = null;
+
+    function toggleMyLocation() {
+        _myLocActive = !_myLocActive;
+        const btn = document.getElementById('map-my-loc-btn');
+        const label = document.getElementById('map-my-loc-label');
+        const centerBtn = document.getElementById('map-my-loc-center-btn');
+        if (_myLocActive) {
+            btn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
+            btn.style.boxShadow = '0 2px 8px rgba(239,68,68,0.6)';
+            if (label) label.textContent = 'Я ВКЛ';
+            if (centerBtn) centerBtn.style.display = '';
+            startMyLocation();
+        } else {
+            btn.style.background = 'linear-gradient(135deg,#94a3b8,#64748b)';
+            btn.style.boxShadow = 'none';
+            if (label) label.textContent = 'Я';
+            if (centerBtn) centerBtn.style.display = 'none';
+            stopMyLocation();
+        }
+    }
+
+    function startMyLocation() {
+        if (!navigator.geolocation) {
+            showToastMsg('❌ Геолокация недоступна в браузере', 'danger'); return;
+        }
+        _myLocWatcher = navigator.geolocation.watchPosition(
+            pos => updateMyLocationMarker(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy, pos.coords.heading),
+            err => { showToastMsg('❌ Нет доступа к геолокации: ' + err.message, 'danger'); _myLocActive = false; stopMyLocation(); },
+            { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+        );
+    }
+
+    function stopMyLocation() {
+        if (_myLocWatcher !== null) { navigator.geolocation.clearWatch(_myLocWatcher); _myLocWatcher = null; }
+        if (_myLocMarker && _mapYInstance) { try { _mapYInstance.geoObjects.remove(_myLocMarker); } catch(e){} _myLocMarker = null; }
+        if (_myLocAccuracyCircle && _mapYInstance) { try { _mapYInstance.geoObjects.remove(_myLocAccuracyCircle); } catch(e){} _myLocAccuracyCircle = null; }
+    }
+
+    function updateMyLocationMarker(lat, lng, accuracy, heading) {
+        if (!_mapYInstance) return;
+        const coords = [lat, lng];
+
+        // Убираем старые объекты
+        if (_myLocMarker) { try { _mapYInstance.geoObjects.remove(_myLocMarker); } catch(e){} }
+        if (_myLocAccuracyCircle) { try { _mapYInstance.geoObjects.remove(_myLocAccuracyCircle); } catch(e){} }
+
+        // Круг точности
+        if (accuracy && accuracy < 500) {
+            _myLocAccuracyCircle = new ymaps.Circle([coords, accuracy], {}, {
+                fillColor: 'rgba(239,68,68,0.08)', strokeColor: '#ef4444',
+                strokeOpacity: 0.4, strokeWidth: 1, fillOpacity: 1
+            });
+            _mapYInstance.geoObjects.add(_myLocAccuracyCircle);
+        }
+
+        // Стрелка-маркер (красная)
+        const rot = (heading !== null && heading !== undefined) ? heading : 0;
+        const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+            <g transform="rotate(${rot},16,16)">
+                <polygon points="16,2 22,28 16,23 10,28" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+            </g>
+            <circle cx="16" cy="16" r="4" fill="#fff" stroke="#ef4444" stroke-width="2"/>
+        </svg>`;
+
+        _myLocMarker = new ymaps.Placemark(coords, {
+            balloonContent: `<b>📍 Моё положение</b><br>Точность: ~${Math.round(accuracy||0)}м`
+        }, {
+            iconLayout: 'default#imageWithContent',
+            iconImageHref: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(arrowSvg),
+            iconImageSize: [32, 32],
+            iconImageOffset: [-16, -16],
+            zIndex: 999
+        });
+        _mapYInstance.geoObjects.add(_myLocMarker);
+    }
+
+    function centerOnMyLocation() {
+        if (_myLocMarker && _mapYInstance) {
+            const coords = _myLocMarker.geometry.getCoordinates();
+            _mapYInstance.setCenter(coords, 16, { duration: 400 });
+        } else {
+            showToastMsg('⚠️ Включите «Я» для отображения местоположения', 'warning');
+        }
     }
 
     function toggleMapGpsTracking() {
@@ -7300,12 +7666,40 @@
       catch (e) { console.error("Ошибка сохранения: ", e); }
   };
 
+  let _firstSnapshot = true;
+
   onSnapshot(myDataRef, { includeMetadataChanges: true }, (docSnap) => {
       if (docSnap.exists()) {
           const source = docSnap.metadata.fromCache ? "ЛОКАЛЬНОГО КЭША" : "СЕРВЕРА";
           console.log("📥 Получены новые данные из " + source);
           const cloudData = docSnap.data();
-          if (window.updateGlobalDB) { window.updateGlobalDB(cloudData); }
+
+          // Берём локальные данные как приоритет для чувствительных полей
+          const local = (() => { try { return JSON.parse(localStorage.getItem('rm_final_keyboard_fix') || '{}'); } catch(e) { return {}; } })();
+
+          // Защищаем поля: если в облаке пусто — берём из localStorage
+          const PROTECT = ['login1','pass1','login2','pass2','gsUrl','mdsKeys','autoRefreshMinutes','apiSettings'];
+          PROTECT.forEach(key => {
+              const localVal = local[key];
+              const cloudVal = cloudData[key];
+              const isEmpty = v => !v || (typeof v === 'object' && Object.keys(v).length === 0) || v === '';
+              if (!isEmpty(localVal) && isEmpty(cloudVal)) {
+                  cloudData[key] = localVal;
+              }
+          });
+
+          if (window.updateGlobalDB) {
+              window.updateGlobalDB(cloudData);
+              // После первой загрузки из облака — обновить токены и карту
+              if (_firstSnapshot) {
+                  _firstSnapshot = false;
+                  setTimeout(() => {
+                      if (window.refreshKeysNow && cloudData.login1 && cloudData.pass1) {
+                          window.refreshKeysNow(true);
+                      }
+                  }, 500);
+              }
+          }
       } else { console.log("База данных пуста."); }
   });
 </script>
