@@ -1278,24 +1278,6 @@
         </div>
     </div>
 
-    <div id="modal-finish-confirm" class="modal-overlay" style="z-index:300;">
-        <div class="modal-content" style="max-width:340px;">
-            <h3 style="text-align:center;">🛑 Завершить аренду?</h3>
-            <div id="finish-confirm-device" style="background:#f8fafc;border-radius:10px;padding:14px;margin:12px 0;text-align:center;border:2px solid #e2e8f0;">
-                <div id="finish-confirm-name" style="font-weight:800;font-size:1.3rem;color:#334155;"></div>
-                <div id="finish-confirm-client" style="color:#64748b;font-size:0.9rem;margin-top:4px;"></div>
-                <div id="finish-confirm-timer" style="font-size:1.1rem;font-weight:700;color:#3b82f6;margin-top:6px;"></div>
-            </div>
-            <div id="finish-confirm-autooff" style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:0.82rem;color:#713f12;display:none;">
-                ⚡ Реле будет выключено автоматически
-            </div>
-            <div style="display:flex;gap:10px;">
-                <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('modal-finish-confirm')">Отмена</button>
-                <button class="btn btn-danger" style="flex:1;" id="btn-finish-confirm-yes">✅ Завершить</button>
-            </div>
-        </div>
-    </div>
-
     <div id="modal-start-confirm" class="modal-overlay">
         <div class="modal-content">
             <h3>💰 Форма оплаты</h3>
@@ -4087,12 +4069,8 @@
         const l1 = db.login1 || ''; const p1 = db.pass1 || '';
         const l2 = db.login2 || ''; const p2 = db.pass2 || '';
         if (!l1 && !l2) { showToastMsg('⚠️ Нет сохранённых логинов!', 'warning'); return; }
-        if (l1 && p1 && l2 && p2) {
-            loginAccount('acc1', l1, p1, !!silent, () => loginAccount('acc2', l2, p2, !!silent));
-        } else {
-            if (l1 && p1) loginAccount('acc1', l1, p1, !!silent);
-            if (l2 && p2) loginAccount('acc2', l2, p2, !!silent);
-        }
+        if (l1 && p1) loginAccount('acc1', l1, p1, !!silent);
+        if (l2 && p2) setTimeout(() => loginAccount('acc2', l2, p2, !!silent), 1500);
     }
 
     function toggleAutoRefresh() {
@@ -4163,7 +4141,7 @@
         console.log('[MDS]', msg);
     }
 
-    function loginAccount(accNum, login, pwd, isSilent, onDone) {
+    function loginAccount(accNum, login, pwd, isSilent) {
         if (!login || !pwd) {
             if(!isSilent) showToastMsg(`⚠️ ${accNum}: нет логина или пароля`, 'warning');
             return;
@@ -4174,7 +4152,7 @@
         // Чистим старые скрипты
         document.querySelectorAll(`#login-s-${accNum}`).forEach(e => e.remove());
 
-        const GS_URL = (db.gsUrl || 'https://script.google.com/macros/s/AKfycbzr7UGMVo5TYnxWx-JS0oVMl9WzGalQDA2VUgfBEMKIXB21hSrs2dQfeOqw_HRYVVEBhQ/exec').trim();
+        const GS_URL = (db.gsUrl || 'https://script.google.com/macros/s/AKfycbzFORH1CJ3bNNYMQaeFLHo2VaPeSzykdRA2dc9Di9yGZR7agrYq5lnmZRfsVGUpI07x4Q/exec').trim();
         const cb = 'loginCB_' + accNum + '_' + Date.now();
         let done = false;
 
@@ -4185,7 +4163,6 @@
             delete window[cb];
             mdsLog(`📦 ${accNum} (${source}): ` + JSON.stringify(data).substring(0, 80));
             handleLoginResponse(accNum, data, isSilent);
-            if (onDone) onDone();
         };
 
         const fail = (reason) => {
@@ -4195,7 +4172,6 @@
             delete window[cb];
             mdsLog(`❌ ${accNum}: ${reason}`);
             if(!isSilent) showToastMsg(`❌ ${accNum}: ${reason}`, 'danger');
-            if (onDone) onDone();
         };
 
         setTimeout(() => fail('таймаут 25с'), 25000);
@@ -4252,7 +4228,7 @@
                 mdsLog(`   18gps.net недоступен`);
                 fail('сервер 18gps.net недоступен');
             };
-            s.src = `https://18gps.net/LoginByUser.aspx?method=loginSystem&userName=${encodeURIComponent(login)}&pwd_=&loginType=ENTERPRISE&loginUrl=https%3A%2F%2F18gps.net%2FSkins%2FDefaultIndex%2FDefault_rus.html&pwd=${encodeURIComponent(pwd)}&timeZone=9&language=rus&checkPwd=1&x=117&y=21&monitor=0&callback=${cb}`;
+            s.src = `https://18gps.net/LoginByUser.aspx?method=loginSystem&name=${encodeURIComponent(login)}&pwd=${encodeURIComponent(pwd)}&type=normal&callback=${cb}`;
             document.body.appendChild(s);
         }
     }
