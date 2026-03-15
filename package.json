@@ -1,9 +1,0 @@
-{
-  "name": "18gps-keep-alive",
-  "version": "1.0.0",
-  "main": "keep-alive.js",
-  "dependencies": {
-    "puppeteer-core": "^21.7.0",
-    "@puppeteer/browsers": "^2.0.0"
-  }
-}
