@@ -1,0 +1,22 @@
+{
+  "name": "Prokat Sani75rus - Admin",
+  "short_name": "Прокат",
+  "description": "Управление прокатом Sani75rus",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f4f6",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/192/4305/4305512.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/4305/4305512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
