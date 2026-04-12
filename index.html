@@ -628,12 +628,25 @@
                     </div>
                 </div>
                 <div id="blacklist-alert" style="display:none; background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold; text-align: center;">⚠️ КЛИЕНТ В ЧЕРНОМ СПИСКЕ</div>
-                <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ (С одинаковым тарифом):</p>
+                <p style="margin:15px 0 5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБЕРИТЕ ТРАНСПОРТ:</p>
                 <input type="text" id="new-fleet-search" class="new-rent-search" placeholder="🔍 Поиск транспорта..." oninput="renderNewRent()">
                 <div id="fleet-selector"></div>
                 <div id="tariff-block" style="display:none; margin-top:20px;">
                     <p style="margin:5px 0; font-size:0.85rem; color:#64748b; font-weight:700;">ВЫБОР ТАРИФА:</p>
                     <div id="tariff-buttons" class="tariff-grid"></div>
+                </div>
+                <div id="check-block" style="display:none;margin-top:20px;">
+                    <div style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:2px solid #22c55e;border-radius:14px;padding:16px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:1.4rem;">🧾</span><span style="font-size:1.05rem;font-weight:800;color:#15803d;">ЧЕК</span></div>
+                            <button onclick="_clearCheck()" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:6px 12px;font-size:0.78rem;font-weight:700;cursor:pointer;"><i class="fas fa-trash"></i> Очистить</button>
+                        </div>
+                        <div id="check-items"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#fff;border-radius:10px;border:2px solid #22c55e;">
+                            <div><div style="font-size:0.82rem;color:#64748b;">ИТОГО:</div><div id="check-total" style="font-size:1.8rem;font-weight:900;color:#15803d;">0 ₽</div></div>
+                            <button onclick="_checkoutFromCheck()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:1.1rem;font-weight:800;cursor:pointer;">🚀 Оформить</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2428,6 +2441,22 @@
         </div>
     </div>
 
+
+    <!-- МОДАЛЬНОЕ ОКНО РАСЧЁТА СДАЧИ -->
+    <div id="modal-cash-change" class="modal-overlay" style="z-index:160;">
+        <div class="modal-content" style="text-align:center;padding:28px 20px;max-width:360px;">
+            <i class="fas fa-money-bill-wave" style="font-size:2.5rem;color:#22c55e;margin-bottom:10px;display:block;"></i>
+            <h3 style="margin:0 0 6px 0;">Оплата наличными</h3>
+            <div id="cash-change-total" style="font-size:2.2rem;font-weight:900;color:#1e293b;margin:14px 0;">0 ₽</div>
+            <div style="margin:16px 0;">
+                <label style="font-size:0.9rem;font-weight:700;color:#64748b;display:block;margin-bottom:8px;">Получено от клиента:</label>
+                <input type="number" id="cash-received-input" min="0" placeholder="Введите сумму..." oninput="_calcCashChange()" style="text-align:center;font-size:1.5rem;font-weight:800;border:2px solid #22c55e;border-radius:12px;padding:14px;">
+            </div>
+            <button id="cash-change-btn" onclick="_confirmCashChange()" style="width:100%;padding:18px 20px;border:none;border-radius:12px;font-size:1.15rem;font-weight:800;cursor:pointer;transition:0.2s;background:#22c55e;color:#fff;margin-bottom:12px;min-height:60px;">💰 Без сдачи</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-cash-change')" style="width:100%;">Отмена</button>
+        </div>
+    </div>
+
     <!-- МОДАЛЬНОЕ ОКНО СМЕШАННОЙ ОПЛАТЫ -->
     <div id="modal-mixed-pay" class="modal-overlay" style="z-index:400;">
         <div class="modal-content" style="text-align:center;padding:28px 20px;max-width:360px;">
@@ -3495,11 +3524,8 @@
         if (localTs > cloudTs + 3000) {
             // 🔒 Локальные данные ЗНАЧИТЕЛЬНО новее облака — максимальная защита от перезаписи
             console.warn("⚠️ Локальные данные новее облака на", Math.round((localTs-cloudTs)/1000), "с — защищаем от перезаписи");
-            // Берём из облака ТОЛЬКО клиентов если их БОЛЬШЕ (другое устройство добавило нового)
-            // priceSettings, displayTariffs, history, rentals, fleet — НЕ перезаписываем (локальные новее)
-            if (newData.clients && newData.clients.length > (db.clients||[]).length) {
-                db.clients = newData.clients;
-            }
+            if (newData.clients && newData.clients.length > (db.clients||[]).length) { db.clients = newData.clients; }
+            if (newData.history&&newData.history.length>0){const ids=new Set(newData.history.map(h=>String(h.id)));const m=[...newData.history];(db.history||[]).forEach(x=>{if(!ids.has(String(x.id)))m.push(x);});if(m.length>(db.history||[]).length)db.history=m;}
             // geoSettings уже применены выше
             if (typeof geoDrawAllZones === 'function') geoDrawAllZones();
             if (typeof renderGeoZonesList === 'function') renderGeoZonesList();
@@ -3579,7 +3605,8 @@
             displayTariffs: (newData.displayTariffs && newData.displayTariffs.length > 0) ? newData.displayTariffs : (db.displayTariffs || []),
             clients:    (newData.clients    && newData.clients.length    > 0) ? newData.clients    : (db.clients    || []),
             fleet:      (newData.fleet      && newData.fleet.length      > 0) ? newData.fleet      : (db.fleet      || []),
-            categories: (newData.categories && newData.categories.length > 0) ? newData.categories : (db.categories || [])
+            categories: (newData.categories && newData.categories.length > 0) ? newData.categories : (db.categories || []),
+            history:(()=>{const c=(newData.history||[]).length>0?newData.history:[];const l=db.history||[];if(!c.length)return l;if(!l.length)return c;const ids=new Set(c.map(h=>String(h.id)));const m=[...c];l.forEach(x=>{if(!ids.has(String(x.id)))m.push(x);else{const i=m.findIndex(y=>String(y.id)===String(x.id));if(i>=0){if(x.endTs&&!m[i].endTs)m[i]=x;else if((x.extendHistory||[]).length>(m[i].extendHistory||[]).length)m[i]=x;else if(x.surPaid&&!m[i].surPaid)m[i]=x;}}});return m;})()
         };
         // Сохраняем активную вкладку перед обновлением
         const _activeView = document.querySelector('.view.active');
@@ -4594,7 +4621,7 @@
         if(cat && cat.tariffs) {
             cat.tariffs.forEach(t => {
                 const info = t.type==='fix' ? `${t.dur} мин` : `Старт ${t.start}₽`;
-                box.innerHTML += `<div class="tariff-card" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">${t.name}</span><span style="font-size:0.95rem;color:#64748b;">${info} · ${t.price}₽</span></div>`;
+                box.innerHTML += `<div class="tariff-card" style="position:relative;padding-bottom:40px;" onclick="askStartRental({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})"><span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:5px;">${t.name}</span><span style="font-size:0.95rem;color:#64748b;">${info} · ${t.price}₽</span><div onclick="event.stopPropagation();_addToCheck({id:${t.id},type:'${t.type}',name:'${t.name}',dur:'${t.dur}',price:'${t.price}',start:'${t.start}'})" style="position:absolute;bottom:6px;left:6px;right:6px;background:#22c55e;color:#fff;border-radius:6px;padding:5px;font-size:0.72rem;font-weight:700;cursor:pointer;text-align:center;">🧾 В чек</div></div>`;
             });
             // Кнопка "Разделить" — значок деления, показывается всегда когда есть тарифы
             const splitBtnWrap = document.createElement('div');
@@ -4605,6 +4632,51 @@
         } else { blk.style.display = 'none'; }
     }
 
+
+    let _checkItems = [];
+    function _addToCheck(tariff) {
+        const phone=document.getElementById('rent-phone').value.trim();
+        if(!phone||phone.replace(/\s/g,'').length<5) return showNotification('warning','Телефон','Введите номер');
+        if(selectedForRent.size===0) return showToastMsg('Выберите устройство','warning');
+        let n=0;
+        Array.from(selectedForRent).forEach(id=>{
+            const v=db.fleet.find(f=>f.id==id);
+            if(!v||_checkItems.some(ci=>ci.vId==id))return;
+            _checkItems.push({vId:v.id,vName:v.name,vColor:v.color,catId:v.catId,tariff:{...tariff},price:parseInt(tariff.type==='fix'?tariff.price:tariff.start)||0});
+            n++;
+        });
+        if(n>0){showToastMsg('✅ +'+n+' в чек','success');selectedForRent.clear();renderNewRent();}
+        _renderCheck();
+    }
+    function _removeFromCheck(i){_checkItems.splice(i,1);_renderCheck();if(!_checkItems.length)renderNewRent();}
+    function _clearCheck(){_checkItems=[];_renderCheck();renderNewRent();}
+    function _renderCheck(){
+        const bl=document.getElementById('check-block'),ct=document.getElementById('check-items'),tl=document.getElementById('check-total');
+        if(!bl)return;if(!_checkItems.length){bl.style.display='none';return;}
+        bl.style.display='block';let h='',tot=0;
+        _checkItems.forEach((it,i)=>{
+            tot+=it.price;
+            h+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:10px;margin-bottom:8px;border-left:5px solid ${it.vColor||'#3b82f6'};">
+                <div style="flex:1;"><div style="font-weight:800;font-size:1rem;">${it.vName}</div><div style="font-size:0.82rem;color:#64748b;">${it.tariff.name} — ${it.price} ₽</div></div>
+                <div style="font-weight:900;font-size:1.15rem;color:#15803d;">${it.price} ₽</div>
+                <button onclick="_removeFromCheck(${i})" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fas fa-times"></i></button>
+            </div>`;
+        });
+        ct.innerHTML=h;tl.innerText=tot+' ₽';
+    }
+    function _checkoutFromCheck(){
+        if(!_checkItems.length)return;
+        const phone=document.getElementById('rent-phone').value.trim(),nm=document.getElementById('rent-name').value;
+        if(!phone||phone.replace(/\s/g,'').length<5) return showNotification('warning','Телефон','Введите номер');
+        const tot=_checkItems.reduce((s,i)=>s+i.price,0);
+        document.getElementById('confirm-tariff-name').innerText=_checkItems.length+' устр.';
+        document.getElementById('confirm-devices').style.display='block';
+        let dl='';_checkItems.forEach(it=>{dl+=`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.85rem;"><span><b>${it.vName}</b> — ${it.tariff.name}</span><span style="font-weight:800;color:#15803d;">${it.price}₽</span></div>`;});
+        document.getElementById('confirm-devices').innerHTML=dl;
+        document.getElementById('confirm-cost').innerHTML=`<span style="font-weight:bold;font-size:1.8rem;">${tot} ₽</span>`;
+        tempStartData={_isCheckMode:true,checkItems:_checkItems.slice(),phone,name:nm,checks:_checkItems.map(i=>i.vId),totalPrice:tot};
+        document.getElementById('modal-start-confirm').style.display='flex';
+    }
     function askStartRental(tariff) {
         unlockAudio(); 
         const phone = document.getElementById('rent-phone').value.trim(); const name = document.getElementById('rent-name').value;
@@ -4640,7 +4712,16 @@
         tempStartData = { tariff, phone, name, checks }; document.getElementById('modal-start-confirm').style.display = 'flex';
     }
 
-    function confirmPaymentChoice(method) { tempStartData.payMethod = method; tempStartData.cashAmount = null; tempStartData.bankAmount = null; closeModal('modal-start-confirm'); document.getElementById('modal-final-start').style.display = 'flex'; }
+
+    let _cashCtx={amount:0,cb:null};
+    function _openCashChange(a,cb){_cashCtx={amount:a,cb};document.getElementById('cash-change-total').innerText=a+' ₽';document.getElementById('cash-received-input').value='';const b=document.getElementById('cash-change-btn');b.style.background='#22c55e';b.style.color='#fff';b.innerHTML='💰 Без сдачи';document.getElementById('modal-cash-change').style.display='flex';}
+    function _calcCashChange(){const r=parseInt(document.getElementById('cash-received-input').value)||0;const b=document.getElementById('cash-change-btn');if(r<=0){b.style.background='#22c55e';b.style.color='#fff';b.innerHTML='💰 Без сдачи';}else{const ch=r-_cashCtx.amount;if(ch>=0){b.style.background='#facc15';b.style.color='#1e293b';b.innerHTML=`💰 Сдача: <b>${ch} ₽</b>`;}else{b.style.background='#ef4444';b.style.color='#fff';b.innerHTML=`⚠️ Не хватает: <b>${Math.abs(ch)} ₽</b>`;}}}
+    function _confirmCashChange(){const r=parseInt(document.getElementById('cash-received-input').value)||0;if(r>0&&r<_cashCtx.amount)return;closeModal('modal-cash-change');if(_cashCtx.cb)_cashCtx.cb();}
+    function confirmPaymentChoice(method) {
+        tempStartData.payMethod = method; tempStartData.cashAmount = null; tempStartData.bankAmount = null;
+        if (method === 'cash') { const p=tempStartData._isCheckMode?(tempStartData.totalPrice||0):(()=>{const _t=tempStartData.tariff;return(parseInt(_t.type==='fix'?_t.price:_t.start)||0)*tempStartData.checks.length;})(); closeModal('modal-start-confirm'); _openCashChange(p, ()=>{document.getElementById('modal-final-start').style.display='flex';}); }
+        else { closeModal('modal-start-confirm'); document.getElementById('modal-final-start').style.display='flex'; }
+    }
 
     // ===== СМЕШАННАЯ ОПЛАТА =====
     let _mixedPayContext = null; // 'start' | 'split' | 'extend' | 'surcharge'
@@ -4650,10 +4731,8 @@
         _mixedPayContext = context;
         let total = 0;
         if (context === 'start') {
-            const _t = tempStartData && tempStartData.tariff;
-            const _basePrice = parseInt(_t ? (_t.type === 'fix' ? _t.price : _t.start) : 0) || 0;
-            const _devCount = (tempStartData && tempStartData.checks) ? tempStartData.checks.length : 1;
-            total = _basePrice * _devCount;
+            if(tempStartData&&tempStartData._isCheckMode){total=tempStartData.totalPrice||0;}
+            else{const _t=tempStartData&&tempStartData.tariff;const _basePrice=parseInt(_t?(_t.type==='fix'?_t.price:_t.start):0)||0;const _devCount=(tempStartData&&tempStartData.checks)?tempStartData.checks.length:1;total=_basePrice*_devCount;}
             closeModal('modal-start-confirm');
         } else if (context === 'split') {
             const _splitBase = parseInt(tempSplitData && (tempSplitData.splitCost || tempSplitData.splitStart)) || 0;
@@ -4733,13 +4812,36 @@
     // ===== КОНЕЦ СМЕШАННОЙ ОПЛАТЫ =====
     
     function realStartRental() {
-        const { tariff, phone, name, checks, payMethod, cashAmount, bankAmount } = tempStartData; 
-        let c = db.clients.find(x => x.phone === phone);
-        if(!c) { c = {id:Date.now(), name: name||'Гость', phone, blocked:false, comment:''}; db.clients.push(c); }
-        if(c.blocked) { closeModal('modal-final-start'); return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ'); }
-        const now = Date.now();
-        const bonusEnabled = db.bonusSettings && db.bonusSettings.enabled;
-        const bonusMin = (bonusEnabled && c.bonusMin && c.bonusMin > 0) ? c.bonusMin : 0;
+        const {tariff,phone,name,checks,payMethod,cashAmount,bankAmount}=tempStartData;
+        if(tempStartData._isCheckMode&&tempStartData.checkItems){
+            let c=db.clients.find(x=>x.phone===phone);
+            if(!c){c={id:Date.now(),name:name||'Гость',phone,blocked:false,comment:''};db.clients.push(c);}
+            if(c.blocked){closeModal('modal-final-start');return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ');}
+            const now=Date.now(),bonusEnabled=db.bonusSettings&&db.bonusSettings.enabled;
+            const bonusMin=(bonusEnabled&&c.bonusMin&&c.bonusMin>0)?c.bonusMin:0;
+            tempStartData.checkItems.forEach(item=>{
+                const v=db.fleet.find(x=>x.id==item.vId);if(!v)return;v.status='busy';
+                const cat=db.categories.find(ca=>ca.id==v.catId),baseRate=cat?(cat.baseRate||0):0;
+                const deviceBonus=bonusEnabled&&bonusMin>0&&isBonusDevice(v.id)?bonusMin:0;
+                const baseLimit=item.tariff.type==='fix'?parseInt(item.tariff.dur):0;
+                const finalLimit=baseLimit>0?baseLimit+deviceBonus:0;
+                let nr={id:Math.floor(Math.random()*10000000),vId:v.id,vName:v.name,vColor:v.color,catId:v.catId,cName:c.name,cPhone:c.phone,startTs:now,limit:finalLimit,cost:item.price,tName:item.tariff.name,paused:false,pauseStart:0,totalPause:0,swapHistory:[v.name],payMethod,cashAmount:payMethod==='mixed'?cashAmount:null,bankAmount:payMethod==='mixed'?bankAmount:null,baseRate,notified5:false,notified2:false,actionLog:[],bonusMin:deviceBonus};
+                logRentalAction(nr,'Создание',item.tariff.name+' ('+item.price+'₽)'+(deviceBonus>0?' 🎁+'+deviceBonus+'м':''));
+                db.rentals.push(nr);
+            });
+            if((db.appSettings||{}).relayOnStart)tempStartData.checkItems.forEach(it=>{setTimeout(()=>sendSmartCommandSilent(it.vId,'internet_on'),500);});
+            _checkItems=[];_renderCheck();
+            document.getElementById('rent-phone').value='+7';document.getElementById('rent-name').value='';document.getElementById('new-fleet-search').value='';
+            selectedForRent.clear();db._savedAt=Date.now();window.db_ref=db;
+            if(navigator.onLine&&window.sendStartToCloud)window.sendStartToCloud(db.rentals,db.clients);else{saveRentals();save();}
+            forceSync('up');closeModal('modal-final-start');playSound('start');switchView('active');return;
+        }
+        let c=db.clients.find(x=>x.phone===phone);
+        if(!c){c={id:Date.now(),name:name||'Гость',phone,blocked:false,comment:''};db.clients.push(c);}
+        if(c.blocked){closeModal('modal-final-start');return alert('КЛИЕНТ В ЧЕРНОМ СПИСКЕ');}
+        const now=Date.now();
+        const bonusEnabled=db.bonusSettings&&db.bonusSettings.enabled;
+        const bonusMin=(bonusEnabled&&c.bonusMin&&c.bonusMin>0)?c.bonusMin:0;
         // Проверка офлайн-блокировки
         const appS0 = db.appSettings || {};
         if (appS0.blockOfflineStart) {
@@ -4822,10 +4924,10 @@
         const list = document.getElementById('split-tariff-list');
         list.innerHTML = '';
         cat.tariffs.forEach(t => {
-            const splitCost = Math.floor(parseInt(t.price) / N);
-            const splitDur = t.type === 'fix' ? Math.floor(parseInt(t.dur) / N) : 0;
-            const splitBonus = totalBonus > 0 ? Math.floor(totalBonus / N) : 0;
-            const splitStart = t.type !== 'fix' ? Math.floor(parseInt(t.start) / N) : 0;
+            const splitCost = Math.round(parseInt(t.price) / N);
+            const splitDur = t.type === 'fix' ? Math.round(parseInt(t.dur) / N * 10) / 10 : 0;
+            const splitBonus = totalBonus > 0 ? Math.round(totalBonus / N * 10) / 10 : 0;
+            const splitStart = t.type !== 'fix' ? Math.round(parseInt(t.start) / N) : 0;
 
             let infoLines = `<div style="font-size:1.15rem;font-weight:800;color:#1e293b;margin-bottom:4px;">${t.name}</div>`;
             infoLines += `<div style="font-size:0.88rem;color:#6366f1;">На каждое устройство:</div>`;
@@ -4876,6 +4978,11 @@
         tempSplitData.payMethod = method;
         tempSplitData.cashAmount = cashAmt || null;
         tempSplitData.bankAmount = bankAmt || null;
+        if(method==='cash'&&!cashAmt&&!bankAmt){const p=parseInt(tempSplitData.splitCost)||0;if(p>0){closeModal('modal-split-pay');_openCashChange(p,()=>{_finSplitPay(method);});return;}}
+        _finSplitPay(method,cashAmt,bankAmt);
+    }
+    function _finSplitPay(method,cashAmt,bankAmt) {
+        if(!method){method=tempSplitData.payMethod;cashAmt=tempSplitData.cashAmount;bankAmt=tempSplitData.bankAmount;}
         closeModal('modal-split-pay');
 
         // Итоговое подтверждение
@@ -4966,9 +5073,13 @@
     function isBonusDevice(vId) {
         const bonusS = db.bonusSettings || {};
         if (!bonusS.enabled) return false;
-        if (!bonusS.devices || bonusS.devices.length === 0 || bonusS.allDevices !== false) return true;
-        const numId = parseInt(vId) || vId;
-        return bonusS.devices.some(d => d == numId); // == for type-safe compare
+        // Если есть список устройств И allDevices НЕ включён явно — проверяем по списку
+        if (bonusS.devices && bonusS.devices.length > 0 && bonusS.allDevices !== true) {
+            const numId = parseInt(vId) || vId;
+            return bonusS.devices.some(d => d == numId);
+        }
+        // Нет списка или allDevices явно включён — все устройства бонусные
+        return true;
     }
 
     function finishRental(id) {
@@ -6168,12 +6279,12 @@
             const tr = document.createElement('tr'); 
             const isAd = h.lastUser && h.lastUser.toLowerCase() === 'safronov.a.a993@gmail.com'; const borderClass = h.lastUser ? (isAd ? 'history-row-admin' : 'history-row-user') : '';
             tr.className = `surcharge-row ${borderClass}`; tr.title = "Двойной клик: История действий"; tr.ondblclick = () => showActionLog(h.id);
-            const t1 = new Date(h.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' }); const t2 = new Date(h.endTs).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
+            const d1s=new Date(h.ts).toLocaleDateString('ru-RU',{timeZone:'Asia/Chita',day:'2-digit',month:'2-digit'}); const t1 = new Date(h.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' }); const t2 = new Date(h.endTs).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
             const isPaid = h.surPaid;
             const payBtn = isPaid
                 ? `<button class="btn btn-sm btn-success" style="font-size:0.75rem;padding:4px 8px;" onclick="event.stopPropagation();authWrapper(()=>toggleSurchargePaid('${h.id}'))">✅ Оплачено</button>`
                 : `<button class="btn btn-sm" style="background:#f59e0b;color:#fff;font-size:0.75rem;padding:4px 8px;" onclick="event.stopPropagation();openSurchargePayModal('${h.id}',${extraPay})">💳 Оплатить</button>`;
-            tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td>${t1} - ${t2}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td><td style="white-space:nowrap;">${payBtn}</td><td><button class="btn btn-sm btn-danger" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();deleteSurchargeRow('${h.id}')"><i class="fas fa-trash"></i></button></td>`; tbody.appendChild(tr);
+            tr.innerHTML = `<td>${h.vName.replace(/➜/g, '->')}</td><td>${h.cName}<br><a href="tel:${h.cPhone}">${h.cPhone}</a></td><td><span style="color:#94a3b8;font-size:0.72rem;">${d1s}</span> ${t1}-${t2}</td><td>${h.overDur}</td><td class="surcharge-highlight">${extraPay} ₽</td><td style="white-space:nowrap;">${payBtn}</td><td><button class="btn btn-sm btn-danger" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();deleteSurchargeRow('${h.id}')"><i class="fas fa-trash"></i></button></td>`; tbody.appendChild(tr);
         }); document.getElementById('sur-total').innerText = totalSur + ' ₽'; document.getElementById('no-surcharge-msg').style.display = hasData ? 'none' : 'block';
     }
 
@@ -6259,7 +6370,18 @@
         const startTs = startVal ? new Date(`${startVal}T00:00:00+09:00`).getTime() : 0; const endTs = endVal ? new Date(`${endVal}T23:59:59.999+09:00`).getTime() : 9999999999999;
         let total = 0;
         let totalCash = 0, totalBank = 0;
-
+        const activeAsHistory = (db.rentals || []).map(r => {
+            const dev = db.fleet.find(f => f.id === r.vId);
+            return { id:'active_'+r.id, ts:r.startTs, endTs:null, vName:dev?dev.name:'?',
+                cName:r.cName||'', cPhone:r.cPhone||'', cost:r.cost||0,
+                payMethod:r.payMethod||'cash', cashAmount:r.cashAmount, bankAmount:r.bankAmount,
+                duration:Math.round((Date.now()-r.startTs)/60000), pauseDur:r.pausedDuration||0,
+                overDur:0, deleted:false, _isActive:true,
+                extendHistory:r.extendHistory||[], freeTimeHistory:r.freeTimeHistory||[],
+                bonusMin:r.bonusMin||0, lastUser:r.lastUser||'' };
+        });
+        const allHistory = [...activeAsHistory, ...db.history];
+        allHistory.sort((a,b)=>{if(a._isActive&&!b._isActive)return -1;if(!a._isActive&&b._isActive)return 1;return b.ts-a.ts;});
         // Вспомогательная функция: считает сумму по способу оплаты для одной записи истории
         function calcPayAmounts(h) {
             // Базовая стоимость аренды
@@ -6288,7 +6410,7 @@
             return { cash: Math.max(0, cash), bank: Math.max(0, bank) };
         }
 
-        db.history.forEach(h => {
+        allHistory.forEach(h => {
             const matchesTime = h.ts >= startTs && h.ts <= endTs;
             const matchesSearch = !searchVal || h.vName.toLowerCase().includes(searchVal) || h.cName.toLowerCase().includes(searchVal) || (h.cPhone && h.cPhone.includes(searchVal));
             // Фильтр по оплате: показываем запись если основная оплата ИЛИ хотя бы одно продление — нужного типа
@@ -6308,7 +6430,7 @@
                     matchesPay = h.extendHistory.some(ex => ex.payMethod === payFilter || ex.payMethod === 'mixed');
                 }
             }
-            let matchesDev = allDevChecked ? true : checkedDevs.some(dev => h.vName.includes(dev));
+            let matchesDev = allDevChecked ? true : checkedDevs.some(dev => { const parts = h.vName.split(' \u279c '); return parts.some(p => p.trim() === dev); });
             const dur = h.duration || 0;
             const matchesDur = (durMin === null || dur >= durMin) && (durMax === null || dur <= durMax);
             const deviceBaseName = h.vName.split(' ➜ ')[0];
@@ -6319,7 +6441,7 @@
             relayEvents.forEach(ev => { if (ev.durationMin) totalRelayOnMin += ev.durationMin; });
             const matchesRelayDur = (relayMin === null || totalRelayOnMin >= relayMin) && (relayMax === null || totalRelayOnMin <= relayMax);
             if (matchesTime && matchesSearch && matchesDev && matchesPay && matchesDur && matchesRelayFilter && matchesRelayDur) {
-                if (!h.deleted) {
+                if (!h.deleted && !h._isActive) {
                     const amounts = calcPayAmounts(h);
                     if (payFilter === 'cash') {
                         total += amounts.cash;
@@ -6369,21 +6491,28 @@
                     ? `<b>${baseOnly} ₽</b><div style="font-size:0.62rem;color:#94a3b8;margin-top:2px;">из ${h.cost}₽ итого</div>`
                     : `<b>${h.cost} ₽</b>`;
 
+                if(h._isActive) costCell=`<span style="color:#22c55e;font-weight:800;">▶ ${h.cost} ₽</span>`;
                 const tr = document.createElement('tr');
                 tr.className = borderClass;
-                if (h.deleted) tr.className += ' tr-deleted'; else if (h.duration < 5) tr.className += ' tr-short';
-                tr.title = "Двойной клик: История действий"; tr.ondblclick = () => showActionLog(h.id);
-                const t1 = new Date(h.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' }); const t2 = new Date(h.endTs).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
+                if(h._isActive){tr.style.background='#f0fdf4';tr.style.borderLeft='4px solid #22c55e';}
+                else if(h.deleted) tr.className+=' tr-deleted'; else if(h.duration<5) tr.className+=' tr-short';
+                tr.title="Двойной клик: История действий"; if(!h._isActive) tr.ondblclick=()=>showActionLog(h.id);
+                const d1=new Date(h.ts).toLocaleDateString('ru-RU',{timeZone:'Asia/Chita',day:'2-digit',month:'2-digit'});
+                const t1=new Date(h.ts).toLocaleTimeString('ru-RU',{timeZone:'Asia/Chita',hour:'2-digit',minute:'2-digit'});
+                const d2=h.endTs?new Date(h.endTs).toLocaleDateString('ru-RU',{timeZone:'Asia/Chita',day:'2-digit',month:'2-digit'}):'';
+                const t2=h.endTs?new Date(h.endTs).toLocaleTimeString('ru-RU',{timeZone:'Asia/Chita',hour:'2-digit',minute:'2-digit'}):'';
+                const ds2=h.endTs?`${d1!==d2?d2+' ':''}${t2}`:'<span style="color:#22c55e;font-weight:800;">▶▶</span>';
                 const relayCell = buildRelayCell(deviceBaseName, h.ts, h.endTs || Date.now());
-                tr.innerHTML = `<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜') ? '<span class="swap-chain">(замена)</span>' : ''}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#666;">${t1} - ${t2}<br>${h.duration} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'red':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td>${costCell}</td><td>${relayCell}</td><td><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); toggleHistoryStatus(${h.id})"><i class="fas ${h.deleted ? 'fa-undo' : 'fa-trash'}"></i></button></td>`;
+                const aL=h._isActive?'<div style="font-size:0.65rem;color:#22c55e;font-weight:700;">▶ В ПРОЦЕССЕ</div>':'';
+                const dB=h._isActive?'':`<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); toggleHistoryStatus(${h.id})"><i class="fas ${h.deleted?'fa-undo':'fa-trash'}"></i></button>`;
+                tr.innerHTML=`<td><b>${h.vName.replace(/➜/g, '->')}</b>${h.vName.includes('➜')?'<span class="swap-chain">(замена)</span>':''}${aL}</td><td>${h.cName} <br> <a href="tel:${h.cPhone}" class="history-phone">${h.cPhone}</a></td><td style="font-size:0.75rem; color:#666;"><span style="color:#94a3b8;">${d1}</span> ${t1} - ${ds2}<br>${h.duration||'—'} мин</td><td>${h.pauseDur||0} мин</td><td style="color:${h.overDur>0?'red':'inherit'}">${h.overDur||0} мин</td><td>${payBadge}</td><td>${costCell}</td><td>${relayCell}</td><td>${dB}</td>`;
                 tbody.appendChild(tr);
 
                 // === ПРОДЛЕНИЯ — отдельные строки с иконкой 🔄 ===
                 if (exts.length > 0) {
                     exts.forEach((ex) => {
-                        // Применяем фильтр по способу оплаты к строке продления
                         if (payFilter !== 'all' && ex.payMethod !== payFilter) return;
-
+                        const trExt = document.createElement('tr');
                         const exPayIcon = ex.payMethod === 'bank'
                             ? '<span class="pay-icon pay-bank"><i class="fas fa-credit-card"></i> Банк</span>'
                             : ex.payMethod === 'mixed'
@@ -6391,13 +6520,14 @@
                             : '<span class="pay-icon pay-cash"><i class="fas fa-money-bill"></i> Нал</span>';
                         const exCostColor = ex.payMethod === 'bank' ? '#1e40af' : ex.payMethod === 'mixed' ? '#475569' : '#166534';
                         const exTime = new Date(ex.ts).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Chita', hour: '2-digit', minute: '2-digit' });
+                        const exDate = new Date(ex.ts).toLocaleDateString('ru-RU', { timeZone: 'Asia/Chita', day: '2-digit', month: '2-digit' });
                         trExt.className = 'history-ext-row' + (h.deleted ? ' tr-deleted' : '');
                         trExt.title = 'Продление аренды — двойной клик: История действий';
                         trExt.ondblclick = () => showActionLog(h.id);
                         trExt.innerHTML = `
                             <td><span style="color:#f59e0b;font-weight:800;font-size:1rem;">🔄</span> <span style="font-style:italic;">${h.vName.split(' ➜ ')[0]}</span></td>
                             <td>${h.cName}</td>
-                            <td style="font-size:0.75rem;">${exTime}<br><span style="color:#a16207;">${ex.tariff || ''}${ex.dur ? ' +' + ex.dur + ' мин' : ''}</span></td>
+                            <td style="font-size:0.75rem;"><span style="color:#94a3b8;">${exDate}</span> ${exTime}<br><span style="color:#a16207;">${ex.tariff || ''}${ex.dur ? ' +' + ex.dur + ' мин' : ''}</span></td>
                             <td>—</td>
                             <td>—</td>
                             <td>${exPayIcon}</td>
@@ -6829,6 +6959,16 @@
         _pendingExtend.payMethod = method;
         _pendingExtend.cashAmount = cashAmt || null;
         _pendingExtend.bankAmount = bankAmt || null;
+        if (method==='cash'&&!cashAmt&&!bankAmt) {
+            const r=db.rentals.find(x=>x.id===_pendingExtend.rId);
+            const cat=r?db.categories.find(c=>c.id==r.catId):null;
+            const t=cat?cat.tariffs.find(x=>x.id===_pendingExtend.tId):null;
+            if(t){closeModal('modal-extend-pay');_openCashChange(parseInt(t.price)||0,()=>{_finExtPay(method);});return;}
+        }
+        _finExtPay(method,cashAmt,bankAmt);
+    }
+    function _finExtPay(method,cashAmt,bankAmt) {
+        if(!method){method=_pendingExtend.payMethod;cashAmt=_pendingExtend.cashAmount;bankAmt=_pendingExtend.bankAmount;}
         closeModal('modal-extend-pay');
         // Проверяем нужно ли подтверждение
         const _msEx = db.modalSettings || {};
@@ -9708,6 +9848,49 @@ ${_buildSoundUI(s)}
     let _mapMarkers = {};
     let _mapGpsTimer = null;
     let _mapGpsState = {}; // name -> { isOnline, speed, lat, lng }
+
+    // 📡 GPS: localStorage кэш координат — переживает перезагрузку
+    const _GPS_CACHE_KEY = 'rm_gps_coords_cache_v1';
+    function _saveGpsCache() {
+        try {
+            const cache = {};
+            Object.entries(_mapGpsState).forEach(([name, st]) => {
+                if (st.lat > 1 && st.lng > 1 && !st._lastKnownPos) {
+                    cache[name] = { lat: st.lat, lng: st.lng, ts: Date.now() };
+                }
+            });
+            localStorage.setItem(_GPS_CACHE_KEY, JSON.stringify(cache));
+        } catch(e) {}
+    }
+    function _loadGpsCache() {
+        try {
+            const raw = localStorage.getItem(_GPS_CACHE_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+        return {};
+    }
+    const _gpsCoordsCache = _loadGpsCache();
+    Object.entries(_gpsCoordsCache).forEach(([name, c]) => {
+        if (c.lat > 1 && c.lng > 1) {
+            _mapGpsState[name] = { isOnline: false, speed: 0, lat: c.lat, lng: c.lng, _lastKnownPos: true, _fromCache: true };
+        }
+    });
+    // Загружаем координаты из fleet (Firebase) — самый надёжный источник
+    function _loadFleetGps() {
+        if (!db.fleet) return;
+        db.fleet.forEach(f => {
+            if (f._lastLat > 1 && f._lastLng > 1) {
+                if (!_mapGpsState[f.name] || !(_mapGpsState[f.name].lat > 1)) {
+                    _mapGpsState[f.name] = { isOnline: false, speed: 0, lat: f._lastLat, lng: f._lastLng, _lastKnownPos: true, _fromCache: true };
+                }
+                if (!_gpsCoordsCache[f.name] || !(_gpsCoordsCache[f.name].lat > 1)) {
+                    _gpsCoordsCache[f.name] = { lat: f._lastLat, lng: f._lastLng, ts: f._lastGpsTs || 0 };
+                }
+            }
+        });
+    }
+    setTimeout(_loadFleetGps, 2000);
+    setTimeout(_loadFleetGps, 6000);
     window._mapGpsState = _mapGpsState;
     let _mapTapTimers = {}; // double-tap
     let _mapInterval = 10;
@@ -10225,6 +10408,7 @@ ${_buildSoundUI(s)}
                 });
                 console.log(`📡 GPS данные получены: ${data.records.length} устройств [${deviceNames.join(', ')}]`);
                 processMapGPSData(data);
+                _saveGpsCache(); // 💾 Сохраняем координаты в localStorage
                 const el = document.getElementById('map-ping-status');
                 if (el) el.innerHTML = `🟢 Обновлено: ${new Date().toLocaleTimeString()}`;
                 // Обновляем заряд АКБ во всех активных вкладках
@@ -10406,8 +10590,8 @@ ${_buildSoundUI(s)}
             if (!GPS_18GPS_DEVICES[name] && GPS_18GPS_DEVICES[rawName]) {
                 name = rawName; // rawName совпадает с таблицей устройств
             }
-            const lng = parseFloat(record[lngIdx]);
-            const lat = parseFloat(record[latIdx]);
+            let lng = parseFloat(record[lngIdx]);
+            let lat = parseFloat(record[latIdx]);
             const speed = parseFloat(record[speedIdx]) || 0;
             const pingTime = parseInt(record[heartTimeIdx]);
             // 🔧 Нормализация: heart_time может быть в секундах (acc2) или миллисекундах (acc1)
@@ -10460,11 +10644,44 @@ ${_buildSoundUI(s)}
             if(boardVoltage!==null){const devType=_getDeviceType(name,boardVoltage);const rp=_voltageToPercent(boardVoltage,devType);if(rp!==null)boardPercent=Math.max(0,Math.min(100,rp));}
             else if(prevState&&prevState.boardPercent!==null&&prevState.boardPercent!==undefined){boardPercent=prevState.boardPercent;finalBoardVoltage=prevState.boardVoltage||null;}
             if(prevState&&prevState.isOnline&&!isOnline){const fd=db.fleet?db.fleet.find(f=>f.name===name):null;const iR=fd&&db.rentals?db.rentals.some(r=>r.vId===fd.id):false;sendNotify('📵 Офлайн: №'+name,(iR?'⚠️ Устройство '+name+' пропало с карты! (В аренде)':'📡 Устройство '+name+' пропало с карты'),iR,'offline-'+name,'notifOffline');}
-            _mapGpsState[name]={isOnline,speed,lat,lng,battery,voltage,boardVoltage:finalBoardVoltage,trackerVoltage,boardPercent,gsm,lastSeen,pingTimeMs};
-
-            // Если онлайн но нет координат — логируем для диагностики
-            if (isOnline && !(lat > 1 && lng > 1)) {
-                console.log(`📡 ${name}: онлайн, но нет GPS координат (lat=${lat}, lng=${lng}). GPS-модуль не имеет спутникового фикса.`);
+            if(!(lat>1&&lng>1)) {
+                // Попробуем извлечь координаты из statenumber
+                if (statenumberIdx !== undefined && record[statenumberIdx]) {
+                    const snParts = String(record[statenumberIdx]).split(',');
+                    for (let si = 0; si < Math.min(snParts.length, 4); si++) {
+                        const v1 = parseFloat(snParts[si]);
+                        const v2 = si+1 < snParts.length ? parseFloat(snParts[si+1]) : NaN;
+                        if (v1>40&&v1<60&&v2>100&&v2<140) { lat=v1; lng=v2; break; }
+                        if (v1>100&&v1<140&&v2>40&&v2<60) { lat=v2; lng=v1; break; }
+                    }
+                }
+                // Из tempExt JSON
+                if (!(lat>1&&lng>1) && tempExtIdx !== undefined && record[tempExtIdx]) {
+                    try { const te=JSON.parse(record[tempExtIdx]); const tLat=parseFloat(te.lat||te.latitude||te.weidu||0); const tLng=parseFloat(te.lng||te.longitude||te.lon||te.jingdu||0); if(tLat>1&&tLng>1){lat=tLat;lng=tLng;} } catch(e){}
+                }
+                // Из prevState
+                if (!(lat>1&&lng>1) && prevState && prevState.lat>1 && prevState.lng>1) {
+                    lat=prevState.lat; lng=prevState.lng;
+                }
+                // Из localStorage
+                if (!(lat>1&&lng>1) && _gpsCoordsCache[name] && _gpsCoordsCache[name].lat>1) {
+                    lat=_gpsCoordsCache[name].lat; lng=_gpsCoordsCache[name].lng;
+                }
+                // Из fleet (Firebase — переживает всё)
+                if (!(lat>1&&lng>1)) {
+                    const _fd = db.fleet ? db.fleet.find(f => f.name === name) : null;
+                    if (_fd && _fd._lastLat > 1 && _fd._lastLng > 1) { lat = _fd._lastLat; lng = _fd._lastLng; }
+                }
+                if (lat>1&&lng>1) console.log(`📡 ${name}: нет GPS фикса, кэш (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+            }
+            const _origLat=parseFloat(record[latIdx]),_origLng=parseFloat(record[lngIdx]);
+            const _lkp=!(_origLat>1&&_origLng>1)&&lat>1;
+            _mapGpsState[name]={isOnline,speed,lat,lng,battery,voltage,boardVoltage:finalBoardVoltage,trackerVoltage,boardPercent,gsm,lastSeen,pingTimeMs,_lastKnownPos:_lkp};
+            // Сохраняем хорошие координаты во все кэши
+            if(lat>1&&lng>1&&!_lkp) {
+                _gpsCoordsCache[name]={lat,lng,ts:Date.now()};
+                const _fs = db.fleet ? db.fleet.find(f => f.name === name) : null;
+                if (_fs) { _fs._lastLat = lat; _fs._lastLng = lng; _fs._lastGpsTs = Date.now(); }
             }
 
             // Обновляем маркер на карте
@@ -10481,7 +10698,8 @@ ${_buildSoundUI(s)}
                 const tvStr = st && st.trackerVoltage ? `<br>🔋 Трекер: ${st.trackerVoltage}В` : '';
                 const batStr = battery !== null ? `<br>🔋 Трекер: ${battery}%${st&&st.trackerVoltage?' '+st.trackerVoltage+'В':''}` : tvStr;
                 const gsmStr = gsm !== null ? `<br>📶 Сигнал: ${gsm}%` : '';
-                const balloonContent = `<b>№ ${name}</b><br>🚗 ${speed} км/ч<br>${statusEmoji} ${isRentedMarker ? 'В аренде' : (isOnline ? 'Онлайн' : 'Офлайн')}${bpStr}${batStr}${gsmStr}`;
+                const _lk=_mapGpsState[name]?._lastKnownPos?'<br><span style="color:#f59e0b;">📍 Последняя позиция</span>':'';
+                const balloonContent = `<b>№ ${name}</b><br>🚗 ${speed} км/ч<br>${statusEmoji} ${isRentedMarker ? 'В аренде' : (isOnline ? 'Онлайн' : 'Офлайн')}${_lk}${bpStr}${batStr}${gsmStr}`;
                 if (_mapMarkers[name]) {
                     _mapMarkers[name].geometry.setCoordinates([lat, lng]);
                     _mapMarkers[name].properties.set('balloonContent', balloonContent);
@@ -10776,7 +10994,7 @@ ${_buildSoundUI(s)}
             let lastSeenHtml = '';
             if (isOnlineNoGps) {
                 // Онлайн, но нет GPS координат — показываем иконку отсутствия спутника
-                lastSeenHtml = `<span style="font-size:0.65rem;color:#15803d;font-weight:700;" title="Устройство онлайн, нет GPS сигнала">📡 нет GPS</span>`;
+                lastSeenHtml = gpsState&&gpsState._lastKnownPos ? `<span style="font-size:0.65rem;color:#f59e0b;font-weight:700;">📍 посл.позиция</span>` : `<span style="font-size:0.65rem;color:#f59e0b;font-weight:700;cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();_startManualGpsPick('${name}')">📍 указать на карте</span>`;
             } else if (!isOnline && lastSeen) {
                 const diffMin = Math.floor((Date.now() - lastSeen) / 60000);
                 const diffStr = diffMin < 60 ? `${diffMin} мин назад` : diffMin < 1440 ? `${Math.floor(diffMin/60)}ч ${diffMin%60}м назад` : `${Math.floor(diffMin/1440)}д назад`;
@@ -11020,10 +11238,47 @@ ${_buildSoundUI(s)}
         };
     }
 
+    // === Ручная установка GPS позиции ===
+    let _manualPickTarget = null;
+    function _startManualGpsPick(name) {
+        _manualPickTarget = name;
+        const mainEl = document.querySelector('main');
+        if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+        showToastMsg('📍 Нажмите на карту для позиции "' + name + '"', 'warning');
+        if (_mapYInstance) {
+            const handler = function(e) {
+                const coords = e.get('coords');
+                if (!coords || !_manualPickTarget) return;
+                _mapYInstance.events.remove('click', handler);
+                const lat = coords[0], lng = coords[1];
+                const fl = db.fleet ? db.fleet.find(f => f.name === _manualPickTarget) : null;
+                if (fl) { fl._lastLat = lat; fl._lastLng = lng; fl._lastGpsTs = Date.now(); saveFleet(); }
+                _gpsCoordsCache[_manualPickTarget] = { lat, lng, ts: Date.now() };
+                _saveGpsCache();
+                _mapGpsState[_manualPickTarget] = Object.assign(_mapGpsState[_manualPickTarget] || {}, { lat, lng, _lastKnownPos: true });
+                renderMapCards();
+                const mSz = (db.mapColors && db.mapColors.markerSize) || 32;
+                const dc = fl ? fl.color : '#94a3b8';
+                const svg = _makeMarkerSvg(_manualPickTarget, dc, '#f59e0b');
+                if (_mapMarkers[_manualPickTarget]) {
+                    _mapMarkers[_manualPickTarget].geometry.setCoordinates([lat, lng]);
+                } else {
+                    _mapMarkers[_manualPickTarget] = new ymaps.Placemark([lat, lng], { balloonContent: '<b>№ ' + _manualPickTarget + '</b><br>📍 Ручная позиция' },
+                        { iconLayout: 'default#image', iconImageHref: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg), iconImageSize: [mSz, mSz], iconImageOffset: [-mSz/2, -mSz/2] });
+                    _mapYInstance.geoObjects.add(_mapMarkers[_manualPickTarget]);
+                }
+                _mapYInstance.setCenter([lat, lng], 16, { duration: 300 });
+                showToastMsg('✅ Позиция "' + _manualPickTarget + '" установлена', 'success');
+                _manualPickTarget = null;
+            };
+            _mapYInstance.events.add('click', handler);
+        }
+    }
+
     function mapFocusDevice(name) {
         const state = _mapGpsState[name];
         if (!state || !(state.lat > 1 && state.lng > 1)) {
-            showToastMsg('📍 Нет GPS координат для устройства ' + name, 'warning');
+            openConfirm('📍 Нет GPS координат для "' + name + '".\n\nУстановить позицию вручную на карте?', function() { _startManualGpsPick(name); });
             return;
         }
         // Принудительно показываем маркер (мог быть скрыт фильтром)
