@@ -2591,7 +2591,11 @@
             if (priceBtnActive) priceBtnActive.style.display = 'none';
             createMonitorStyles();
             loadDB(); _loadDevicePrefs();
-            _loadLocalBackup(); // 💾 Монитор тоже восстанавливает данные из бэкапа
+            // 🚫 ВАЖНО: монитор НЕ загружает _loadLocalBackup().
+            //    localStorage общий между вкладками одного браузера — основное приложение
+            //    пишет туда свои активные аренды, а монитор потом подтягивал их при старте
+            //    и показывал как фантомные даже после их завершения на другом устройстве.
+            //    Монитор должен быть чистым зеркалом облака — никаких локальных бэкапов.
             applyScale(); applyPriceSettings();
             // Немедленно применяем видимость вкладок из localStorage
             if (typeof applyMapTabVisibility === 'function') applyMapTabVisibility();
@@ -3663,6 +3667,41 @@
 
     window.updateGlobalDB = function(newData) {
         if (!newData) return;
+
+        // 🖥 МОНИТОР: чистое зеркало облака. Никаких защит от «пустых» rentals,
+        //    никаких timestamp-проверок, никаких merge-правил «локаль новее».
+        //    Если облако говорит «0 аренд» — монитор ОБЯЗАН показать 0 аренд,
+        //    иначе фантомы из прошлой сессии будут висеть вечно.
+        if (window.location.search.includes('mode=monitor')) {
+            // Парсим geoSettings если пришло строкой
+            if (newData.geoSettings && typeof newData.geoSettings === 'string') {
+                try { newData.geoSettings = JSON.parse(newData.geoSettings); } catch(e) { newData.geoSettings = null; }
+            }
+            // per-device настройки масштаба/интерфейса монитор хранит в localStorage, а не в облаке
+            const _perDev = ['scale','monitorScale','scaleNew','scaleFleet','scaleMap','scaleClients','appSettings','modalSettings','filterDefaults'];
+            const _keep = {};
+            _perDev.forEach(k => { if (db[k] !== undefined) _keep[k] = db[k]; });
+            // ЖЁСТКО заменяем всё остальное
+            db = Object.assign({}, newData);
+            Object.keys(_keep).forEach(k => db[k] = _keep[k]);
+            window.db_ref = db;
+            if (typeof updateUI === 'function') updateUI();
+            if (typeof applyScale === 'function') applyScale();
+            if (typeof applyPriceSettings === 'function') applyPriceSettings();
+            if (typeof applyDarkTheme === 'function') applyDarkTheme();
+            if (typeof applyGeoTabVisibility === 'function') applyGeoTabVisibility();
+            if (typeof applyMapTabVisibility === 'function') applyMapTabVisibility();
+            if (typeof geoDrawAllZones === 'function') geoDrawAllZones();
+            if (typeof renderActiveRentals === 'function') renderActiveRentals();
+            // 🖼 ВАЖНО для монитора: если окно прайса сейчас открыто (обычный режим витрины
+            //    для клиентов), принудительно перерисовываем его, чтобы подхватить свежий
+            //    priceSettings (фон, цвета, новые тарифы) — иначе на экране висит старое.
+            const _priceModal = document.getElementById('modal-info-tariffs');
+            if (_priceModal && _priceModal.classList.contains('active') && typeof openMonitorTariffs === 'function') {
+                openMonitorTariffs();
+            }
+            return;
+        }
 
         // ⚡ ЗАЩИТА ОТ КОНФЛИКТОВ: сравниваем метки времени
         // ВАЖНО: _savedAt обновляется только rentals/fleet/settings, но НЕ при saveGeo.
@@ -14006,7 +14045,7 @@ ${_buildSoundUI(s)}
   //    иначе пустой локальный db затирает облачные данные.
   // 🏷 Версия сборки. УВЕЛИЧИВАЙТЕ при выпуске новой версии HTML —
   //    тогда старые версии НЕ смогут перезаписать облако новее себя.
-  const APP_BUILD_VERSION = 20260418005;
+  const APP_BUILD_VERSION = 20260418006;
   window.APP_BUILD_VERSION = APP_BUILD_VERSION;
 
   // 🚨 Глобальный флаг блокировки записи (выставляется если в облаке более новая версия)
