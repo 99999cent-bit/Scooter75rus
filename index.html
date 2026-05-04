@@ -1082,14 +1082,25 @@
                 </div>
                 <button class="btn btn-sm btn-secondary" style="margin-top:6px;" onclick="initRelayTabDates();renderRelayTab()"><i class="fas fa-sync"></i> Обновить</button>
                 <div style="margin-top:8px;font-size:0.75rem;color:#64748b;display:flex;gap:12px;flex-wrap:wrap;">
-                    <span><span style="background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;font-weight:700;">⚠ Вне аренды</span> — выделены жёлтым</span>
+                    <span><span style="background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;font-weight:700;">⚠ Вне аренды</span> — жёлтый фон</span>
                     <span><span style="background:#eff6ff;color:#1d4ed8;border-radius:3px;padding:1px 5px;font-weight:700;">В аренде</span> — клиент указан</span>
+                    <span><span style="color:#0ea5e9;font-weight:700;">📶 Интернет</span> — команда через API</span>
+                    <span><span style="color:#8b5cf6;font-weight:700;">📱 SMS</span> — команда через SIM</span>
+                </div>
+                <div style="margin-top:6px;font-size:0.72rem;color:#94a3b8;display:flex;gap:8px;flex-wrap:wrap;">
+                    <span><b>Выбор ТС</b> — нажатие галочки в Новой</span>
+                    <span>•</span>
+                    <span><b>Авто·Старт/Стоп</b> — авто при аренде</span>
+                    <span>•</span>
+                    <span><b>Вручную</b> — кнопка реле</span>
+                    <span>•</span>
+                    <span><b>Замена ТС</b> — замена устройства</span>
                 </div>
             </div>
             <div class="card" style="padding:0;overflow:hidden;">
                 <div style="overflow-x:auto;">
                     <table class="history-table">
-                        <thead><tr><th>Устройство</th><th>Включено</th><th>Выключено</th><th>Длит.</th><th>Кем ВКЛ</th><th>Кем ВЫКЛ</th><th>Статус / Клиент</th><th></th></tr></thead>
+                        <thead><tr><th>Устройство</th><th>Включено</th><th>Выключено</th><th>Длит.</th><th>ВКЛ кем / как</th><th>ВЫКЛ кем / как</th><th>Статус / Клиент</th><th></th></tr></thead>
                         <tbody id="relay-tab-rows"></tbody>
                     </table>
                 </div>
@@ -4807,7 +4818,7 @@
                 const vId = parseInt(el.value);
                 const method = autoS.autoOnMethod || 'internet';
                 const cmd = method === 'sms' ? 'sms_on' : 'internet_on';
-                sendSmartCommandSilent(vId, cmd);
+                sendSmartCommandSilent(vId, cmd, 'Выбор ТС');
             }
         } else {
             selectedForRent.delete(el.value);
@@ -4817,7 +4828,7 @@
                 const vId = parseInt(el.value);
                 const m = autoS.autoOffOnDeselectMethod || 'internet';
                 const cmd = m === 'sms' ? 'sms_off' : 'internet_off';
-                sendSmartCommandSilent(vId, cmd);
+                sendSmartCommandSilent(vId, cmd, 'Снятие ТС');
             }
         }
         renderNewRent(); showTariffs();
@@ -5103,7 +5114,7 @@
                 logRentalAction(nr,'Создание',item.tariff.name+' ('+item.price+'₽)'+(deviceBonus>0?' 🎁+'+deviceBonus+'м':''));
                 db.rentals.push(nr);
             });
-            if((db.appSettings||{}).relayOnStart)tempStartData.checkItems.forEach(it=>{setTimeout(()=>sendSmartCommandSilent(it.vId,'internet_on'),500);});
+            if((db.appSettings||{}).relayOnStart)tempStartData.checkItems.forEach(it=>{setTimeout(()=>sendSmartCommandSilent(it.vId,'internet_on','Авто·Старт'),500);});
             // 🔔 Уведомление о старте
             {const _ns=tempStartData.checkItems||[];if(_ns.length){const _names=_ns.map(x=>x.vName).join(', ');const _cost=_ns.reduce((s,x)=>s+x.price,0);sendNotify('🟢 Аренда запущена',`${_names} — ${_cost}₽`,false,'start-'+Date.now(),'notifStart');}}
             _checkItems=[];_renderCheck();
@@ -5159,7 +5170,7 @@
         selectedForRent.clear(); db._savedAt = Date.now(); window.db_ref = db; if (navigator.onLine && window.sendStartToCloud) { window.sendStartToCloud(db.rentals, db.clients); } else { saveRentals(); save(); } forceSync('up'); closeModal('modal-final-start'); playSound('start');
         // Включить реле при старте если включено в настройках
         if ((db.appSettings || {}).relayOnStart) {
-            checks.forEach(vId => { setTimeout(() => sendSmartCommandSilent(vId, 'internet_on'), 500); });
+            checks.forEach(vId => { setTimeout(() => sendSmartCommandSilent(vId, 'internet_on', 'Авто·Старт'), 500); });
         }
         switchView('active');
     }
@@ -5342,7 +5353,7 @@
         closeModal('modal-split-confirm');
         playSound('start');
         if (appS0.relayOnStart) {
-            checks.forEach(vId => { setTimeout(() => sendSmartCommandSilent(vId, 'internet_on'), 500); });
+            checks.forEach(vId => { setTimeout(() => sendSmartCommandSilent(vId, 'internet_on', 'Авто·Старт'), 500); });
         }
         switchView('active');
     }
@@ -5446,7 +5457,7 @@
             const autoS = db.autoSettings || {};
             if (autoS.autoOffOnFinish) {
                 const m = autoS.autoOffOnFinishMethod || 'internet';
-                sendSmartCommandSilent(v.id, m === 'sms' ? 'sms_off' : 'internet_off');
+                sendSmartCommandSilent(v.id, m === 'sms' ? 'sms_off' : 'internet_off', 'Авто·Стоп');
             }
         }
 
@@ -6720,7 +6731,7 @@
                         r.autoOffSent = true;
                         r._lastAutoOffSentTs = now;
                         const method = autoS.autoOffMethod || 'internet';
-                        sendSmartCommandSilent(r.vId, method === 'sms' ? 'sms_off' : 'internet_off');
+                        sendSmartCommandSilent(r.vId, method === 'sms' ? 'sms_off' : 'internet_off', 'Авто·Таймер');
                         saveRentals();
                     }
                     // Уведомление об истечении времени
@@ -6740,7 +6751,7 @@
                         if ((now - lastSent) >= 30000) {
                             r._lastAutoOffSentTs = now;
                             const method2 = autoS2.autoOffMethod || 'internet';
-                            sendSmartCommandSilent(r.vId, method2 === 'sms' ? 'sms_off' : 'internet_off');
+                            sendSmartCommandSilent(r.vId, method2 === 'sms' ? 'sms_off' : 'internet_off', 'Авто·Таймер');
                         }
                     }
                 }
@@ -7192,8 +7203,8 @@
         const autoS = db.autoSettings || {};
         if (!autoS.swapAutoRelay) return;
         const m = autoS.swapAutoRelayMethod || 'internet';
-        sendSmartCommandSilent(oldV.id, m === 'sms' ? 'sms_off' : 'internet_off');
-        sendSmartCommandSilent(newV.id, m === 'sms' ? 'sms_on' : 'internet_on');
+        sendSmartCommandSilent(oldV.id, m === 'sms' ? 'sms_off' : 'internet_off', 'Замена ТС');
+        sendSmartCommandSilent(newV.id, m === 'sms' ? 'sms_on' : 'internet_on', 'Замена ТС');
     }
 
     // === БЫСТРАЯ ЗАМЕНА УСТРОЙСТВА ===
@@ -12409,14 +12420,21 @@ ${_buildSoundUI(s)}
                 ? `<td style="color:#22c55e;font-size:0.82rem;font-weight:700;">▶ Активно</td>`
                 : `<td style="color:#ef4444;font-size:0.82rem;">${fmt(ev.offTs)}</td>`;
 
+            // ── Метод: иконка + название ──────────────────────────────────────────
+            const _mIcon = m => m === 'SMS' ? '📱' : m === 'Интернет' ? '📶' : m ? '⚡' : '';
+            const _mColor = m => m === 'SMS' ? '#8b5cf6' : m === 'Интернет' ? '#0ea5e9' : '#94a3b8';
+            const _srcBadge = s => s ? `<span style="background:#f1f5f9;color:#475569;border-radius:4px;padding:1px 5px;font-size:0.68rem;font-weight:700;">${s}</span>` : '';
+
             // Кем ВКЛ: для pure-off записей поле user = кто выключил, не кто включил
-            const onUser  = isPureOff ? '—' : getUserAlias(ev.user || '');
-            const onMethod = isPureOff ? '' : (ev.method || '');
+            const onUser    = isPureOff ? '—' : getUserAlias(ev.user || '');
+            const onMethod  = isPureOff ? '' : (ev.method || '');
+            const onSource  = isPureOff ? '' : (ev.source || '');
 
             // Кем ВЫКЛ: если есть offUser — берём его; иначе для pure-off берём user
             const rawOffUser = ev.offUser || (isPureOff ? ev.user : '');
-            const offUser  = isActive ? '' : (rawOffUser ? getUserAlias(rawOffUser) : '—');
+            const offUser   = isActive ? '' : (rawOffUser ? getUserAlias(rawOffUser) : '—');
             const offMethod = isActive ? '' : (ev.offMethod || (!isPureOff ? '' : (ev.method || '')));
+            const offSource = isActive ? '' : (ev.offSource || (!isPureOff ? '' : (ev.source || '')));
 
 
             let statusBadge;
@@ -12438,8 +12456,16 @@ ${_buildSoundUI(s)}
                 <td style="color:#22c55e;font-size:0.82rem;">${fmt(ev.onTs)}</td>
                 ${offCell}
                 <td style="text-align:center;">${durStr}</td>
-                <td style="font-size:0.78rem;"><div style="color:#3b82f6;">${onUser}</div><div style="color:#94a3b8;">${onMethod}</div></td>
-                <td style="font-size:0.78rem;"><div style="color:#ef4444;">${offUser}</div><div style="color:#94a3b8;">${offMethod}</div></td>
+                <td style="font-size:0.78rem;line-height:1.4;">
+                    <div style="color:#3b82f6;font-weight:700;">${onUser}</div>
+                    ${onMethod ? `<div style="color:${_mColor(onMethod)};font-weight:700;">${_mIcon(onMethod)} ${onMethod}</div>` : ''}
+                    ${_srcBadge(onSource)}
+                </td>
+                <td style="font-size:0.78rem;line-height:1.4;">
+                    ${offUser ? `<div style="color:#ef4444;font-weight:700;">${offUser}</div>` : ''}
+                    ${offMethod ? `<div style="color:${_mColor(offMethod)};font-weight:700;">${_mIcon(offMethod)} ${offMethod}</div>` : ''}
+                    ${_srcBadge(offSource)}
+                </td>
                 <td>${statusBadge}</td>
                 <td><button class="btn btn-sm btn-danger" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();deleteRelayRow(${device.id},${ev.id || ev.onTs || ev.offTs})"><i class="fas fa-trash"></i></button></td>`;
             tbody.appendChild(tr);
@@ -12619,13 +12645,14 @@ ${_buildSoundUI(s)}
         return true;
     }
 
-    function sendSmartCommandSilent(deviceId, commandType) {
+    function sendSmartCommandSilent(deviceId, commandType, _source) {
         deviceId = parseInt(deviceId);
         const device = db.fleet.find(d => d.id === deviceId);
         if (!device) return;
         const timestamp = new Date().toLocaleString('ru-RU');
         const userName = window.currentUserEmail || 'Авто';
         const isOn = commandType.includes('_on');
+        const _src = _source || 'Авто';
         let method = '';
         let success = false;
 
@@ -12656,18 +12683,19 @@ ${_buildSoundUI(s)}
             const isInRental = db.rentals.some(r => r.vId === device.id);
             const minLogEnabled = !!(db.autoSettings?.relayMinLogEnabled);
             const minLogMin = minLogEnabled ? ((db.autoSettings?.relayMinLogMin) || 3) : 0;
+            const _methodLabel = method === 'SMS' ? 'SMS' : 'Интернет';
             if (isOn) {
-                device.relayLog.push({ id: nowTs, onTs: nowTs, offTs: null, user: userName, method, durationMin: null, duringRental: isInRental });
+                device.relayLog.push({ id: nowTs, onTs: nowTs, offTs: null, user: userName, method: _methodLabel, source: _src, durationMin: null, duringRental: isInRental });
             } else {
                 const lastOn = [...device.relayLog].reverse().find(r => r.offTs === null);
                 if (lastOn) {
                     lastOn.offTs = nowTs;
                     lastOn.durationMin = Math.round((nowTs - lastOn.onTs) / 60000);
-                    lastOn.offUser = userName; lastOn.offMethod = method;
+                    lastOn.offUser = userName; lastOn.offMethod = _methodLabel; lastOn.offSource = _src;
                     if (minLogMin > 0 && lastOn.durationMin < minLogMin) {
                         device.relayLog = device.relayLog.filter(r => r !== lastOn);
                     }
-                } else { device.relayLog.push({ id: nowTs, onTs: null, offTs: nowTs, user: userName, method, durationMin: null, duringRental: isInRental }); }
+                } else { device.relayLog.push({ id: nowTs, onTs: null, offTs: nowTs, user: userName, method: _methodLabel, source: _src, durationMin: null, duringRental: isInRental }); }
             }
             if (device.relayLog.length > 300) device.relayLog = device.relayLog.slice(-300);
             save();
@@ -12725,17 +12753,19 @@ ${_buildSoundUI(s)}
             }
 
             setTimeout(() => {
-                completeCommand(device, commandType, method, timestamp, userName, true);
+                completeCommand(device, commandType, method, timestamp, userName, true, 'Вручную');
             }, 100);
             return;
         }
 
         // Обработка результатов для SMS
-        completeCommand(device, commandType, method, timestamp, userName, successCount > 0);
+        completeCommand(device, commandType, method, timestamp, userName, successCount > 0, 'Вручную');
     };
 
-    function completeCommand(device, commandType, method, timestamp, userName, success) {
+    function completeCommand(device, commandType, method, timestamp, userName, success, _source) {
         const isOn = commandType.includes('_on');
+        const _src = _source || 'Вручную';
+        method = method === 'API' ? 'Интернет' : method; // переименовываем для читаемости
         
         if (success) {
             // Обновляем статус устройства
@@ -12765,7 +12795,7 @@ ${_buildSoundUI(s)}
             if (isOn) {
                 device.relayLog.push({
                     id: nowTs, onTs: nowTs, offTs: null,
-                    user: userName, method: method, durationMin: null,
+                    user: userName, method: method, source: _src, durationMin: null,
                     duringRental: isInRental
                 });
             } else {
@@ -12774,7 +12804,7 @@ ${_buildSoundUI(s)}
                     lastOn.offTs = nowTs;
                     lastOn.durationMin = Math.round((nowTs - lastOn.onTs) / 60000);
                     lastOn.offUser = userName;
-                    lastOn.offMethod = method;
+                    lastOn.offMethod = method; lastOn.offSource = _src;
                     // Удаляем запись если короче минимума
                     if (minLogMin > 0 && lastOn.durationMin < minLogMin) {
                         device.relayLog = device.relayLog.filter(r => r !== lastOn);
@@ -14220,7 +14250,7 @@ ${_buildSoundUI(s)}
   //    иначе пустой локальный db затирает облачные данные.
   // 🏷 Версия сборки. УВЕЛИЧИВАЙТЕ при выпуске новой версии HTML —
   //    тогда старые версии НЕ смогут перезаписать облако новее себя.
-  const APP_BUILD_VERSION = 20260504003;
+  const APP_BUILD_VERSION = 20260504005;
   window.APP_BUILD_VERSION = APP_BUILD_VERSION;
 
   // 🚨 Глобальный флаг блокировки записи (выставляется если в облаке более новая версия)
